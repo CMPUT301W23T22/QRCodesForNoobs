@@ -1,0 +1,49 @@
+««« MAIN DESCRIPTION »»»
+	...
+
+««« SCENARIO »»»
+	...
+
+««« PARTIAL USER STORIES »»»
+PLAYER (p)
+|	• ADD new QR code to acc
+|	• REMOVE QR code p added to acc
+|	• SEE QR code p added to acc
+|	• SEE p highest/lowest score QR code
+|	• SEE sum scores of p scanned QR code
+|	• SEE total # QR code p scanned
+|	• SEE other player's acc
+|	
+|	QR CODES (QR)
+|		• SCAN & RECORD photo of LOCATION/OBJECT, and GEOLOCATION of LOCATION/OBJECT
+|		• COMMENT on QR code
+|		• BROWSE QR code of other players scanned
+|		• SEE other players scanned same QR code
+|		• QR code have UNIQUE, HUMAN, READABLE name
+|		• SEE visual representation of a QR code relatively unique to that QR code (?)
+|		
+|	PROFILE
+|		• unique username
+|		• contact info
+|		• device should identify player, do not want to login using username/pass
+|
+|	SEARCH
+|		• SEARCH other player by username
+|		• SEARCH nearby QR using GEOLOCATION
+|	
+|	LOCATION
+|		• SEE map of GEOLOCATIONS of nearby QR code
+|	
+|	SCORING
+|		• SEE game-wide highscores of ALL players
+|		• ESTIMATE p ranking for highest scoring unique QR code
+| 
+|	PRIVACY
+|		• do not record actual QR code
+|		• option to decline recording GEOLOCATION
+
+OWNER
+	• do not store big images online
+___________________________________________________________________________________________________
+««« PROPOSED SCORING SYSTEM »»»
+	...
