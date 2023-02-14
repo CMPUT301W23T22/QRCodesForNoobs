@@ -13,7 +13,7 @@
         android:theme="@style/Theme.QRCodesForNoobs"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".SignIn"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +24,20 @@
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
+        </activity>
+        <activity android:name=".Dashboard">
+        </activity>
+        <activity android:name=".Settings">
+        </activity>
+        <activity android:name=".Profile">
+        </activity>
+        <activity android:name=".Map">
+        </activity>
+        <activity android:name=".Leaderboard">
+        </activity>
+        <activity android:name=".Camera">
+        </activity>
+        <activity android:name=".Search">
         </activity>
     </application>
 
