@@ -25,6 +25,20 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity android:name=".Dashboard">
+        </activity>
+        <activity android:name=".Settings">
+        </activity>
+        <activity android:name=".Profile">
+        </activity>
+        <activity android:name=".Map">
+        </activity>
+        <activity android:name=".Leaderboard">
+        </activity>
+        <activity android:name=".Camera">
+        </activity>
+        <activity android:name=".Search">
+        </activity>
     </application>
 
 </manifest>
