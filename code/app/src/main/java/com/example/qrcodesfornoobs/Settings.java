@@ -10,21 +10,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class Settings extends AppCompatActivity {
     Button backButton;
+    private Intent dashboardIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
+        dashboardIntent = new Intent(this, Dashboard.class);
         addListenerOnButtons();
     }
 
-    public void addListenerOnButtons(){
-        final Context context = this;
+    private void addListenerOnButtons() {
         backButton = (Button) findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context,Dashboard.class);
-                startActivity(intent);
+                startActivity(dashboardIntent);
             }
         });
     }

@@ -1,6 +1,5 @@
 package com.example.qrcodesfornoobs;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,23 +16,34 @@ public class Dashboard extends AppCompatActivity {
     Button leaderboardButton;
     Button cameraButton;
     Button homeButton;
+    private Intent profileIntent;
+    private Intent settingsIntent;
+    private Intent searchIntent;
+    private Intent mapIntent;
+    private Intent leaderboardIntent;
+    private Intent cameraIntent;
+    private Intent dashboardIntent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
+        profileIntent = new Intent(this, Profile.class);
+        settingsIntent = new Intent(this, Settings.class);
+        searchIntent = new Intent(this, Search.class);
+        mapIntent = new Intent(this, Map.class);
+        leaderboardIntent = new Intent(this, Leaderboard.class);
+        cameraIntent = new Intent(this, Camera.class);
+        dashboardIntent = new Intent(this, Dashboard.class);
         addListenerOnButtons();
     }
 
-    public void addListenerOnButtons() {
-        final Context context = this;
-
+    private void addListenerOnButtons() {
         profileButton = (Button) findViewById(R.id.profile_button);
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Profile.class);
-                startActivity(intent);
+                startActivity(profileIntent);
             }
         });
 
@@ -41,17 +51,15 @@ public class Dashboard extends AppCompatActivity {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Settings.class);
-                startActivity(intent);
+                startActivity(settingsIntent);
             }
         });
 
-        homeButton = (Button) findViewById(R.id.home_button);
+        homeButton = (Button) findViewById(R.id.dashboard_button);
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Dashboard.class);
-                startActivity(intent);
+                startActivity(dashboardIntent);
             }
         });
 
@@ -59,32 +67,31 @@ public class Dashboard extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Search.class);
-                startActivity(intent);
+                startActivity(searchIntent);
             }
         });
+
         cameraButton = (Button) findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Camera.class);
-                startActivity(intent);
+                startActivity(cameraIntent);
             }
         });
+
         leaderboardButton = (Button) findViewById(R.id.leaderboard_button);
         leaderboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Leaderboard.class);
-                startActivity(intent);
+                startActivity(leaderboardIntent);
             }
         });
+
         mapButton = (Button) findViewById(R.id.map_button);
         mapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, Map.class);
-                startActivity(intent);
+                startActivity(mapIntent);
             }
         });
     }
