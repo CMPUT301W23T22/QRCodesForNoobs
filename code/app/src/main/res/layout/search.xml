@@ -4,17 +4,64 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".Search">
 
+<!--TITLE -->
+
+    <!--TITLE END-->
+
+
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/search_text_SEARCH"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Search Screen"
+        android:layout_marginStart="10dp"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="10sp"
+        android:text="SEARCH"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/all_white"
+        android:textSize="48sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.139"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.155" />
+
+    <TextView
+        android:id="@+id/search_text_SEARCH2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="10sp"
+        android:text="by"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/all_white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.618"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.181" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="280dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="41dp"
+        android:background="@color/all_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_text_SEARCH" />
 
     <Button
         android:id="@+id/back_button"
@@ -23,5 +70,47 @@
         android:text="Back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+<!--Drop Down for Location/User -->
+    <!--END Drop Down for Location/User -->
+<!--    SearchView-->
+
+    <SearchView
+        android:id="@+id/searchView"
+        android:layout_width="330dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="444dp"
+        android:background="@drawable/bg_white_rounded"
+        android:fadingEdge="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button_search_user"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="10dp"
+        android:text="Username"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view" />
+
+    <Button
+        android:id="@+id/button_search_user2"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="42dp"
+        android:text="Location"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/button_search_user"
+        app:layout_constraintTop_toBottomOf="@+id/search_text_SEARCH" />
+
+    <!--END SearchView-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
