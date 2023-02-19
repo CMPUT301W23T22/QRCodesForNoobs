@@ -35,6 +35,18 @@ public class Dashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
+        profileIntent = new Intent(this, Profile.class);
+        settingsIntent = new Intent(this, Settings.class);
+        searchIntent = new Intent(this, Search.class);
+        mapIntent = new Intent(this, Map.class);
+        leaderboardIntent = new Intent(this, Leaderboard.class);
+        cameraIntent = new Intent(this, Camera.class);
+        dashboardIntent = new Intent(this, Dashboard.class);
+        addListenerOnButtons();
+        setUpSliders();
+    }
+
+    private void setUpSliders() {
         String test_url1 = "https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200-1.png";
         String test_url2 = "https://bizzbucket.co/wp-content/uploads/2020/08/Life-in-The-Metro-Blog-Title-22.png";
 
@@ -45,15 +57,6 @@ public class Dashboard extends AppCompatActivity {
 
         CodeSliderAdapter adapter = new CodeSliderAdapter(this, codeURLs);
         codeSliderView.setSliderAdapter(adapter);
-
-        profileIntent = new Intent(this, Profile.class);
-        settingsIntent = new Intent(this, Settings.class);
-        searchIntent = new Intent(this, Search.class);
-        mapIntent = new Intent(this, Map.class);
-        leaderboardIntent = new Intent(this, Leaderboard.class);
-        cameraIntent = new Intent(this, Camera.class);
-        dashboardIntent = new Intent(this, Dashboard.class);
-        addListenerOnButtons();
     }
 
 
