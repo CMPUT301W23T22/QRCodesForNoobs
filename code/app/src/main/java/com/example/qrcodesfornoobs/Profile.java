@@ -32,22 +32,24 @@ public class Profile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile);
-
         dataList = new ArrayList<>();
+
+        // Temporary
+        // Fill datalist with values
         dataList.add("NAME 1");
         dataList.add("NAME 2");
+        // Initialize buttons and spinners
         initWidgets();
 
-        ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
-                R.array.filter_options, android.R.layout.simple_spinner_item);
-        spinAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        sortListSpinner.setAdapter(spinAdapter);
-        dataAdapter = new CodeArrayAdapter(this, dataList);
+        // Initialize data adapter and set it to listview
+        dataAdapter = new CodeArrayAdapter(this, dataList, getSupportFragmentManager());
         listView.setAdapter(dataAdapter);
 
         dashboardIntent = new Intent(this, Dashboard.class);
 
+        // Initialize button listeners
         addListenerOnButtons();
+
     }
     private void initWidgets(){
         backButton = findViewById(R.id.back_button);
@@ -58,10 +60,15 @@ public class Profile extends AppCompatActivity {
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         listView = findViewById(R.id.list_view);
+
+        // Initialize spinner data
+        ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
+                R.array.filter_options, android.R.layout.simple_spinner_item);
+        spinAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        sortListSpinner.setAdapter(spinAdapter);
     }
 
     private void addListenerOnButtons() {
-
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,6 +78,7 @@ public class Profile extends AppCompatActivity {
         toggleFilterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Hide and show the filter bar
                 if (filterBar.getVisibility() == View.VISIBLE){
                     filterBar.setVisibility(View.GONE);
                 } else {
@@ -80,6 +88,8 @@ public class Profile extends AppCompatActivity {
         toggleListViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Hide and show the listview
+                // (Toggle between sliding view and listview)
                 if (listView.getVisibility() == View.VISIBLE){
                     toggleListViewButton.setImageResource(R.drawable.face_icon);
                     listView.setVisibility(View.GONE);
@@ -89,6 +99,7 @@ public class Profile extends AppCompatActivity {
                 }
             }
         });
+
 
     }
 }

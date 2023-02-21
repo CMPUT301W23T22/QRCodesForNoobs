@@ -6,14 +6,15 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#121112"
     tools:context=".Profile">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="192dp"
-        android:background="#d1d1d1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#595759">
 
         <Button
             android:id="@+id/back_button"
@@ -21,6 +22,7 @@
             android:layout_height="38dp"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
+            android:backgroundTint="#FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,9 +31,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
-            android:text="Player Name"
+            android:fontFamily="sans-serif"
+            android:textColor="#FFFFFF"
             android:textAlignment="center"
             android:textSize="20sp"
+            android:text="Player Name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.455"
             app:layout_constraintStart_toEndOf="@+id/profile_avatar_view"
@@ -41,8 +45,9 @@
             android:id="@+id/profile_playerpoints_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="# Points"
+            android:textColor="#FFFFFF"
             android:textAlignment="center"
+            android:text="# Points"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.444"
             app:layout_constraintStart_toEndOf="@+id/profile_avatar_view"
@@ -52,8 +57,9 @@
             android:id="@+id/profile_playercodecount_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="# Codes Scanned"
+            android:textColor="#FFFFFF"
             android:textAlignment="center"
+            android:text="# Codes Scanned"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.444"
             app:layout_constraintStart_toEndOf="@+id/profile_avatar_view"
@@ -63,8 +69,9 @@
             android:id="@+id/profile_playercontact_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Contact Info"
+            android:textColor="#FFFFFF"
             android:textAlignment="center"
+            android:text="Contact Info"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.468"
@@ -77,6 +84,7 @@
             android:layout_width="125dp"
             android:layout_height="140dp"
             android:layout_marginStart="16dp"
+            android:textColor="#FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/back_button"
@@ -93,8 +101,10 @@
 
         <ImageButton
             android:id="@+id/toggle_filterbar_button"
-            android:layout_width="40dp"
+            android:layout_width="51dp"
             android:layout_height="48dp"
+            android:backgroundTint="#595759"
+            android:scaleType="fitXY"
             android:src="@drawable/filter_icon"
             tools:layout_editor_absoluteY="1dp" />
 
@@ -108,19 +118,25 @@
             <ImageButton
                 android:id="@+id/toggle_listview_button"
                 android:layout_width="51dp"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:backgroundTint="#595759"
+                android:scaleType="fitXY"
+                android:src="@drawable/menu_icon"/>
 
             <Spinner
                 android:id="@+id/sort_list_spinner"
-                android:layout_width="270dp"
+                android:layout_width="261dp"
                 android:layout_height="match_parent"
-                android:spinnerMode="dropdown" />
+                android:spinnerMode="dropdown"
+                android:backgroundTint="#595759"/>
 
             <ImageButton
                 android:id="@+id/sort_listview_button"
                 android:layout_width="49dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/sort_icon" />
+                android:backgroundTint="#595759"
+                android:scaleType="fitXY"
+                android:src="@drawable/sort_icon"/>
 
         </LinearLayout>
 
@@ -132,7 +148,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#121112">
 
         <ListView
             android:id="@+id/list_view"
