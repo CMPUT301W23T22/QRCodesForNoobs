@@ -42,6 +42,12 @@
         </activity>
         <activity android:name=".Search">
         </activity>
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="android:screenOrientation"
+            android:stateNotNeeded="true"/> <!-- make sure scanner is in portrait mode-->
+
     </application>
 
 </manifest>
