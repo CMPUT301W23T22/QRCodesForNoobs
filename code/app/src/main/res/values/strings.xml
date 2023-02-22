@@ -2,4 +2,9 @@
     <string name="app_name">QRCodesForNoobs</string>
     <string name="welcome_text">Welcome</string>
     <string name="sign_in_text">Sign In</string>
+    <string name="qreature">Qreature</string>
+    <string-array name="filter_options">
+        <item>SCORE</item>
+        <item>RECENT</item>
+    </string-array>
 </resources>
