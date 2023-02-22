@@ -14,7 +14,6 @@ import com.example.qrcodesfornoobs.databinding.DashboardBinding;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.smarteist.autoimageslider.SliderView;
 
 import java.util.ArrayList;
 
