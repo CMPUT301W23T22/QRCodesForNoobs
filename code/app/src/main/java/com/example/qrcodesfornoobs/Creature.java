@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- *
+ * Represents a creature derived from a string
  */
 public class Creature {
     private String name;
