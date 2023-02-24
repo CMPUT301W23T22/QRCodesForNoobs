@@ -12,6 +12,7 @@ import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Profile extends AppCompatActivity {
@@ -25,8 +26,8 @@ public class Profile extends AppCompatActivity {
     LinearLayout filterBar;
     private Intent dashboardIntent;
 
-    private ArrayList<String> dataList;
-    private ArrayAdapter<String> dataAdapter;
+    private ArrayList<Creature> dataList;
+    private ArrayAdapter<Creature> dataAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +37,13 @@ public class Profile extends AppCompatActivity {
 
         // Temporary
         // Fill datalist with values
-        dataList.add("NAME 1");
-        dataList.add("NAME 2");
+        try {
+            dataList.add(new Creature("BFG5DGW54"));
+            dataList.add(new Creature("JG82AS2B9"));
+            dataList.add(new Creature("ML492SFJ2"));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
         // Initialize buttons and spinners
         initWidgets();
 
@@ -51,22 +57,7 @@ public class Profile extends AppCompatActivity {
         addListenerOnButtons();
 
     }
-    private void initWidgets(){
-        backButton = findViewById(R.id.back_button);
-        backButton.setBackgroundResource(R.drawable.back_arrow);
-        toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
-        toggleListViewButton = findViewById(R.id.toggle_listview_button);
-        toggleSortButton = findViewById(R.id.sort_listview_button);
-        filterBar = findViewById(R.id.filterbar);
-        sortListSpinner = findViewById(R.id.sort_list_spinner);
-        listView = findViewById(R.id.list_view);
 
-        // Initialize spinner data
-        ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
-                R.array.filter_options, android.R.layout.simple_spinner_item);
-        spinAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        sortListSpinner.setAdapter(spinAdapter);
-    }
 
     private void addListenerOnButtons() {
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -102,4 +93,21 @@ public class Profile extends AppCompatActivity {
 
 
     }
+    private void initWidgets(){
+        backButton = findViewById(R.id.back_button);
+        backButton.setBackgroundResource(R.drawable.back_arrow);
+        toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
+        toggleListViewButton = findViewById(R.id.toggle_listview_button);
+        toggleSortButton = findViewById(R.id.sort_listview_button);
+        filterBar = findViewById(R.id.filterbar);
+        sortListSpinner = findViewById(R.id.sort_list_spinner);
+        listView = findViewById(R.id.list_view);
+
+        // Initialize spinner data
+        ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
+                R.array.filter_options, android.R.layout.simple_spinner_item);
+        spinAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        sortListSpinner.setAdapter(spinAdapter);
+    }
+
 }
