@@ -12,7 +12,7 @@
         android:id="@+id/sign_in_button"
         android:layout_width="145dp"
         android:layout_height="53dp"
-        android:backgroundTint="@color/buttonWhite"
+        android:backgroundTint="@color/all_white"
         android:text="@string/sign_in_text"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -24,11 +24,11 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="130dp"
+        android:layout_width="142dp"
         android:layout_height="37dp"
         android:layout_marginTop="4dp"
         android:text="@string/qreature"
-        android:textColor="@color/buttonWhite"
+        android:textColor="@color/all_white"
         android:textSize="34sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
