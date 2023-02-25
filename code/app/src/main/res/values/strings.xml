@@ -8,5 +8,9 @@
     <string name="rank_text">Rank</string>
     <string name="player_text">Player</string>
     <string name="score_text">Score</string>
-
+    <string name="qreature">QReature</string>
+    <string-array name="filter_options">
+        <item>SCORE</item>
+        <item>RECENT</item>
+    </string-array>
 </resources>
