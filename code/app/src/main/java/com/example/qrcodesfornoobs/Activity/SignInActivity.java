@@ -1,4 +1,4 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,15 +7,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class SignIn extends AppCompatActivity {
+import com.example.qrcodesfornoobs.R;
+
+public class SignInActivity extends AppCompatActivity {
     Button signInButton;
-    private Intent dashboardIntent;
+    private Intent mainIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.signin);
-        dashboardIntent = new Intent(this, Dashboard.class);
+        setContentView(R.layout.activity_signin);
+        mainIntent = new Intent(this, MainActivity.class);
         addListenerOnButtons();
     }
 
@@ -24,7 +26,7 @@ public class SignIn extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(dashboardIntent);
+                startActivity(mainIntent);
             }
         });
     }
