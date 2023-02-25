@@ -13,7 +13,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Fragment.DashboardFragment;
+import com.example.qrcodesfornoobs.Fragment.LeaderboardFragment;
 import com.example.qrcodesfornoobs.Fragment.MapFragment;
+import com.example.qrcodesfornoobs.Fragment.SearchFragment;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationBarView;
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         dashboardFragment = new DashboardFragment();
         mapFragment = new MapFragment();
+        leaderboardFragment = new LeaderboardFragment();
+        searchFragment = new SearchFragment();
 
         cameraIntentIntegrator = new IntentIntegrator(this);
         cameraIntentIntegrator.setPrompt("Scan a barcode or QR Code");
@@ -55,13 +59,11 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("home");
                     replaceFragment(dashboardFragment);
                 } else if (item.getItemId() == R.id.search) {
-                    replaceFragment(dashboardFragment);
-//                    startActivity(searchIntent);
+                    replaceFragment(searchFragment);
                 } else if (item.getItemId() == R.id.camera) {
                     cameraIntentIntegrator.initiateScan();
                 } else if (item.getItemId() == R.id.leaderboard) {
-                    replaceFragment(new DashboardFragment());
-//                    startActivity(leaderboardIntent);
+                    replaceFragment(leaderboardFragment);
                 } else if (item.getItemId() == R.id.map) {
                     replaceFragment(mapFragment);
                 }
