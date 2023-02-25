@@ -4,23 +4,32 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.qrcodesfornoobs.Dashboard;
-import com.example.qrcodesfornoobs.searchUser;
-
 import java.util.ArrayList;
+
 
 public class Search extends AppCompatActivity {
     Button backButton;
     private Intent dashboardIntent;
 
-    private ArrayList<searchUser> usersList;
+    private RadioGroup radioGroup;
+    private RadioButton radioButton;
+    private int selectRadioId;
+
+    private SearchView searchView;
     private RecyclerView recyclerView;
+    private ArrayList<SearchUser> arrayList = new ArrayList<>();
+    private ArrayList<SearchUser> searchList;
+    String[] userList = new String[]{"Dog","Cat","Bird"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,27 +38,102 @@ public class Search extends AppCompatActivity {
         dashboardIntent = new Intent(this, Dashboard.class);
         addListenerOnButtons();
 
-        recyclerView = findViewById(R.id.searchRecyclerView);
-        usersList = new ArrayList<>();
+        // Radio
+        //radioGroup = findViewById(R.id.radioGroup);
 
-        setUserInfo();
-        setAdapter();
 
-    }
+        // List
+        recyclerView = findViewById(R.id.recyclerView);
+        searchView = findViewById(R.id.searchView);
+        searchView.setIconified(false);
+        searchView.clearFocus();
 
-    private void setAdapter() {
-        recyclerAdapter adapter = new recyclerAdapter(usersList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        // adding samples
+        for (int i = 0; i < userList.length; i++){
+            SearchUser searchUser = new SearchUser();
+            searchUser.setUsername(userList[i]);
+            arrayList.add(searchUser);
+        }
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Search.this);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
+
+        SearchUserAdapter searchUserAdapter = new SearchUserAdapter(Search.this, arrayList);
+        recyclerView.setAdapter(searchUserAdapter);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchList = new ArrayList<>();
+
+                if(query.length() > 0){
+                    for(int i = 0; i < arrayList.size(); i++){
+                        if(arrayList.get(i).getUsername().toUpperCase().contains(query.toUpperCase()) || arrayList.get(i).getUsername().toUpperCase().contains(query.toUpperCase())){
+                            SearchUser searchUser = new SearchUser();
+                            searchUser.setUsername(arrayList.get(i).getUsername());
+                            searchList.add(searchUser);
+                        }
+                    }
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Search.this);
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(Search.this, searchList);
+                    recyclerView.setAdapter(searchUserAdapter);
+                }
+                else{
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Search.this);
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(Search.this, arrayList);
+                    recyclerView.setAdapter(searchUserAdapter);
+
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchList = new ArrayList<>();
+
+                if(newText.length() > 0){
+                    for(int i = 0; i < arrayList.size(); i++){
+                        if(arrayList.get(i).getUsername().toUpperCase().contains(newText.toUpperCase()) || arrayList.get(i).getUsername().toUpperCase().contains(newText.toUpperCase())){
+                            SearchUser searchUser = new SearchUser();
+                            searchUser.setUsername(arrayList.get(i).getUsername());
+                            searchList.add(searchUser);
+                        }
+                    }
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Search.this);
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(Search.this, searchList);
+                    recyclerView.setAdapter(searchUserAdapter);
+                }
+                else{
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Search.this);
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(Search.this, arrayList);
+                    recyclerView.setAdapter(searchUserAdapter);
+
+                }
+                return false;
+            }
+        });
     }
 
-    private void setUserInfo() {
-        usersList.add(new searchUser("Dog"));
-        usersList.add(new searchUser("Dog2"));
-        usersList.add(new searchUser("Dog3"));
+
+    public void onClickRadio(View view){
+        selectRadioId = radioGroup.getCheckedRadioButtonId();
+        radioButton = findViewById(selectRadioId);
+        if(selectRadioId == 1){
+            Toast.makeText(Search.this, "Selected", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(Search.this, radioButton.getText(), Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     private void addListenerOnButtons() {
         backButton = (Button) findViewById(R.id.back_button);

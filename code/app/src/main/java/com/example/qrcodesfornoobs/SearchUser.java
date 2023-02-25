@@ -1,12 +1,7 @@
 package com.example.qrcodesfornoobs;
 
-public class searchUser {
-
+public class SearchUser {
     private String username;
-
-    public searchUser(String username) {
-        this.username = username;
-    }
 
     public String getUsername() {
         return username;
@@ -16,5 +11,4 @@ public class searchUser {
         this.username = username;
     }
 }
-
 

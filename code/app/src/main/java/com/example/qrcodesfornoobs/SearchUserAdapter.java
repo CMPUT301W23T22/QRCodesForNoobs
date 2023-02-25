@@ -1,5 +1,6 @@
 package com.example.qrcodesfornoobs;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,42 +9,46 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.qrcodesfornoobs.searchUser;
-
 import java.util.ArrayList;
 
-public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.MyViewHolder> {
-    private ArrayList<searchUser> usersList;
 
-    public recyclerAdapter(ArrayList<searchUser> usersList){
-        this.usersList = usersList;
-    }
+public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserAdapter.MyHolder>{
 
-    public class MyViewHolder extends RecyclerView.ViewHolder{
-        private TextView nameText;
+    Context context;
+    ArrayList<SearchUser> arrayList;
+    LayoutInflater layoutInflater;
 
-        public MyViewHolder(final View view){
-            super(view);
-            nameText = view.findViewById(R.id.user_text);
-        }
+    public SearchUserAdapter(Context context, ArrayList<SearchUser> arrayList) {
+        this.context = context;
+        this.arrayList = arrayList;
+        layoutInflater = layoutInflater.from(context);
     }
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.search_list_item, parent, false);
-        return new MyViewHolder(itemView);
+    public SearchUserAdapter.MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = layoutInflater.inflate(R.layout.search_item, parent, false);
+        return new MyHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        String name = usersList.get(position).getUsername();
-        holder.nameText.setText(name);
+    public void onBindViewHolder(@NonNull SearchUserAdapter.MyHolder holder, int position) {
+        holder.userName.setText(arrayList.get(position).getUsername());
+
 
     }
 
     @Override
     public int getItemCount() {
-        return usersList.size();
+        return arrayList.size();
+    }
+
+    public class MyHolder extends RecyclerView.ViewHolder {
+        TextView userName;
+        public MyHolder(@NonNull View itemView) {
+            super(itemView);
+            userName = itemView.findViewById(R.id.txt);
+
+        }
     }
 }
