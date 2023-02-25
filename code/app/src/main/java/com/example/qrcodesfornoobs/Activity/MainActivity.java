@@ -14,9 +14,7 @@ import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Fragment.DashboardFragment;
 import com.example.qrcodesfornoobs.Fragment.MapFragment;
-import com.example.qrcodesfornoobs.Profile;
 import com.example.qrcodesfornoobs.R;
-import com.example.qrcodesfornoobs.Settings;
 import com.example.qrcodesfornoobs.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.zxing.integration.android.IntentIntegrator;

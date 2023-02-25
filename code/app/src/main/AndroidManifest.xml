@@ -30,7 +30,7 @@
         </activity>
         <activity android:name=".Activity.MainActivity"></activity>
         <activity android:name=".Dashboard"></activity>
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".Activity.SettingsActivity"></activity>
         <activity android:name=".Profile"></activity>
         <activity android:name=".Leaderboard"></activity>
         <activity android:name=".Search"></activity>
