@@ -9,9 +9,11 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.qrcodesfornoobs.R;
+import com.example.qrcodesfornoobs.databinding.ActivitySigninBinding;
 
 public class SignInActivity extends AppCompatActivity {
     public static final String SHARED_PREF_NAME = "SignInPreference";
+    ActivitySigninBinding binding;
     Button signInButton;
     private Intent mainIntent;
 
@@ -24,16 +26,18 @@ public class SignInActivity extends AppCompatActivity {
             return;
         }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signin);
+        binding = ActivitySigninBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         addListenerOnButtons();
+
+        binding.usernameEditText.requestFocus();
     }
 
     private void addListenerOnButtons() {
-        signInButton = (Button) findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener(new View.OnClickListener() {
+        binding.signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                login("hello");
+                login(binding.usernameEditText.getText().toString());
             }
         });
     }
