@@ -38,16 +38,19 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        initializeFragments();
+
+        addListenerOnButtons();
+        replaceFragment(dashboardFragment);
+    }
+
+    private void initializeFragments() {
         dashboardFragment = new DashboardFragment();
         mapFragment = new MapFragment();
         leaderboardFragment = new LeaderboardFragment();
         searchFragment = new SearchFragment();
-
         cameraIntentIntegrator = new IntentIntegrator(this);
         cameraIntentIntegrator.setPrompt("Scan a barcode or QR Code");
-
-        addListenerOnButtons();
-        replaceFragment(dashboardFragment);
     }
 
     private void addListenerOnButtons() {
