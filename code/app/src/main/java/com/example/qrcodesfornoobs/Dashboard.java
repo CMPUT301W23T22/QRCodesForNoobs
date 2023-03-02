@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.qrcodesfornoobs.Activity.SettingsActivity;
+import com.example.qrcodesfornoobs.Adapter.CodeSliderAdapter;
 import com.example.qrcodesfornoobs.databinding.DashboardBinding;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -24,7 +26,6 @@ public class Dashboard extends AppCompatActivity {
     private Intent profileIntent;
     private Intent settingsIntent;
     private Intent searchIntent;
-    private Intent mapIntent;
     private Intent leaderboardIntent;
     private Intent dashboardIntent;
     private IntentIntegrator cameraIntentIntegrator;
@@ -37,9 +38,8 @@ public class Dashboard extends AppCompatActivity {
 //        setContentView(R.layout.dashboard);
 
         profileIntent = new Intent(this, Profile.class);
-        settingsIntent = new Intent(this, Settings.class);
+        settingsIntent = new Intent(this, SettingsActivity.class);
         searchIntent = new Intent(this, Search.class);
-        mapIntent = new Intent(this, Map.class);
         leaderboardIntent = new Intent(this, Leaderboard.class);
         dashboardIntent = new Intent(this, Dashboard.class);
         cameraIntentIntegrator = new IntentIntegrator(Dashboard.this);
@@ -88,7 +88,7 @@ public class Dashboard extends AppCompatActivity {
                 } else if (item.getItemId() == R.id.leaderboard) {
                     startActivity(leaderboardIntent);
                 } else if (item.getItemId() == R.id.map) {
-                    startActivity(mapIntent);
+//                    startActivity(mapIntent);
                 }
                 return true;
             }
