@@ -121,7 +121,7 @@
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/toggle_listview_button"
+                    android:id="@+id/toggle_recyclerView_button"
                     android:layout_width="51dp"
                     android:layout_height="match_parent"
                     android:backgroundTint="#595759"
@@ -156,11 +156,12 @@
             android:orientation="vertical"
             android:background="#121112">
 
-            <ListView
-                android:id="@+id/list_view"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone" />
+                android:visibility="gone"/>
+
 
         </LinearLayout>
 
