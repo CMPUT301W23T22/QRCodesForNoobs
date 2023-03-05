@@ -19,6 +19,7 @@ public class Creature {
     private int score;
     private Image photo;
     private Location location;
+    private Image photoLocation;
     private ArrayList<String> comments = new ArrayList<>();
 
     /**
@@ -82,29 +83,29 @@ public class Creature {
     public String getHash() {
         return hash;
     }
-
     public String getName() {
         return name;
     }
-
     public int getScore() {
         return score;
     }
-
     public Image getPhoto() {
         return photo;
     }
-
+    public Image getPhotoLocation() {
+        return photoLocation;
+    }
     public Location getLocation() {
         return location;
     }
-
     public void setPhoto(Image photo) {
         this.photo = photo;
     }
-
     public void setLocation(Location location) {
         this.location = location;
+    }
+    public void setPhotoLocation(Image photoLocation) {
+        this.photoLocation = photoLocation;
     }
     public void addComment(String comment){
         comments.add(comment);
@@ -112,4 +113,5 @@ public class Creature {
     public void removeComment(String comment){
         comments.remove(comment);
     }
+    public ArrayList<String> getComments() {return comments;}
 }
