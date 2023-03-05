@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 
 public class Search extends AppCompatActivity {
-    Button backButton;
+    private Button backButton;
     private Intent dashboardIntent;
 
     private RadioGroup radioGroup;

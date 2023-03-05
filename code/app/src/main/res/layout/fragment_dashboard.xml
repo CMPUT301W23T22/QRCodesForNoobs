@@ -8,7 +8,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/background">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
@@ -25,6 +26,7 @@
                 android:layout_width="50sp"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_baseline_person_40"
+                android:background="@color/background"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -37,12 +39,14 @@
                 android:gravity="fill"
                 android:text="Profile_name123456"
                 android:textSize="20sp"
+                android:textColor="@color/all_white"
                 app:layout_constraintBottom_toBottomOf="@+id/profile_imageButton"
                 app:layout_constraintStart_toEndOf="@+id/profile_imageButton"
                 app:layout_constraintTop_toTopOf="@+id/profile_imageButton" />
 
             <ImageButton
                 android:id="@+id/setting_imageButton"
+                android:background="@color/background"
                 android:layout_width="50sp"
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
@@ -74,6 +78,7 @@
                 android:text="CHARACTER NAME"
                 android:textAlignment="center"
                 android:textSize="20sp"
+                android:textColor="@color/all_white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -92,6 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_baseline_diamond_30"
+                android:background="@color/background"
                 app:layout_constraintBottom_toBottomOf="@+id/code_score_TextView"
                 app:layout_constraintEnd_toStartOf="@+id/code_score_TextView"
                 app:layout_constraintTop_toTopOf="@+id/code_score_TextView" />
@@ -104,6 +110,7 @@
                 android:text="######"
                 android:textAlignment="center"
                 android:textSize="20sp"
+                android:textColor="@color/all_white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -112,6 +119,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/all_white"
                 android:text="score"
                 app:layout_constraintBottom_toBottomOf="@+id/code_score_TextView"
                 app:layout_constraintStart_toEndOf="@+id/code_score_TextView" />

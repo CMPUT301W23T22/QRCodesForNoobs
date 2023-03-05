@@ -1,66 +1,179 @@
 package com.example.qrcodesfornoobs.Fragment;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 
+import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.R;
+import com.example.qrcodesfornoobs.Search;
+import com.example.qrcodesfornoobs.SearchUser;
+import com.example.qrcodesfornoobs.SearchUserAdapter;
+import com.example.qrcodesfornoobs.databinding.ActivityMainBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import org.checkerframework.common.subtyping.qual.Bottom;
+
+import java.util.ArrayList;
+
+
 public class SearchFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private Button backButton;
+    private Intent dashboardIntent;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RadioGroup radioGroup;
+    private RadioButton radioButton;
+    private int selectRadioId;
 
+    private SearchView searchView;
+    private RecyclerView recyclerView;
+    private ArrayList<SearchUser> arrayList = new ArrayList<>();
+    private ArrayList<SearchUser> searchList;
+    String[] userList = new String[]{"Dog","Cat","Bird"};
+
+    Activity mActivity;
     public SearchFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        searchView = view.findViewById(R.id.searchView);
+        searchView.setIconified(false);
+        searchView.clearFocus();
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+
+        SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), arrayList);
+        recyclerView.setAdapter(searchUserAdapter);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchList = new ArrayList<>();
+
+                if(query.length() > 0){
+                    for(int i = 0; i < arrayList.size(); i++){
+                        if(arrayList.get(i).getUsername().toUpperCase().contains(query.toUpperCase()) || arrayList.get(i).getUsername().toUpperCase().contains(query.toUpperCase())){
+                            SearchUser searchUser = new SearchUser();
+                            searchUser.setUsername(arrayList.get(i).getUsername());
+                            searchList.add(searchUser);
+                        }
+                    }
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), searchList);
+                    recyclerView.setAdapter(searchUserAdapter);
+                }
+                else{
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), arrayList);
+                    recyclerView.setAdapter(searchUserAdapter);
+
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchList = new ArrayList<>();
+
+                if(newText.length() > 0){
+                    for(int i = 0; i < arrayList.size(); i++){
+                        if(arrayList.get(i).getUsername().toUpperCase().contains(newText.toUpperCase())){
+                            SearchUser searchUser = new SearchUser();
+                            searchUser.setUsername(arrayList.get(i).getUsername());
+                            searchList.add(searchUser);
+                        }
+                    }
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), searchList);
+                    recyclerView.setAdapter(searchUserAdapter);
+                }
+                else{
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                    recyclerView.setLayoutManager(layoutManager);
+
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), arrayList);
+                    recyclerView.setAdapter(searchUserAdapter);
+
+                }
+                return false;
+            }
+        });
+
+        backButton = (Button) view.findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getParentFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.frame_layout, new DashboardFragment());
+                fragmentTransaction.commit();
+            }
+        });
+
+        return view;
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // adding samples
+        if (arrayList.isEmpty()) {
+            for (int i = 0; i < userList.length; i++) {
+                SearchUser searchUser = new SearchUser();
+                searchUser.setUsername(userList[i]);
+                arrayList.add(searchUser);
+            }
+        }
+    }
+
+
+
+    public void onClickRadio(View view){
+        selectRadioId = radioGroup.getCheckedRadioButtonId();
+        radioButton = getView().findViewById(selectRadioId);
+        if(selectRadioId == 1){
+            Toast.makeText(getActivity(), "Selected", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(getActivity(), radioButton.getText(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
 }

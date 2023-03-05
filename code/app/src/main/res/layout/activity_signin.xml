@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/background"
     tools:context=".Activity.SignInActivity">
 
 
@@ -14,7 +14,7 @@
         android:layout_height="53dp"
         android:backgroundTint="@color/all_white"
         android:text="@string/sign_in_text"
-        android:textColor="@color/black"
+        android:textColor="@color/background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -26,9 +26,10 @@
         android:id="@+id/username_EditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textColorHint="@color/background"
-        android:hint="Username"
+        android:textColor="@color/all_white"
+        android:textColorHint="@color/all_white"
+        android:backgroundTint="@color/all_white"
+        android:hint="USERNAME"
         android:autofillHints="name"
         android:inputType="text"
         app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
