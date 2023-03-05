@@ -13,7 +13,7 @@ import java.util.Collection;
 /**
  * Represents a creature derived from a string
  */
-public class Creature {
+public class Creature{
     private String name;
     private String hash;
     private int score;
@@ -118,4 +118,5 @@ public class Creature {
     public void removeComment(String comment){
         comments.remove(comment);
     }
+
 }

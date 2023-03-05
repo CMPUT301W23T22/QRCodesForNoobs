@@ -44,6 +44,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class Profile extends AppCompatActivity {
@@ -76,11 +78,13 @@ public class Profile extends AppCompatActivity {
         dataList = new ArrayList<>();
 
         try {
-            dataList.add(new Creature("VFG65GW54"));
+            dataList.add(new Creature("DSA66GW54"));
+            dataList.add(new Creature("55555GW54"));
+
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-
+        System.out.println(dataList.size());
         // Temporary
         //TODO: Implement actual adding function when that is finished
         for (int i = 0; i < dataList.size(); i++){
@@ -109,7 +113,8 @@ public class Profile extends AppCompatActivity {
                     // Create a creature object and use setters to set its attributes to the ones from document
                     // Add the creature to database
                     try {
-                        dataList.add(new Creature("VFG65GW54")); // Adding from FireStore
+                        dataList.add(new Creature("DSA66GW54"));
+                        dataList.add(new Creature("55555GW54"));
                     } catch (NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
@@ -168,24 +173,24 @@ public class Profile extends AppCompatActivity {
                             }
                         });
 
-//                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-//                            FirebaseFirestoreException error) {
-//
-//                        // Clear the old list
-//                        dataList.clear();
-//                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                            try {
-//                                dataList.add(new Creature("VFG65GW54")); // Adding from FireStore
-//                            } catch (NoSuchAlgorithmException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                        }
-//                        codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-//                        //codeArrayAdapter.notifyItemRemoved(position);
-//                    }
-//                });
+                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                            FirebaseFirestoreException error) {
+
+                        // Clear the old list
+                        dataList.clear();
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            try {
+                                dataList.add(new Creature("DSA66GW54")); // Adding from FireStore
+                            } catch (NoSuchAlgorithmException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+                        //codeArrayAdapter.notifyItemRemoved(position);
+                    }
+                });
 
                 // UNDO DELETE: not the same hashmap tho
                 Snackbar.make(recyclerView, QR.getHash(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
@@ -214,25 +219,27 @@ public class Profile extends AppCompatActivity {
                                     });
                         }
 
-                        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                                    FirebaseFirestoreException error) {
-
-                                // Clear the old list
-                                dataList.clear();
-                                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                                    try {
-                                        dataList.add(new Creature("VFG65GW54")); // Adding from FireStore
-                                    } catch (NoSuchAlgorithmException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                                //codeArrayAdapter.notifyItemInserted(position);
-                                recyclerView.scrollToPosition(position);
-                            }
-                        });
+//                        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                            @Override
+//                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//                                    FirebaseFirestoreException error) {
+//
+//                                // Clear the old list
+//                                dataList.clear();
+//                                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+//                                    try {
+//                                        dataList.add(new Creature("VF765GW54"));
+//                                        dataList.add(new Creature("F9321SA54"));
+//                                        dataList.add(new Creature("G9FS215FG")); // Adding from FireStore
+//                                    } catch (NoSuchAlgorithmException e) {
+//                                        throw new RuntimeException(e);
+//                                    }
+//                                }
+//                                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+//                                //codeArrayAdapter.notifyItemInserted(position);
+//                                recyclerView.scrollToPosition(position);
+//                            }
+//                        });
                         //dataList.add(position, QR);
                     }
                 }).show();
@@ -288,7 +295,6 @@ public class Profile extends AppCompatActivity {
         deleteDrawable.draw(c);
     }
 
-
     private void initWidgets(){
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
@@ -339,12 +345,16 @@ public class Profile extends AppCompatActivity {
         sortListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String selected = sortListSpinner.getSelectedItem().toString();
-                if (selected.equals("ASCENDING")){
-
-                } else if (selected.equals("DESCENDING")){
-
+                String selected = sortListSpinner.getItemAtPosition(i).toString();
+                if (selected.equals("SCORE (ASCENDING)")){
+                    System.out.println("ASCENDING");
+                    dataList.sort(new ProfileCreatureScoreComparator());
+                } else if (selected.equals("SCORE (DESCENDING)")){
+                    System.out.println("DESCENDING");
+                    dataList.sort(new ProfileCreatureScoreComparator());
+                    Collections.reverse(dataList);
                 }
+                codeArrayAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -355,4 +365,5 @@ public class Profile extends AppCompatActivity {
 
 
     }
+
 }
