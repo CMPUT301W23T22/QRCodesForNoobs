@@ -9,6 +9,8 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -52,23 +54,20 @@ public class Profile extends AppCompatActivity {
     Button backButton;
     ImageButton toggleFilterButton;
     ImageButton toggleRecyclerViewButton;
-    ImageButton toggleSortButton;
     Spinner sortListSpinner;
-    ListView listView;
     RecyclerView recyclerView;
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
 
     LinearLayout filterBar;
     private Intent dashboardIntent;
-
     private ArrayList<Creature> dataList;
-    private ArrayAdapter<String> dataAdapter;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     final CollectionReference collectionReference = db.collection("QRCodePath");
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile);
@@ -77,31 +76,37 @@ public class Profile extends AppCompatActivity {
         // From the datalist we will add them into the database
         dataList = new ArrayList<>();
 
+        // Temporary
+        //TODO: Implement actual adding function when that is finished
         try {
             dataList.add(new Creature("DSA66GW54"));
             dataList.add(new Creature("55555GW54"));
+            dataList.add(new Creature("FDS9321AS"));
+            dataList.add(new Creature("F3029GG21"));
 
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(dataList.size());
-        // Temporary
-        //TODO: Implement actual adding function when that is finished
+
         for (int i = 0; i < dataList.size(); i++){
+            // For each Creature in the datalist we make a new hashmap and add values
+            // We then add this hashmap to the database
             HashMap<String, String> dataToAdd = new HashMap<>();
 
             dataToAdd.put("Name", dataList.get(i).getName());
             dataToAdd.put("Score", Integer.toString(dataList.get(i).getScore()));
             dataToAdd.put("Hash", dataList.get(i).getHash());
+            dataToAdd.put("Photo", null);
+            dataToAdd.put("Location", null);
+            dataToAdd.put("Comments",null);
 
             collectionReference
                     .document(dataToAdd.get("Hash"))
                     .set(dataToAdd);
         }
 
-
-
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            // For use when updating our datalist from the database
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
             FirebaseFirestoreException error) {
@@ -109,15 +114,16 @@ public class Profile extends AppCompatActivity {
                 // Clear the old list
                 dataList.clear();
                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    // Get attributes from the document using doc.getData(attribute name)
+                    // Get attributes from the document using doc.getString(attribute name)
                     // Create a creature object and use setters to set its attributes to the ones from document
                     // Add the creature to database
-                    try {
-                        dataList.add(new Creature("DSA66GW54"));
-                        dataList.add(new Creature("55555GW54"));
-                    } catch (NoSuchAlgorithmException e) {
-                        throw new RuntimeException(e);
-                    }
+                    String name = doc.getString("Name");
+                    String hash = doc.getString("Hash");
+                    int score = Integer.parseInt(doc.getString("Score"));
+
+                    // TODO: Add grabbers for photo, location, and comments when those are implemented
+
+                    dataList.add(new Creature(name, hash, score, null,null,null));
                 }
                 codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
 
@@ -154,9 +160,8 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
+                // Get the swiped Creature and delete it from the database
                 Creature QR = dataList.get(position);
-                System.out.println(dataList.size());
-
                 db.collection("QRCodePath")
                         .document(QR.getHash())
                         .delete()
@@ -173,74 +178,40 @@ public class Profile extends AppCompatActivity {
                             }
                         });
 
-                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                            FirebaseFirestoreException error) {
-
-                        // Clear the old list
-                        dataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            try {
-                                dataList.add(new Creature("DSA66GW54")); // Adding from FireStore
-                            } catch (NoSuchAlgorithmException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                        //codeArrayAdapter.notifyItemRemoved(position);
-                    }
-                });
 
                 // UNDO DELETE: not the same hashmap tho
                 Snackbar.make(recyclerView, QR.getHash(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+                    // Undo the delete, re-add the deleted Creature to database
                     @Override
                     public void onClick(View view) {
-                        HashMap<String, String> data = new HashMap<>();
+                        HashMap<String, String> dataToReAdd = new HashMap<>();
                         if (QR.getHash().length() > 0) {
-                            data.put("QR Code", QR.getHash());
+                            dataToReAdd.put("Name", QR.getName());
+                            dataToReAdd.put("Hash", QR.getHash());
+                            dataToReAdd.put("Score", String.valueOf(QR.getScore()));
+                            dataToReAdd.put("Photo", null);
+                            dataToReAdd.put("Location", null);
+                            dataToReAdd.put("Comments",null);
 
                             collectionReference
                                     .document(QR.getHash())
-                                    .set(data)
+                                    .set(dataToReAdd)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             // These are a method which gets executed when the task is succeeded
-                                            Log.d(TAG, "Data has been added successfully!");
+                                            Log.d(TAG, "Data has been re-added successfully!");
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             // These are a method which gets executed if there’s any problem
-                                            Log.d(TAG, "Data could not be added!" + e.toString());
+                                            Log.d(TAG, "Data could not be re-added!" + e.toString());
                                         }
                                     });
                         }
-
-//                        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                            @Override
-//                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-//                                    FirebaseFirestoreException error) {
-//
-//                                // Clear the old list
-//                                dataList.clear();
-//                                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                                    try {
-//                                        dataList.add(new Creature("VF765GW54"));
-//                                        dataList.add(new Creature("F9321SA54"));
-//                                        dataList.add(new Creature("G9FS215FG")); // Adding from FireStore
-//                                    } catch (NoSuchAlgorithmException e) {
-//                                        throw new RuntimeException(e);
-//                                    }
-//                                }
-//                                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-//                                //codeArrayAdapter.notifyItemInserted(position);
-//                                recyclerView.scrollToPosition(position);
-//                            }
-//                        });
-                        //dataList.add(position, QR);
+                            recyclerView.scrollToPosition(position);
                     }
                 }).show();
             }

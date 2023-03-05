@@ -34,8 +34,10 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
+        // Set list item info
         Creature creature = codes.get(position);
-        holder.userName.setText(creature.getName());
+        holder.creatureName.setText(creature.getName());
+        holder.creatureScore.setText(creature.getScore() + " points");
 
     }
 
@@ -45,10 +47,14 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     }
 
     public class MyHolder extends RecyclerView.ViewHolder {
-        TextView userName;
+        TextView creatureName;
+        TextView creatureScore;
         public MyHolder(@NonNull View itemView) {
+            // Obtain list item textviews
             super(itemView);
-            userName = itemView.findViewById(R.id.profile_code_txt);
+            creatureName = itemView.findViewById(R.id.profile_code_txt);
+            creatureScore = itemView.findViewById(R.id.profile_code_points);
+
 
         }
     }
