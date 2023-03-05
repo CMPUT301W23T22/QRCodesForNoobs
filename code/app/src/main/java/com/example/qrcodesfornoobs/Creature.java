@@ -79,6 +79,12 @@ public class Creature {
         // TODO: Image functionality
     }
 
+    // NO ARGUMENT CONSTRUCTOR -> USED SO THAT SOMETHING DOESNT BREAK I GUESS IDK
+    // Was running into this issue:
+    // https://stackoverflow.com/questions/60389906/could-not-deserialize-object-does-not-define-a-no-argument-constructor-if-you
+    public Creature(){
+
+    }
     public String getHash() {
         return hash;
     }

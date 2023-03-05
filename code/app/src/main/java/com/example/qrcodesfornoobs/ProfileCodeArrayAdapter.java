@@ -16,10 +16,10 @@ import java.util.ArrayList;
 public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArrayAdapter.MyHolder>{
 
     Context context;
-    ArrayList<String> codes;
+    ArrayList<Creature> codes;
     LayoutInflater layoutInflater;
 
-    public ProfileCodeArrayAdapter(Context context, ArrayList<String> codes) {
+    public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes) {
         this.context = context;
         this.codes = codes;
         layoutInflater = layoutInflater.from(context);
@@ -34,7 +34,8 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        holder.userName.setText(codes.get(position));
+        Creature creature = codes.get(position);
+        holder.userName.setText(creature.getName());
 
     }
 

@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.qrcodesfornoobs.Dashboard;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -40,6 +42,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -56,35 +59,63 @@ public class Profile extends AppCompatActivity {
     LinearLayout filterBar;
     private Intent dashboardIntent;
 
-    private ArrayList<String> dataList;
+    private ArrayList<Creature> dataList;
     private ArrayAdapter<String> dataAdapter;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     final CollectionReference collectionReference = db.collection("QRCodePath");
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile);
+
+        // When we add a new creature we need to update the datalist first
+        // From the datalist we will add them into the database
         dataList = new ArrayList<>();
 
+        try {
+            dataList.add(new Creature("VFG65GW54"));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
         // Temporary
+        //TODO: Implement actual adding function when that is finished
+        for (int i = 0; i < dataList.size(); i++){
+            HashMap<String, String> dataToAdd = new HashMap<>();
+
+            dataToAdd.put("Name", dataList.get(i).getName());
+            dataToAdd.put("Score", Integer.toString(dataList.get(i).getScore()));
+            dataToAdd.put("Hash", dataList.get(i).getHash());
+
+            collectionReference
+                    .document(dataToAdd.get("Hash"))
+                    .set(dataToAdd);
+        }
+
+
+
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
+            FirebaseFirestoreException error) {
 
                 // Clear the old list
                 dataList.clear();
                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    String QR = doc.getId();
-                    dataList.add(QR); // Adding from FireStore
+                    // Get attributes from the document using doc.getData(attribute name)
+                    // Create a creature object and use setters to set its attributes to the ones from document
+                    // Add the creature to database
+                    try {
+                        dataList.add(new Creature("VFG65GW54")); // Adding from FireStore
+                    } catch (NoSuchAlgorithmException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                //codeArrayAdapter.notifyItemRemoved(position);
+
             }
         });
 
@@ -117,11 +148,12 @@ public class Profile extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-                String QR = dataList.get(viewHolder.getAdapterPosition());
                 int position = viewHolder.getAdapterPosition();
+                Creature QR = dataList.get(position);
+                System.out.println(dataList.size());
 
-                db.collection("QRCodePath").document(QR)
+                db.collection("QRCodePath")
+                        .document(QR.getHash())
                         .delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -136,32 +168,35 @@ public class Profile extends AppCompatActivity {
                             }
                         });
 
-                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                            FirebaseFirestoreException error) {
-
-                        // Clear the old list
-                        dataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            String QR = doc.getId();
-                            dataList.add(QR); // Adding from FireStore
-                        }
-                        codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                        //codeArrayAdapter.notifyItemRemoved(position);
-                    }
-                });
+//                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//                            FirebaseFirestoreException error) {
+//
+//                        // Clear the old list
+//                        dataList.clear();
+//                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+//                            try {
+//                                dataList.add(new Creature("VFG65GW54")); // Adding from FireStore
+//                            } catch (NoSuchAlgorithmException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                        }
+//                        codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+//                        //codeArrayAdapter.notifyItemRemoved(position);
+//                    }
+//                });
 
                 // UNDO DELETE: not the same hashmap tho
-                Snackbar.make(recyclerView, QR, Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+                Snackbar.make(recyclerView, QR.getHash(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         HashMap<String, String> data = new HashMap<>();
-                        if (QR.length() > 0) {
-                            data.put("QR Code", QR);
+                        if (QR.getHash().length() > 0) {
+                            data.put("QR Code", QR.getHash());
 
                             collectionReference
-                                    .document(QR)
+                                    .document(QR.getHash())
                                     .set(data)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -187,8 +222,11 @@ public class Profile extends AppCompatActivity {
                                 // Clear the old list
                                 dataList.clear();
                                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                                    String QR = doc.getId();
-                                    dataList.add(QR); // Adding from FireStore
+                                    try {
+                                        dataList.add(new Creature("VFG65GW54")); // Adding from FireStore
+                                    } catch (NoSuchAlgorithmException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
                                 codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
                                 //codeArrayAdapter.notifyItemInserted(position);
@@ -256,15 +294,13 @@ public class Profile extends AppCompatActivity {
         backButton.setBackgroundResource(R.drawable.back_arrow);
         toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
         toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
-        toggleSortButton = findViewById(R.id.sort_listview_button);
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
-        //listView = findViewById(R.id.list_view);
 
         // Initialize spinner data
         ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
-                R.array.filter_options, android.R.layout.simple_spinner_item);
+                R.array.filter_options, R.layout.spinner_item);
         spinAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         sortListSpinner.setAdapter(spinAdapter);
     }
@@ -298,6 +334,22 @@ public class Profile extends AppCompatActivity {
                     toggleRecyclerViewButton.setImageResource(R.drawable.menu_icon);
                     recyclerView.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+        sortListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = sortListSpinner.getSelectedItem().toString();
+                if (selected.equals("ASCENDING")){
+
+                } else if (selected.equals("DESCENDING")){
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
 
