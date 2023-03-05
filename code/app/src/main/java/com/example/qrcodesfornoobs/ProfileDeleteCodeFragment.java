@@ -12,13 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class DeleteCodeFragment extends DialogFragment {
+public class ProfileDeleteCodeFragment extends DialogFragment {
     Button confirmButton;
     Button cancelButton;
     AlertDialog dialog;
     private int position; // The position of the listview item
-    public static DeleteCodeFragment newInstance(int pos) {
-        DeleteCodeFragment fragment = new DeleteCodeFragment();
+    public static ProfileDeleteCodeFragment newInstance(int pos) {
+        ProfileDeleteCodeFragment fragment = new ProfileDeleteCodeFragment();
         Bundle args = new Bundle();
         args.putInt("position", pos);
         fragment.setArguments(args);
