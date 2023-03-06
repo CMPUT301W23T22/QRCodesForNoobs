@@ -57,7 +57,6 @@ public class Profile extends AppCompatActivity {
     private Intent dashboardIntent;
 
     private ArrayList<String> dataList;
-    private ArrayAdapter<String> dataAdapter;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
