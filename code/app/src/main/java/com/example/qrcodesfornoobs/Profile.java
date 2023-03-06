@@ -12,6 +12,11 @@ import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 
 public class Profile extends AppCompatActivity {
@@ -27,6 +32,7 @@ public class Profile extends AppCompatActivity {
 
     private ArrayList<String> dataList;
     private ArrayAdapter<String> dataAdapter;
+    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +40,6 @@ public class Profile extends AppCompatActivity {
         setContentView(R.layout.profile);
         dataList = new ArrayList<>();
 
-        // Temporary
-        // Fill datalist with values
-        dataList.add("NAME 1");
-        dataList.add("NAME 2");
         // Initialize buttons and spinners
         initWidgets();
 
@@ -49,6 +51,9 @@ public class Profile extends AppCompatActivity {
 
         // Initialize button listeners
         addListenerOnButtons();
+
+        // Firebase Initialization
+        initializeFirebase();
 
     }
     private void initWidgets(){
@@ -100,6 +105,31 @@ public class Profile extends AppCompatActivity {
             }
         });
 
+    }
 
+    private void initializeFirebase() {
+        FirebaseApp.initializeApp(this);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final CollectionReference playerReference = db.collection("/Players");
+        final CollectionReference creatureReference = db.collection("/Creatures");
+
+        playerReference.addSnapshotListener((value, error) -> {
+            //TODO: Draw information from the player whose profile is being viewed
+        });
+
+        creatureReference.addSnapshotListener((value, error) -> {
+
+            dataList = new ArrayList<>();
+            String TAG = "FireBase: ";
+
+            for(QueryDocumentSnapshot doc:value){
+                //TODO: Have proper linking with the current player for later when we've established how they link.
+                // For the time being, just add all available creatures
+                // Also update this when there's a proper way to retrieve creatures from Firebase.
+                String name = (String) doc.getData().get("name");
+                dataAdapter.add(name);
+            }
+            dataAdapter.notifyDataSetChanged();
+        });
     }
 }
