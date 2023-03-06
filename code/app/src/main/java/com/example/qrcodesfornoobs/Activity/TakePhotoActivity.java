@@ -11,6 +11,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Location;
+import android.media.Image;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -57,39 +59,23 @@ public class TakePhotoActivity extends AppCompatActivity {
                 String scannedCode = getIntent().getExtras().getString("code");
 
                 try {
-                    Creature creature = new Creature(scannedCode);
+                    Image isPhotoCreature = null;
+                    Image isPhotoLocation = null;
+                    Location isLocation = null; //setting this in part4
                     //setting location, photo, photoLocation to null
-                    creature.setLocation(null);
                     if (binding.saveImageCheckBox.isChecked()) {
-                        // save photo (place) to db
-                        creature.setPhoto(null);
-                    }
-                    else{
-                        creature.setPhoto(null);
+                        // set local isPhotoCreature to the photo
                     }
                     if (binding.saveLocationCheckBox.isChecked()) {
-                        creature.setPhotoLocation(null);
-                        Toast.makeText(getBaseContext(), "location will be saved in Project part 4", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        creature.setPhotoLocation(null);
+                        // set local isPhotoLocation to the photo
                     }
 
+                    Creature creature = new Creature(scannedCode,isLocation, isPhotoCreature, isPhotoLocation);
                     //preparing the data to send to db
                     // initializing the db & entry to add to it at the end of the process
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    Map<String, Object> creatureEntry = new HashMap<>();
-                    creatureEntry.put("hash",creature.getHash());
-                    creatureEntry.put("name",creature.getName());
-                    creatureEntry.put("score",creature.getScore());
-                    creatureEntry.put("photo",creature.getPhoto());
-                    creatureEntry.put("photoLocation",creature.getPhotoLocation());
-                    creatureEntry.put("location",creature.getLocation());
-                    creatureEntry.put("comments",null);
-
                     db.collection("Creatures").document(creature.getHash())
                             .set(creature)
-//                            .set(creatureEntry) test the difference between the 2
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -103,6 +89,7 @@ public class TakePhotoActivity extends AppCompatActivity {
                                     Log.w(TAG, "Error writing document", e);
                                 }
                             });
+                    Toast.makeText(getBaseContext(), "location will be saved in Project part 4", Toast.LENGTH_SHORT).show();
 
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
