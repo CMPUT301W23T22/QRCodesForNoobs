@@ -78,32 +78,32 @@ public class Profile extends AppCompatActivity {
 
         // Temporary
         //TODO: Implement actual adding function when that is finished
-        try {
-            dataList.add(new Creature("DSA66GW54"));
-            dataList.add(new Creature("55555GW54"));
-            dataList.add(new Creature("FDS9321AS"));
-            dataList.add(new Creature("F3029GG21"));
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (int i = 0; i < dataList.size(); i++){
-            // For each Creature in the datalist we make a new hashmap and add values
-            // We then add this hashmap to the database
-            HashMap<String, String> dataToAdd = new HashMap<>();
-
-            dataToAdd.put("Name", dataList.get(i).getName());
-            dataToAdd.put("Score", Integer.toString(dataList.get(i).getScore()));
-            dataToAdd.put("Hash", dataList.get(i).getHash());
-            dataToAdd.put("Photo", null);
-            dataToAdd.put("Location", null);
-            dataToAdd.put("Comments",null);
-
-            collectionReference
-                    .document(dataToAdd.get("Hash"))
-                    .set(dataToAdd);
-        }
+//        try {
+//            dataList.add(new Creature("DSA66GW54"));
+//            dataList.add(new Creature("55555GW54"));
+//            dataList.add(new Creature("FDS9321AS"));
+//            dataList.add(new Creature("F3029GG21"));
+//
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        for (int i = 0; i < dataList.size(); i++){
+//            // For each Creature in the datalist we make a new hashmap and add values
+//            // We then add this hashmap to the database
+//            HashMap<String, String> dataToAdd = new HashMap<>();
+//
+//            dataToAdd.put("Name", dataList.get(i).getName());
+//            dataToAdd.put("Score", Integer.toString(dataList.get(i).getScore()));
+//            dataToAdd.put("Hash", dataList.get(i).getHash());
+//            dataToAdd.put("Photo", null);
+//            dataToAdd.put("Location", null);
+//            dataToAdd.put("Comments",null);
+//
+//            collectionReference
+//                    .document(dataToAdd.get("Hash"))
+//                    .set(dataToAdd);
+//        }
 
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             // For use when updating our datalist from the database
