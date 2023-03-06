@@ -10,7 +10,7 @@
     <string name="score_text">Score</string>
     <string name="qreature">QReature</string>
     <string-array name="filter_options">
-        <item>SCORE</item>
-        <item>RECENT</item>
+        <item>SCORE (ASCENDING)</item>
+        <item>SCORE (DESCENDING)</item>
     </string-array>
 </resources>

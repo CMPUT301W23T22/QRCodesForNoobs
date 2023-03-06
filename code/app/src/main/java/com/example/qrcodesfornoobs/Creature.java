@@ -13,7 +13,7 @@ import java.util.Collection;
 /**
  * Represents a creature derived from a string
  */
-public class Creature {
+public class Creature{
     private String name;
     private String hash;
     private int score;
@@ -79,6 +79,22 @@ public class Creature {
         // TODO: Image functionality
     }
 
+    public Creature(String name, String hash, int score, Image photo, Location location, ArrayList<String> comments){
+        this.name = name;
+        this.hash = hash;
+        this.score = score;
+        this.photo = photo;
+        this.location = location;
+        this.comments = comments;
+
+    }
+
+    // NO ARGUMENT CONSTRUCTOR -> USED SO THAT SOMETHING DOESNT BREAK I GUESS IDK
+    // Was running into this issue:
+    // https://stackoverflow.com/questions/60389906/could-not-deserialize-object-does-not-define-a-no-argument-constructor-if-you
+    public Creature(){
+
+    }
     public String getHash() {
         return hash;
     }
@@ -112,4 +128,5 @@ public class Creature {
     public void removeComment(String comment){
         comments.remove(comment);
     }
+
 }
