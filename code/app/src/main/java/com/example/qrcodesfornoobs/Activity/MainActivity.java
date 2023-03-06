@@ -9,22 +9,38 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.qrcodesfornoobs.Creature;
 import com.example.qrcodesfornoobs.Fragment.DashboardFragment;
 import com.example.qrcodesfornoobs.Fragment.LeaderboardFragment;
 import com.example.qrcodesfornoobs.Fragment.MapFragment;
 import com.example.qrcodesfornoobs.Fragment.SearchFragment;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final String TAG = "";
     private Fragment dashboardFragment;
     private Fragment searchFragment;
     private IntentIntegrator cameraIntentIntegrator;
@@ -106,5 +122,52 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
+    }
+
+    /**
+    Adds a creature to the Firebase db
+     @param creature
+     */
+
+    public void addCreature(Creature creature) {
+
+// Add a new document with a generated ID
+        db.collection("QRCodePath")
+                .add(creature)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "Creature added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding creature", e);
+                    }
+                });
+
+    }
+
+
+    /**
+    Retrieves all creatures in the db
+     */
+    public void getCreatures() {
+
+        db.collection("QRCodePath")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting creatures", task.getException());
+                        }
+                    }
+                });
     }
 }
