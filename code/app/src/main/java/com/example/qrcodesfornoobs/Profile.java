@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Dashboard;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -60,6 +61,7 @@ public class Profile extends AppCompatActivity {
 
     LinearLayout filterBar;
     private Intent dashboardIntent;
+    private Intent mainIntent;
     private ArrayList<Creature> dataList;
 
     // FIREBASE INITIALIZE
@@ -75,6 +77,7 @@ public class Profile extends AppCompatActivity {
         // When we add a new creature we need to update the datalist first
         // From the datalist we will add them into the database
         dataList = new ArrayList<>();
+        mainIntent = new Intent(this, MainActivity.class);
 
         // Temporary
         //TODO: Implement actual adding function when that is finished
@@ -251,7 +254,7 @@ public class Profile extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(dashboardIntent);
+                startActivity(mainIntent);
             }
         });
         toggleFilterButton.setOnClickListener(new View.OnClickListener() {
