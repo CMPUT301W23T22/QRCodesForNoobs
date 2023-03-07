@@ -5,7 +5,7 @@ import android.provider.ContactsContract;
 import java.util.ArrayList;
 
 public class Player {
-
+    //TODO: Call to db for Creatures
     private String username;
     private String device;
     private ArrayList<Creature> creatures = new ArrayList<>();
