@@ -11,6 +11,11 @@ public class Player {
     private ContactsContract.CommonDataKinds.Email contact;
     private ArrayList<Creature> creatures = new ArrayList<>();
 
+    public Player(String username, String device) {
+        this.username = username;
+        this.device = device;
+    }
+
     public Player(String username, String device, ContactsContract.CommonDataKinds.Email contact) {
         this.username = username;
         this.device = device;
@@ -39,6 +44,10 @@ public class Player {
 
     public ContactsContract.CommonDataKinds.Email getContact() {
         return contact;
+    }
+
+    public void setContact(ContactsContract.CommonDataKinds.Email contact) {
+        this.contact = contact;
     }
 }
 
