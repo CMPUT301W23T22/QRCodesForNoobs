@@ -1,5 +1,6 @@
 package com.example.qrcodesfornoobs;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,8 +11,11 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -21,22 +25,25 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class SignIn extends AppCompatActivity {
     Button signInButton;
+    EditText usernameEditText;
     private Intent dashboardIntent;
 
     ArrayList<Player> playersList;
+    FirebaseFirestore db;
+    CollectionReference playerReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.signin);
+        setContentView(R.layout.activity_signin);
         dashboardIntent = new Intent(this, Dashboard.class);
+        usernameEditText = findViewById(R.id.username_EditText);
         addListenerOnButtons();
-
-        // Call Firebase to ensure that a potential added username/device/email is unique
         initializeFirebase();
     }
 
@@ -50,10 +57,9 @@ public class SignIn extends AppCompatActivity {
         return true;
     }
 
-    private boolean checkUserUniqueness(String username, String email){
+    private boolean checkUserUniqueness(String username){
         for(Player player:playersList){
-            if(Objects.equals(player.getUsername(), username) ||
-               Objects.equals(player.getContact().toString(), email)){
+            if(Objects.equals(player.getUsername(), username)){
                 return false;
             }
         }
@@ -73,18 +79,17 @@ public class SignIn extends AppCompatActivity {
     private void initializeFirebase(){
 
         FirebaseApp.initializeApp(this);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final CollectionReference playerReference = db.collection("Players");
+        db = FirebaseFirestore.getInstance();
+        playerReference = db.collection("Players");
+
         playerReference.addSnapshotListener((value, error) -> {
 
             playersList = new ArrayList<>();
 
             for (QueryDocumentSnapshot doc: value){
                 String username = (String) doc.get("Username");
-                String device = (String) doc.get("Device");
-                ContactsContract.CommonDataKinds.Email contact =
-                        (ContactsContract.CommonDataKinds.Email) doc.get("Contact");
-                playersList.add(new Player(username, device, contact));
+                String device = (String) doc.get("DeviceID");
+                playersList.add(new Player(username, device));
             }
         });
     }

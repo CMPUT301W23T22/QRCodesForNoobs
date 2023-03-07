@@ -115,13 +115,13 @@
 
             <LinearLayout
                 android:id="@+id/filterbar"
-                android:layout_width="370dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:visibility="visible">
 
                 <ImageButton
-                    android:id="@+id/toggle_listview_button"
+                    android:id="@+id/toggle_recyclerView_button"
                     android:layout_width="51dp"
                     android:layout_height="match_parent"
                     android:backgroundTint="#595759"
@@ -130,18 +130,10 @@
 
                 <Spinner
                     android:id="@+id/sort_list_spinner"
-                    android:layout_width="261dp"
-                    android:layout_height="match_parent"
-                    android:spinnerMode="dropdown"
-                    android:backgroundTint="#595759"/>
-
-                <ImageButton
-                    android:id="@+id/sort_listview_button"
-                    android:layout_width="49dp"
+                    android:layout_width="310dp"
                     android:layout_height="match_parent"
                     android:backgroundTint="#595759"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/sort_icon"/>
+                    android:spinnerMode="dropdown" />
 
             </LinearLayout>
 
@@ -156,11 +148,12 @@
             android:orientation="vertical"
             android:background="#121112">
 
-            <ListView
-                android:id="@+id/list_view"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone" />
+                android:visibility="gone"/>
+
 
         </LinearLayout>
 

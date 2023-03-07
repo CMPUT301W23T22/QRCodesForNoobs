@@ -17,45 +17,51 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
-    private Image photo;
+    private Image photoCreature;
     private Location location;
+    private Image photoLocation;
     private ArrayList<String> comments = new ArrayList<>();
 
     /**
      *
      * @param code
      */
-    public Creature (String code) throws NoSuchAlgorithmException{
+    public Creature (String code, Location location, Image photoCreature, Image photoLocation) throws NoSuchAlgorithmException{
+        //this will be used when we scan a code
+        //set hash
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-
         // Change this to UTF-16 if needed
         md.update(code.getBytes(StandardCharsets.UTF_8));
         byte[] digest = md.digest();
-
         hash = String.format("%064x", new BigInteger(1, digest));
 
         // Calculating the score
-        int count = 0;
-        int prev = -1;
-        score = 0;
-        for (int i = 0; i < hash.length(); i++){
-            int b = Integer.decode("0x"+hash.charAt(i));
-            if (b == 0) {b = 20;} // special case of 0 which scales by 20 points.
-            if (prev == b){
-                count *= b; // multiply when current digit is same and the previous digit
-            } else {
-                score += count; // Add the current total to the current score
-                count = 1;  //reset count value to 1
-                prev = b;
-            }
-        }
-        score += count; // Final addition for the end of the loop.
-
+        calcScore(hash);
         // Generate a name
+        genName(hash);
+
+        // TODO: Image & location functionality
+    }
+
+    public Creature(String name, String hash, int score, Image photo, Location location, ArrayList<String> comments){
+        //this will be used when creature is already in database
+        this.name = name;
+        this.hash = hash;
+        this.score = score;
+        this.photoCreature = photo;
+        this.location = location;
+        this.comments = comments;
+    }
+
+    // NO ARGUMENT CONSTRUCTOR -> USED SO THAT SOMETHING DOESNT BREAK I GUESS IDK
+    // Was running into this issue:
+    // https://stackoverflow.com/questions/60389906/could-not-deserialize-object-does-not-define-a-no-argument-constructor-if-you
+    public Creature(){}
+
+    public void genName(String hash){
         name = "";
         for(int i = 0; i < 4; i++){
             int b = Integer.decode("0x"+hash.charAt(i));
-            // Wouldn't it be funny if I just glued together random syllables and hoped it made something coherent?
             switch(b){
                 case 0: name = name.concat("Ha"); break;
                 case 1: name = name.concat("Mo"); break;
@@ -79,32 +85,49 @@ public class Creature {
         // TODO: Image functionality
     }
 
+    public void calcScore(String hash){
+        int count = 0;
+        int prev = -1;
+        score = 0;
+        for (int i = 0; i < hash.length(); i++){
+            int b = Integer.decode("0x"+hash.charAt(i));
+            if (b == 0) {b = 20;} // special case of 0 which scales by 20 points.
+            if (prev == b){
+                count *= b; // multiply when current digit is same and the previous digit
+            } else {
+                score += count; // Add the current total to the current score
+                count = 1;  //reset count value to 1
+                prev = b;
+            }
+        }
+        score += count; // Final addition for the end of the loop.
+    }
     public String getHash() {
         return hash;
     }
-
     public String getName() {
         return name;
     }
-
     public int getScore() {
         return score;
     }
-
-    public Image getPhoto() {
-        return photo;
+    public Image getPhotoCreature() {
+        return photoCreature;
     }
-
+    public Image getPhotoLocation() {
+        return photoLocation;
+    }
     public Location getLocation() {
         return location;
     }
-
-    public void setPhoto(Image photo) {
-        this.photo = photo;
+    public void setPhotoCreature(Image photoCreature) {
+        this.photoCreature = photoCreature;
     }
-
     public void setLocation(Location location) {
         this.location = location;
+    }
+    public void setPhotoLocation(Image photoLocation) {
+        this.photoLocation = photoLocation;
     }
     public void addComment(String comment){
         comments.add(comment);
@@ -112,4 +135,5 @@ public class Creature {
     public void removeComment(String comment){
         comments.remove(comment);
     }
+    public ArrayList<String> getComments() {return comments;}
 }
