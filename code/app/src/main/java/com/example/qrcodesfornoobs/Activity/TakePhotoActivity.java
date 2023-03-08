@@ -38,6 +38,9 @@ public class TakePhotoActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 666;
     final String TAG = "Sample";
     ActivityTakePhotoBinding binding;
+
+    Bitmap codeRepresentationBitmap;
+    Bitmap photoBitmap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +70,7 @@ public class TakePhotoActivity extends AppCompatActivity {
                     // set local isPhotoLocation to the photo
                 }
                 if (binding.saveImageCheckBox.isChecked()) {
-                    uploadCurrentImage().thenAccept(photoLocationUrl -> {
+                    uploadLocationImage().thenAccept(photoLocationUrl -> {
                         Creature creature = new Creature(scannedCode, location, photoCreature, photoLocationUrl);
                         uploadToDatabase(creature);
                     }).exceptionally(e -> {
@@ -103,17 +106,15 @@ public class TakePhotoActivity extends AppCompatActivity {
                 });
     }
 
-    private CompletableFuture<Uri> uploadCurrentImage() {
+    private CompletableFuture<Uri> uploadLocationImage() {
         CompletableFuture<Uri> future = new CompletableFuture<>();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_location/test");
-        Drawable drawable = binding.imageView.getDrawable();
-        if (drawable == null) {
+        if (photoBitmap == null) {
             future.complete(null);
             return future;
         }
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
 
         UploadTask uploadTask = storageReference.putBytes(data);
@@ -151,8 +152,8 @@ public class TakePhotoActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                binding.imageView.setImageBitmap(bitmap);
+                photoBitmap = (Bitmap) data.getExtras().get("data");
+                binding.locationImageView.setImageBitmap(photoBitmap);
             }
         }
     }
