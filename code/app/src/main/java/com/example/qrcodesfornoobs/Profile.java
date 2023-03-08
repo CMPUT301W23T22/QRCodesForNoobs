@@ -26,12 +26,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -57,6 +59,7 @@ import java.util.HashMap;
 
 public class Profile extends AppCompatActivity {
     Button backButton;
+    ImageButton editProfileButton;
     ImageButton toggleFilterButton;
     ImageButton toggleRecyclerViewButton;
     Spinner sortListSpinner;
@@ -244,6 +247,7 @@ public class Profile extends AppCompatActivity {
     private void initWidgets() {
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
+        editProfileButton = findViewById(R.id.edit_profile_button);
         toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
         toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
         filterBar = findViewById(R.id.filterbar);
@@ -264,6 +268,15 @@ public class Profile extends AppCompatActivity {
                 startActivity(mainIntent);
             }
         });
+
+        editProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Replace 'contact' with Player.getInfo() or something when we have that set up
+                DialogFragment editInfoFrag = ProfileEditInfoFragment.newInstance("contact");
+                editInfoFrag.show(getSupportFragmentManager(),"Edit Contact Info");
+            }
+        });
         toggleFilterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -275,6 +288,7 @@ public class Profile extends AppCompatActivity {
                 }
             }
         });
+
         toggleRecyclerViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
