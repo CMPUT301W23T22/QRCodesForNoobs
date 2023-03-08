@@ -9,18 +9,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
-import com.example.qrcodesfornoobs.Profile;
 import com.example.qrcodesfornoobs.ProfileCodeArrayAdapter;
 import com.example.qrcodesfornoobs.R;
-import com.example.qrcodesfornoobs.SearchUser;
-import com.example.qrcodesfornoobs.SearchUserAdapter;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,11 +28,7 @@ import java.util.ArrayList;
 
 
 public class SearchFragment extends Fragment {
-
-
     private RadioGroup radioGroup;
-    private RadioButton radioButton;
-    private int selectRadioId;
 
     private SearchView searchView;
     private RecyclerView recyclerView;
@@ -44,11 +36,10 @@ public class SearchFragment extends Fragment {
     // For Firebase
     private ArrayList<String> dataList;
     private ProfileCodeArrayAdapter codeArrayAdapter;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final CollectionReference collectionReference = db.collection("QRCodePath");
+    CollectionReference collectionReference;
+    private String field;
 
     private ArrayList<String> searchList;
-    String[] userList = new String[]{"Dog","Cat","Bird"};
 
     public SearchFragment() {
         // Required empty public constructor
@@ -59,26 +50,47 @@ public class SearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
         View view = inflater.inflate(R.layout.fragment_search, container, false); // Inflate the layout for this fragment
         dataList = new ArrayList<>();
 
-        // temp: adding samples
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//
+        // Radio Set Up
+        radioGroup = view.findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch(i){
+                    case R.id.radioUser:
+                        collectionReference = db.collection("Players");
+                        field = "Username";
+                        break;
+                    case R.id.radioLocation:
+                        collectionReference = db.collection("Locations");
+                        field = "City";
+                        break;
+                }
+//                 temp: adding samples
+                 collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
 
-                // Clear the old list
-                dataList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    String QR = doc.getId();
-                    dataList.add(QR); // Adding from FireStore
-                }
-                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                //codeArrayAdapter.notifyItemRemoved(position);
+                    // Clear the old list
+                    dataList.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        //String QR = doc.getId();
+                        String Username = (String) doc.get(field);
+                        dataList.add(Username); // Adding from FireStore
+                    }
+                    codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+                    }
+                });
             }
         });
+
         // Initializing recycler and search views
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView);
@@ -147,23 +159,14 @@ public class SearchFragment extends Fragment {
                 return false;
             }
         });
+
         return view;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
 
-    public void onClickRadio(View view){
-        selectRadioId = radioGroup.getCheckedRadioButtonId();
-        radioButton = getView().findViewById(selectRadioId);
-        if(selectRadioId == 1){
-            Toast.makeText(getActivity(), "Selected", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(getActivity(), radioButton.getText(), Toast.LENGTH_SHORT).show();
-        }
     }
 
 
