@@ -18,6 +18,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+// TODO: Delete with Search.java, using DashboardFragment and SearchFragment instead.
 
 public class Dashboard extends AppCompatActivity {
 

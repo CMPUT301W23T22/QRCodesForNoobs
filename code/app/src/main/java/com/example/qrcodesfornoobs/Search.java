@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+// TODO: delete with Dashboard.java, using DashboardFragment and SearchFragment instead
 
 
 public class Search extends AppCompatActivity {
