@@ -15,8 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
+import com.example.qrcodesfornoobs.Creature;
 import com.example.qrcodesfornoobs.ProfileCodeArrayAdapter;
 import com.example.qrcodesfornoobs.R;
+import com.example.qrcodesfornoobs.SearchUserAdapter;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,7 +37,7 @@ public class SearchFragment extends Fragment {
 
     // For Firebase
     private ArrayList<String> dataList;
-    private ProfileCodeArrayAdapter codeArrayAdapter;
+    private SearchUserAdapter searchUserAdapter;
     CollectionReference collectionReference;
     private String field;
 
@@ -85,7 +87,7 @@ public class SearchFragment extends Fragment {
                         String Username = (String) doc.get(field);
                         dataList.add(Username); // Adding from FireStore
                     }
-                    codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+                    searchUserAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
                     }
                 });
             }
@@ -100,8 +102,8 @@ public class SearchFragment extends Fragment {
         // Setting adapter
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        codeArrayAdapter = new ProfileCodeArrayAdapter(getContext(), dataList);
-        recyclerView.setAdapter(codeArrayAdapter);
+        searchUserAdapter = new SearchUserAdapter(getContext(), dataList);
+        recyclerView.setAdapter(searchUserAdapter);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
             @Override
@@ -118,15 +120,15 @@ public class SearchFragment extends Fragment {
                     RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(layoutManager);
 
-                    ProfileCodeArrayAdapter profileCodeArrayAdapter = new ProfileCodeArrayAdapter(getContext(), dataList);
-                    recyclerView.setAdapter(profileCodeArrayAdapter);
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), dataList);
+                    recyclerView.setAdapter(searchUserAdapter);
                 }
                 else{
                     RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(layoutManager);
 
-                    ProfileCodeArrayAdapter profileCodeArrayAdapter = new ProfileCodeArrayAdapter(getContext(), dataList);
-                    recyclerView.setAdapter(profileCodeArrayAdapter);
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), dataList);
+                    recyclerView.setAdapter(searchUserAdapter);
 
                 }
                 return false;
@@ -146,15 +148,15 @@ public class SearchFragment extends Fragment {
                     RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(layoutManager);
 
-                    ProfileCodeArrayAdapter profileCodeArrayAdapter = new ProfileCodeArrayAdapter(getContext(), searchList);
-                    recyclerView.setAdapter(profileCodeArrayAdapter);
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), searchList);
+                    recyclerView.setAdapter(searchUserAdapter);
                 }
                 else{
                     RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(layoutManager);
 
-                    ProfileCodeArrayAdapter profileCodeArrayAdapter = new ProfileCodeArrayAdapter(getContext(), searchList);
-                    recyclerView.setAdapter(profileCodeArrayAdapter);
+                    SearchUserAdapter searchUserAdapter = new SearchUserAdapter(getContext(), searchList);
+                    recyclerView.setAdapter(searchUserAdapter);
                 }
                 return false;
             }
