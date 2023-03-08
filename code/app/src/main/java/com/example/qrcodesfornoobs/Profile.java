@@ -32,6 +32,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import com.example.qrcodesfornoobs.Dashboard;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -62,6 +67,7 @@ public class Profile extends AppCompatActivity {
     private Intent dashboardIntent;
     private ArrayList<Creature> dataList;
 
+    private ArrayAdapter<String> dataAdapter;
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     final CollectionReference collectionReference = db.collection("QRCodePath");
@@ -76,6 +82,8 @@ public class Profile extends AppCompatActivity {
         // From the datalist we will add them into the database
         dataList = new ArrayList<>();
 
+        // Initialize buttons and spinners
+        initWidgets();
         // Temporary
         //TODO: Implement actual adding function when that is finished
 
@@ -121,7 +129,7 @@ public class Profile extends AppCompatActivity {
     private void setSwipeToDelete() {
         final String TAG = "Sample";
 
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT){
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -176,20 +184,20 @@ public class Profile extends AppCompatActivity {
                                         }
                                     });
                         }
-                            recyclerView.scrollToPosition(position);
+                        recyclerView.scrollToPosition(position);
                     }
                 }).show();
             }
 
             @Override
-            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder){
+            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
                 return 1f;
             }
 
             @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                                     @NonNull RecyclerView.ViewHolder viewHolder,
-                                    float dX, float dY, int actionState, boolean isCurrentlyActive){
+                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 setDeleteIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -210,7 +218,7 @@ public class Profile extends AppCompatActivity {
 
         boolean isCancelled = dX == 0 && !isCurrentlyActive;
 
-        if (isCancelled){
+        if (isCancelled) {
             c.drawRect(itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(),
                     (float) itemView.getBottom(), mClearPaint);
             return;
@@ -231,7 +239,7 @@ public class Profile extends AppCompatActivity {
         deleteDrawable.draw(c);
     }
 
-    private void initWidgets(){
+    private void initWidgets() {
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
         toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
@@ -258,18 +266,19 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Hide and show the filter bar
-                if (filterBar.getVisibility() == View.VISIBLE){
+                if (filterBar.getVisibility() == View.VISIBLE) {
                     filterBar.setVisibility(View.GONE);
                 } else {
                     filterBar.setVisibility(View.VISIBLE);
-                }            }
+                }
+            }
         });
         toggleRecyclerViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Hide and show the listview
                 // (Toggle between sliding view and listview)
-                if (recyclerView.getVisibility() == View.VISIBLE){
+                if (recyclerView.getVisibility() == View.VISIBLE) {
                     toggleRecyclerViewButton.setImageResource(R.drawable.face_icon);
                     recyclerView.setVisibility(View.GONE);
                 } else {
@@ -282,10 +291,10 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selected = sortListSpinner.getItemAtPosition(i).toString();
-                if (selected.equals("SCORE (ASCENDING)")){
+                if (selected.equals("SCORE (ASCENDING)")) {
                     System.out.println("ASCENDING");
                     dataList.sort(new ProfileCreatureScoreComparator());
-                } else if (selected.equals("SCORE (DESCENDING)")){
+                } else if (selected.equals("SCORE (DESCENDING)")) {
                     System.out.println("DESCENDING");
                     dataList.sort(new ProfileCreatureScoreComparator());
                     Collections.reverse(dataList);
@@ -298,8 +307,5 @@ public class Profile extends AppCompatActivity {
 
             }
         });
-
-
     }
-
 }
