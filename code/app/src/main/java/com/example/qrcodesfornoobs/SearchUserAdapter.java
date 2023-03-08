@@ -28,7 +28,7 @@ public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserAdapter.My
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = layoutInflater.inflate(R.layout.profile_code_content, parent, false);
+        View view = layoutInflater.inflate(R.layout.search_item, parent, false);
         return new MyHolder(view);
     }
 
@@ -47,7 +47,7 @@ public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserAdapter.My
         TextView userName;
         public MyHolder(@NonNull View itemView) {
             super(itemView);
-            userName = itemView.findViewById(R.id.profile_code_txt);
+            userName = itemView.findViewById(R.id.txt);
 
         }
     }

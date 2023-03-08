@@ -30,7 +30,6 @@ tools:context=".Activity.MainActivity"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/background"
-        app:itemIconTint="@color/all_white"
         app:menu="@menu/nav_bar_menu"
         />
 
