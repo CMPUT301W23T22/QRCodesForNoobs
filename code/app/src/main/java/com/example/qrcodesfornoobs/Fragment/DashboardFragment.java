@@ -32,7 +32,6 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("creating dashboard fragment");
         binding = FragmentDashboardBinding.inflate(getLayoutInflater());
 
         profileIntent = new Intent(getActivity(), Profile.class);
