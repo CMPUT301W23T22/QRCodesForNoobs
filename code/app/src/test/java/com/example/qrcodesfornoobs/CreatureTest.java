@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 public class CreatureTest {
 
     private Creature testHash() throws NoSuchAlgorithmException {
-        return new Creature("test");
+        return new Creature("test", null, null, null);
     }
 
     @Test

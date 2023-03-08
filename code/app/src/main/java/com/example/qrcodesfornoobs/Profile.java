@@ -9,9 +9,12 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -29,9 +32,15 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import com.example.qrcodesfornoobs.Dashboard;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -40,50 +49,62 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class Profile extends AppCompatActivity {
     Button backButton;
     ImageButton toggleFilterButton;
     ImageButton toggleRecyclerViewButton;
-    ImageButton toggleSortButton;
     Spinner sortListSpinner;
-    ListView listView;
     RecyclerView recyclerView;
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
 
     LinearLayout filterBar;
     private Intent dashboardIntent;
+    private ArrayList<Creature> dataList;
 
-    private ArrayList<String> dataList;
-
+    private ArrayAdapter<String> dataAdapter;
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     final CollectionReference collectionReference = db.collection("QRCodePath");
 
-
-
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile);
+
+        // When we add a new creature we need to update the datalist first
+        // From the datalist we will add them into the database
         dataList = new ArrayList<>();
 
+        // Initialize buttons and spinners
+        initWidgets();
         // Temporary
+        //TODO: Implement actual adding function when that is finished
+
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            // For use when updating our datalist from the database
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
+            FirebaseFirestoreException error) {
 
                 // Clear the old list
                 dataList.clear();
                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    String QR = doc.getId();
-                    dataList.add(QR); // Adding from FireStore
+                    // Get attributes from the document using doc.getString(attribute name)
+                    // Create a creature object and use setters to set its attributes to the ones from document
+                    // Add the creature to database
+                    Creature creature = new Creature();
+                    creature = doc.toObject(Creature.class);
+                    dataList.add(creature);
                 }
                 codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                //codeArrayAdapter.notifyItemRemoved(position);
+
             }
         });
 
@@ -108,7 +129,7 @@ public class Profile extends AppCompatActivity {
     private void setSwipeToDelete() {
         final String TAG = "Sample";
 
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT){
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -116,11 +137,11 @@ public class Profile extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-                String QR = dataList.get(viewHolder.getAdapterPosition());
                 int position = viewHolder.getAdapterPosition();
-
-                db.collection("QRCodePath").document(QR)
+                // Get the swiped Creature and delete it from the database
+                Creature QR = dataList.get(position);
+                db.collection("QRCodePath")
+                        .document(QR.getHash())
                         .delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -135,79 +156,48 @@ public class Profile extends AppCompatActivity {
                             }
                         });
 
-                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                            FirebaseFirestoreException error) {
-
-                        // Clear the old list
-                        dataList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            String QR = doc.getId();
-                            dataList.add(QR); // Adding from FireStore
-                        }
-                        codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                        //codeArrayAdapter.notifyItemRemoved(position);
-                    }
-                });
 
                 // UNDO DELETE: not the same hashmap tho
-                Snackbar.make(recyclerView, QR, Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+                Snackbar.make(recyclerView, "Deleted " + QR.getName(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+                    // Undo the delete, re-add the deleted Creature to database
                     @Override
                     public void onClick(View view) {
-                        HashMap<String, String> data = new HashMap<>();
-                        if (QR.length() > 0) {
-                            data.put("QR Code", QR);
+                        System.out.println(QR.getHash());
+                        System.out.println(QR.getScore());
+                        if (QR.getHash().length() > 0) {
 
                             collectionReference
-                                    .document(QR)
-                                    .set(data)
+                                    .document(QR.getHash())
+                                    .set(QR)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             // These are a method which gets executed when the task is succeeded
-                                            Log.d(TAG, "Data has been added successfully!");
+                                            Log.d(TAG, "Data has been re-added successfully!");
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             // These are a method which gets executed if there’s any problem
-                                            Log.d(TAG, "Data could not be added!" + e.toString());
+                                            Log.d(TAG, "Data could not be re-added!" + e.toString());
                                         }
                                     });
                         }
-
-                        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                                    FirebaseFirestoreException error) {
-
-                                // Clear the old list
-                                dataList.clear();
-                                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                                    String QR = doc.getId();
-                                    dataList.add(QR); // Adding from FireStore
-                                }
-                                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                                //codeArrayAdapter.notifyItemInserted(position);
-                                recyclerView.scrollToPosition(position);
-                            }
-                        });
-                        //dataList.add(position, QR);
+                        recyclerView.scrollToPosition(position);
                     }
                 }).show();
             }
 
             @Override
-            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder){
+            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
                 return 1f;
             }
 
             @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                                     @NonNull RecyclerView.ViewHolder viewHolder,
-                                    float dX, float dY, int actionState, boolean isCurrentlyActive){
+                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 setDeleteIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -228,7 +218,7 @@ public class Profile extends AppCompatActivity {
 
         boolean isCancelled = dX == 0 && !isCurrentlyActive;
 
-        if (isCancelled){
+        if (isCancelled) {
             c.drawRect(itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(),
                     (float) itemView.getBottom(), mClearPaint);
             return;
@@ -249,21 +239,18 @@ public class Profile extends AppCompatActivity {
         deleteDrawable.draw(c);
     }
 
-
-    private void initWidgets(){
+    private void initWidgets() {
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
         toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
         toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
-        toggleSortButton = findViewById(R.id.sort_listview_button);
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
-        //listView = findViewById(R.id.list_view);
 
         // Initialize spinner data
         ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
-                R.array.filter_options, android.R.layout.simple_spinner_item);
+                R.array.filter_options, R.layout.spinner_item);
         spinAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         sortListSpinner.setAdapter(spinAdapter);
     }
@@ -279,18 +266,19 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Hide and show the filter bar
-                if (filterBar.getVisibility() == View.VISIBLE){
+                if (filterBar.getVisibility() == View.VISIBLE) {
                     filterBar.setVisibility(View.GONE);
                 } else {
                     filterBar.setVisibility(View.VISIBLE);
-                }            }
+                }
+            }
         });
         toggleRecyclerViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Hide and show the listview
                 // (Toggle between sliding view and listview)
-                if (recyclerView.getVisibility() == View.VISIBLE){
+                if (recyclerView.getVisibility() == View.VISIBLE) {
                     toggleRecyclerViewButton.setImageResource(R.drawable.face_icon);
                     recyclerView.setVisibility(View.GONE);
                 } else {
@@ -299,7 +287,25 @@ public class Profile extends AppCompatActivity {
                 }
             }
         });
+        sortListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = sortListSpinner.getItemAtPosition(i).toString();
+                if (selected.equals("SCORE (ASCENDING)")) {
+                    System.out.println("ASCENDING");
+                    dataList.sort(new ProfileCreatureScoreComparator());
+                } else if (selected.equals("SCORE (DESCENDING)")) {
+                    System.out.println("DESCENDING");
+                    dataList.sort(new ProfileCreatureScoreComparator());
+                    Collections.reverse(dataList);
+                }
+                codeArrayAdapter.notifyDataSetChanged();
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
     }
 }

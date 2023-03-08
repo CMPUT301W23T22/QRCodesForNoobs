@@ -89,10 +89,11 @@ public class MainActivity extends AppCompatActivity {
             if (intentResult.getContents() == null) { // if user cancelled
                 Toast.makeText(getBaseContext(), "Cancelled", Toast.LENGTH_SHORT).show();
             } else {
+                Intent takePhotoIntent = new Intent(this, TakePhotoActivity.class);
+                takePhotoIntent.putExtra("code", intentResult.getContents());
+                startActivity(takePhotoIntent);
                 Toast.makeText(getBaseContext(), intentResult.getContents(), Toast.LENGTH_SHORT).show();
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

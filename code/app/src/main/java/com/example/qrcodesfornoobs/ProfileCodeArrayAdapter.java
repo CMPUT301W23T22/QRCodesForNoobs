@@ -16,10 +16,10 @@ import java.util.ArrayList;
 public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArrayAdapter.MyHolder>{
 
     Context context;
-    ArrayList<String> codes;
+    ArrayList<Creature> codes;
     LayoutInflater layoutInflater;
 
-    public ProfileCodeArrayAdapter(Context context, ArrayList<String> codes) {
+    public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes) {
         this.context = context;
         this.codes = codes;
         layoutInflater = layoutInflater.from(context);
@@ -34,7 +34,10 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        holder.userName.setText(codes.get(position));
+        // Set list item info
+        Creature creature = codes.get(position);
+        holder.creatureName.setText(creature.getName());
+        holder.creatureScore.setText(creature.getScore() + " points");
 
     }
 
@@ -44,10 +47,14 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     }
 
     public class MyHolder extends RecyclerView.ViewHolder {
-        TextView userName;
+        TextView creatureName;
+        TextView creatureScore;
         public MyHolder(@NonNull View itemView) {
+            // Obtain list item textviews
             super(itemView);
-            userName = itemView.findViewById(R.id.profile_code_txt);
+            creatureName = itemView.findViewById(R.id.profile_code_txt);
+            creatureScore = itemView.findViewById(R.id.profile_code_points);
+
 
         }
     }
