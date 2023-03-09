@@ -4,9 +4,7 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context=".Activity.MainActivity"
-    android:background="@color/background">
-
+tools:context=".Activity.MainActivity">
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -29,7 +27,6 @@ tools:context=".Activity.MainActivity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/background"
         app:menu="@menu/nav_bar_menu"
         />
 
