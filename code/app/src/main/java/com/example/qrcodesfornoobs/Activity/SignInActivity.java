@@ -1,6 +1,6 @@
 package com.example.qrcodesfornoobs.Activity;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,9 +8,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Player;
 import com.example.qrcodesfornoobs.databinding.ActivitySigninBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -40,25 +45,56 @@ public class SignInActivity extends AppCompatActivity {
         binding.signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                login(binding.usernameEditText.getText().toString());
+                attemptToLogin(binding.usernameEditText.getText().toString());
             }
         });
     }
 
-    private void login(String username) {
-        SharedPreferences sharedPreferences = getSharedPreferences(SignInActivity.CACHE_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("username", username);
-        editor.apply();
-
-        String deviceID = Settings.System.getString(this.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-        Player player = new Player(username, deviceID);
+    private void attemptToLogin(String username) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Players")
-                .document(username)
-                .set(player);
+        DocumentReference playerRef = db.collection("Players").document(username);
+        String deviceID = Settings.System.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        Player localPlayer = new Player(username, deviceID);
+        playerRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Player dbPlayer = document.toObject(Player.class);
+                        if (localPlayer.equals(dbPlayer)) {
+                            login(localPlayer,false);
+                            Toast.makeText(getBaseContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else { // login as new user
+                        login(localPlayer, true);
+                        Toast.makeText(getBaseContext(), "Welcome!", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+                Toast.makeText(getBaseContext(), "Cannot connect to server!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void login(Player localPlayer, boolean isNewUser) {
+        SharedPreferences sharedPreferences = getSharedPreferences(SignInActivity.CACHE_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("username", localPlayer.getUsername());
+        editor.apply();
+        Player.LOCAL_USERNAME = localPlayer.getUsername();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        if (isNewUser) {
+            db.collection("Players")
+                    .document(localPlayer.getUsername())
+                    .set(localPlayer);
+        }
+
         startActivity(mainIntent);
     }
 
