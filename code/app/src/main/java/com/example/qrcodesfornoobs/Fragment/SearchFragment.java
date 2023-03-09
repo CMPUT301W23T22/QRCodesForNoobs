@@ -67,11 +67,11 @@ public class SearchFragment extends Fragment {
                 switch(i){
                     case R.id.radioUser:
                         collectionReference = db.collection("Players");
-                        field = "Username";
+                        field = "username";
                         break;
                     case R.id.radioLocation:
-                        collectionReference = db.collection("Locations");
-                        field = "City";
+                        collectionReference = db.collection("Creatures");
+                        field = "location";
                         break;
                 }
 //                 temp: adding samples
