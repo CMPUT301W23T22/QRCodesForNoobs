@@ -2,13 +2,13 @@ package com.example.qrcodesfornoobs;
 
 import android.location.Location;
 import android.media.Image;
+import android.net.Uri;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Represents a creature derived from a string
@@ -19,26 +19,30 @@ public class Creature {
     private int score;
     private Image photoCreature;
     private Location location;
-    private Image photoLocation;
+    private Uri photoLocationUrl;
     private ArrayList<String> comments = new ArrayList<>();
 
     /**
      *
      * @param code
      */
-    public Creature (String code, Location location, Image photoCreature, Image photoLocation) throws NoSuchAlgorithmException{
+    public Creature (String code, Location location, Image photoCreature, Uri photoLocationUrl) {
         //this will be used when we scan a code
         //set hash
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        // Change this to UTF-16 if needed
-        md.update(code.getBytes(StandardCharsets.UTF_8));
-        byte[] digest = md.digest();
-        hash = String.format("%064x", new BigInteger(1, digest));
-
-        // Calculating the score
-        calcScore(hash);
-        // Generate a name
-        genName(hash);
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            // Change this to UTF-16 if needed
+            md.update(code.getBytes(StandardCharsets.UTF_8));
+            byte[] digest = md.digest();
+            hash = String.format("%064x", new BigInteger(1, digest));
+            // Calculating the score
+            calcScore(hash);
+            // Generate a name
+            genName(hash);
+            this.photoLocationUrl = photoLocationUrl;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
 
         // TODO: Image & location functionality
     }
@@ -114,8 +118,8 @@ public class Creature {
     public Image getPhotoCreature() {
         return photoCreature;
     }
-    public Image getPhotoLocation() {
-        return photoLocation;
+    public Uri getPhotoLocationUrl() {
+        return photoLocationUrl;
     }
     public Location getLocation() {
         return location;
@@ -125,9 +129,6 @@ public class Creature {
     }
     public void setLocation(Location location) {
         this.location = location;
-    }
-    public void setPhotoLocation(Image photoLocation) {
-        this.photoLocation = photoLocation;
     }
     public void addComment(String comment){
         comments.add(comment);

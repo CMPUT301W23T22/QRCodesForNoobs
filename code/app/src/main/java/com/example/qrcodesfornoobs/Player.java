@@ -3,8 +3,10 @@ package com.example.qrcodesfornoobs;
 import android.provider.ContactsContract;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Player {
+    public static String LOCAL_USERNAME = null; // only set if user has signed in before
     //TODO: Call to db for Creatures
     private String username;
     private String device;
@@ -14,6 +16,30 @@ public class Player {
         this.username = username;
         this.device = device;
     }
+
+    // addressing https://stackoverflow.com/questions/60389906/could-not-deserialize-object-does-not-define-a-no-argument-constructor-if-you
+    public Player() {
+
+    }
+
+    /**
+     * 2 Player are considered equal if they have the same username & device
+     * @param o player to be compared with
+     * @return true if equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return username.equals(player.username) && device.equals(player.device);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, device);
+    }
+
     public void addCreature(Creature creature) {
         creatures.add(creature);
     }
@@ -33,6 +59,7 @@ public class Player {
     public String getDevice(){
         return device;
     }
+
 }
 
 
