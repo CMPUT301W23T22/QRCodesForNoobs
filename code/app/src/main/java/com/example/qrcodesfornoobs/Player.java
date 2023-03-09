@@ -5,9 +5,10 @@ import android.provider.ContactsContract;
 import java.util.ArrayList;
 
 public class Player {
+    public static String LOCAL_USERNAME = null; // only set if user has signed in before
     //TODO: Call to db for Creatures
     private String username;
-    private String device;
+    private final String device;
     private ArrayList<Creature> creatures = new ArrayList<>();
 
     public Player(String username, String device) {
