@@ -3,6 +3,7 @@ package com.example.qrcodesfornoobs;
 import android.provider.ContactsContract;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 public class Player {
@@ -11,6 +12,7 @@ public class Player {
     private String username;
     private String device;
     private ArrayList<Creature> creatures = new ArrayList<>();
+    private ContactsContract.CommonDataKinds.Email contact;
 
     public Player(String username, String device) {
         this.username = username;
@@ -60,6 +62,13 @@ public class Player {
         return device;
     }
 
+    public ContactsContract.CommonDataKinds.Email getContact() {
+        return contact;
+    }
+
+    public ArrayList<Creature> getCreatures() {
+        return creatures;
+    }
 }
 
 

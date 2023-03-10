@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,8 +33,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrcodesfornoobs.databinding.ProfileBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -54,6 +59,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class Profile extends AppCompatActivity {
     Button backButton;
@@ -62,6 +69,7 @@ public class Profile extends AppCompatActivity {
     Spinner sortListSpinner;
     RecyclerView recyclerView;
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
+    Player player;
 
     LinearLayout filterBar;
     private Intent dashboardIntent;
@@ -71,11 +79,14 @@ public class Profile extends AppCompatActivity {
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     final CollectionReference collectionReference = db.collection("QRCodePath");
+    final CollectionReference playersReference = db.collection("Players");
 
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        loadPlayer();
         setContentView(R.layout.profile);
 
         // When we add a new creature we need to update the datalist first
@@ -307,5 +318,22 @@ public class Profile extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void loadPlayer(){
+
+        // Take target player from FireBase
+        String user = Player.LOCAL_USERNAME;
+        playersReference
+                .document(user)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot doc) {
+                        player = doc.toObject(Player.class);
+                        TextView view = (TextView) findViewById(R.id.profile_playername_textview);
+                        view.setText(player.getUsername());
+                    }
+                });
     }
 }
