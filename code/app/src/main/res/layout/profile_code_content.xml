@@ -16,7 +16,7 @@
         android:background="@color/background">
 
         <ImageView
-            android:id="@+id/img"
+            android:id="@+id/profile_creature_img"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
-            android:layout_toRightOf="@id/img"
+            android:layout_toRightOf="@id/profile_creature_img"
             android:singleLine="true"
             android:text="Creature name"
             android:textColor="@color/all_white"
@@ -45,7 +45,7 @@
             android:layout_below="@+id/profile_code_txt"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="-3dp"
-            android:layout_toRightOf="@id/img"
+            android:layout_toRightOf="@id/profile_creature_img"
             android:singleLine="true"
             android:text="Points"
             android:textColor="@color/all_white"

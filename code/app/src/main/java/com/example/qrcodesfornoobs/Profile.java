@@ -1,6 +1,8 @@
 package com.example.qrcodesfornoobs;
 
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -34,8 +36,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qrcodesfornoobs.Activity.MainActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -67,14 +73,15 @@ public class Profile extends AppCompatActivity {
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
 
     LinearLayout filterBar;
-    private Intent dashboardIntent;
     private Intent mainIntent;
     private ArrayList<Creature> dataList;
 
-    private ArrayAdapter<String> dataAdapter;
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final CollectionReference collectionReference = db.collection("QRCodePath");
+    final CollectionReference creatureCollectionReference = db.collection("Creatures");
+    final CollectionReference playerCollectionReference = db.collection("Players");
+    final String localUser = Player.LOCAL_USERNAME;
+    final String TAG = "tag";
 
     @Override
 
@@ -92,7 +99,27 @@ public class Profile extends AppCompatActivity {
         // Temporary
         //TODO: Implement actual adding function when that is finished
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+        DocumentReference playerRef = playerCollectionReference.document(localUser);
+        playerRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+
+        creatureCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             // For use when updating our datalist from the database
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
@@ -104,7 +131,7 @@ public class Profile extends AppCompatActivity {
                     // Get attributes from the document using doc.getString(attribute name)
                     // Create a creature object and use setters to set its attributes to the ones from document
                     // Add the creature to database
-                    Creature creature = new Creature();
+                    Creature creature;
                     creature = doc.toObject(Creature.class);
                     dataList.add(creature);
                 }
@@ -126,8 +153,6 @@ public class Profile extends AppCompatActivity {
         recyclerView.setAdapter(codeArrayAdapter);
         setSwipeToDelete();
 
-        // INTENT
-        dashboardIntent = new Intent(this, Dashboard.class);
     }
 
     // For RecyclerView Delete
@@ -145,7 +170,7 @@ public class Profile extends AppCompatActivity {
                 int position = viewHolder.getAdapterPosition();
                 // Get the swiped Creature and delete it from the database
                 Creature QR = dataList.get(position);
-                db.collection("QRCodePath")
+                db.collection("Creatures")
                         .document(QR.getHash())
                         .delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -171,7 +196,7 @@ public class Profile extends AppCompatActivity {
                         System.out.println(QR.getScore());
                         if (QR.getHash().length() > 0) {
 
-                            collectionReference
+                            creatureCollectionReference
                                     .document(QR.getHash())
                                     .set(QR)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
