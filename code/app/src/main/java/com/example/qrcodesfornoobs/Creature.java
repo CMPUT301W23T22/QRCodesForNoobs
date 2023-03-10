@@ -14,14 +14,14 @@ import java.util.ArrayList;
  * Represents a creature derived from a string
  */
 public class Creature {
-    private String name;
-    private String hash;
-    private int score;
-    private int numOfScans = 1;
-    private String photoCreatureUrl;
-    private Location location;
-    private String photoLocationUrl;
-    private ArrayList<String> comments = new ArrayList<>();
+    private String name; // const
+    private String hash; // const
+    private int score; // const
+    private int numOfScans = 1; // update every scan
+    private String photoCreatureUrl; // const
+    private Location location; // update every scan
+    private String photoLocationUrl; // update every scan
+    private ArrayList<String> comments = new ArrayList<>(); // update every comment
 
     /**
      *
@@ -139,6 +139,10 @@ public class Creature {
     }
     public void setPhotoLocationUrl(String photoLocationUrl) {
         this.photoLocationUrl = photoLocationUrl;
+    }
+
+    public void incrementScan() {
+        this.numOfScans++;
     }
 
     public void addComment(String comment){
