@@ -22,17 +22,25 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.qrcodesfornoobs.Creature;
 import com.example.qrcodesfornoobs.databinding.ActivityTakePhotoBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class TakePhotoActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 666;
@@ -64,27 +72,42 @@ public class TakePhotoActivity extends AppCompatActivity {
                 // TODO: upload code, photo (of qr & place), location (if selected) to db
                 String scannedCode = getIntent().getExtras().getString("code");
 
-                Image photoCreature = null;
+                Uri photoCreatureUrl = null;
                 Location location = null; //setting this in part4
+                Creature creature = new Creature(scannedCode, location);
                 if (binding.saveLocationCheckBox.isChecked()) {
                     // set local isPhotoLocation to the photo
                 }
-                if (binding.saveImageCheckBox.isChecked()) {
-                    uploadLocationImage().thenAccept(photoLocationUrl -> {
-                        Creature creature = new Creature(scannedCode, location, photoCreature, photoLocationUrl);
-                        uploadToDatabase(creature);
-                    }).exceptionally(e -> {
-                        Toast.makeText(getBaseContext(), "Failed to upload image!", Toast.LENGTH_SHORT).show();
-                        return null;
-                    });
-                } else {
-                    Creature creature = new Creature(scannedCode, location, photoCreature, null);
+                uploadImages(creature, binding.saveImageCheckBox.isChecked()).thenAccept((urlList) -> {
+                    creature.setPhotoLocationUrl(urlList.get(0));
+                    creature.setPhotoCreatureUrl(urlList.get(1));
                     uploadToDatabase(creature);
-                }
+                });
                 finish();
             }
         });
+        randomizeCodeRepresentationImage();
         openCamera();
+    }
+
+    private void randomizeCodeRepresentationImage() {
+        long randomSeed = System.currentTimeMillis();
+        Glide.with(this)
+                .asBitmap()
+                .load("https://picsum.photos/200?random=" + randomSeed)
+                .centerCrop()
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        codeRepresentationBitmap = resource;
+                        binding.codeRepresentationImageView.setImageBitmap(codeRepresentationBitmap);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
     }
 
     private void uploadToDatabase(Creature creature) {
@@ -106,41 +129,89 @@ public class TakePhotoActivity extends AppCompatActivity {
                 });
     }
 
-    private CompletableFuture<Uri> uploadLocationImage() {
-        CompletableFuture<Uri> future = new CompletableFuture<>();
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_location/test");
-        if (photoBitmap == null) {
-            future.complete(null);
-            return future;
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        UploadTask uploadTask = storageReference.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                future.completeExceptionally(e);
+    private CompletableFuture<List<Uri>> uploadImages(Creature creature, boolean isSavingLocationPhoto) {
+        CompletableFuture<Uri> locationPhotoFuture = CompletableFuture.supplyAsync(() -> {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_location/test_photo");
+            if (photoBitmap == null || !isSavingLocationPhoto) {
+                return null;
             }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        future.complete(uri);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        future.completeExceptionally(e);
-                    }
-                });
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            UploadTask uploadTask = storageReference.putBytes(data);
+            try {
+                Tasks.await(uploadTask);
+                return storageReference.getDownloadUrl().getResult();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return null;
             }
         });
-        return future;
+
+        CompletableFuture<Uri> codeRepresentationFuture = CompletableFuture.supplyAsync(() -> {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_representation/test_photo");
+            if (codeRepresentationBitmap == null) {
+                return null;
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            codeRepresentationBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            UploadTask uploadTask = storageReference.putBytes(data);
+            try {
+                Tasks.await(uploadTask);
+                return storageReference.getDownloadUrl().getResult();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+
+        CompletableFuture<List<Uri>> combinedFuture = locationPhotoFuture.thenCombine(codeRepresentationFuture, (photoLocationUrl, codeRepresentationUrl) -> {
+            List<Uri> urls = new ArrayList<>(Arrays.asList(photoLocationUrl, codeRepresentationUrl));
+            return urls;
+        });
+
+        return combinedFuture;
+
     }
+
+//    private CompletableFuture<Uri> uploadLocationImage() {
+//        CompletableFuture<Uri> future = new CompletableFuture<>();
+//        StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_location/test");
+//        if (photoBitmap == null) {
+//            future.complete(null);
+//            return future;
+//        }
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//        byte[] data = baos.toByteArray();
+//
+//        UploadTask uploadTask = storageReference.putBytes(data);
+//        uploadTask.addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                future.completeExceptionally(e);
+//            }
+//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                    @Override
+//                    public void onSuccess(Uri uri) {
+//                        future.complete(uri);
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        future.completeExceptionally(e);
+//                    }
+//                });
+//            }
+//        });
+//        return future;
+//    }
 
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);

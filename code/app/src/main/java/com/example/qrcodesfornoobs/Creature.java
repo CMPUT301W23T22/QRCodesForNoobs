@@ -17,7 +17,7 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
-    private Image photoCreature;
+    private Uri photoCreatureUrl;
     private Location location;
     private Uri photoLocationUrl;
     private ArrayList<String> comments = new ArrayList<>();
@@ -26,7 +26,7 @@ public class Creature {
      *
      * @param code
      */
-    public Creature (String code, Location location, Image photoCreature, Uri photoLocationUrl) {
+    public Creature (String code, Location location) {
         //this will be used when we scan a code
         //set hash
         try {
@@ -39,7 +39,6 @@ public class Creature {
             calcScore(hash);
             // Generate a name
             genName(hash);
-            this.photoLocationUrl = photoLocationUrl;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -47,12 +46,11 @@ public class Creature {
         // TODO: Image & location functionality
     }
 
-    public Creature(String name, String hash, int score, Image photo, Location location, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, Location location, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
         this.score = score;
-        this.photoCreature = photo;
         this.location = location;
         this.comments = comments;
     }
@@ -115,17 +113,14 @@ public class Creature {
     public int getScore() {
         return score;
     }
-    public Image getPhotoCreature() {
-        return photoCreature;
+    public Uri getPhotoCreatureUrl() {
+        return photoCreatureUrl;
     }
     public Uri getPhotoLocationUrl() {
         return photoLocationUrl;
     }
     public Location getLocation() {
         return location;
-    }
-    public void setPhotoCreature(Image photoCreature) {
-        this.photoCreature = photoCreature;
     }
     public void setLocation(Location location) {
         this.location = location;
@@ -137,4 +132,12 @@ public class Creature {
         comments.remove(comment);
     }
     public ArrayList<String> getComments() {return comments;}
+
+    public void setPhotoCreatureUrl(Uri photoCreatureUrl) {
+        this.photoCreatureUrl = photoCreatureUrl;
+    }
+
+    public void setPhotoLocationUrl(Uri photoLocationUrl) {
+        this.photoLocationUrl = photoLocationUrl;
+    }
 }
