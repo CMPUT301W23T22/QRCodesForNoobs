@@ -13,13 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 
-public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserAdapter.MyHolder>{
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
 
     Context context;
     ArrayList<String> codes;
     LayoutInflater layoutInflater;
 
-    public SearchUserAdapter(Context context, ArrayList<String> codes) {
+    public SearchAdapter(Context context, ArrayList<String> codes) {
         this.context = context;
         this.codes = codes;
         layoutInflater = layoutInflater.from(context);

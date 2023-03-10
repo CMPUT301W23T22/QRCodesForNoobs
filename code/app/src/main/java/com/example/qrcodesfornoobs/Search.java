@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -53,7 +52,7 @@ public class Search extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Search.this);
         recyclerView.setLayoutManager(layoutManager);
 
-        SearchUserAdapter searchUserAdapter = new SearchUserAdapter(Search.this, arrayList);
+        SearchAdapter searchUserAdapter = new SearchAdapter(Search.this, arrayList);
         recyclerView.setAdapter(searchUserAdapter);
     }
 
