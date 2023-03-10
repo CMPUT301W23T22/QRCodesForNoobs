@@ -48,12 +48,12 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
         Creature creature = codes.get(position);
         URL creatureImageUrl;
         try {
-            creatureImageUrl = new URL(creature.getPhotoLocationUrl());
+            creatureImageUrl = new URL(creature.getPhotoCreatureUrl());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
 
-        RequestOptions options = new RequestOptions().circleCrop();
+        RequestOptions options = new RequestOptions().circleCrop().placeholder(R.drawable.face_icon);
 
 
         holder.creatureName.setText(creature.getName());
