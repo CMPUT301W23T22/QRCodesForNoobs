@@ -17,16 +17,17 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
-    private Image photoCreature;
+    private int numOfScans = 1;
+    private String photoCreatureUrl;
     private Location location;
-    private Uri photoLocationUrl;
+    private String photoLocationUrl;
     private ArrayList<String> comments = new ArrayList<>();
 
     /**
      *
      * @param code
      */
-    public Creature (String code, Location location, Image photoCreature, Uri photoLocationUrl) {
+    public Creature (String code, Location location) {
         //this will be used when we scan a code
         //set hash
         try {
@@ -39,7 +40,6 @@ public class Creature {
             calcScore(hash);
             // Generate a name
             genName(hash);
-            this.photoLocationUrl = photoLocationUrl;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -47,12 +47,12 @@ public class Creature {
         // TODO: Image & location functionality
     }
 
-    public Creature(String name, String hash, int score, Image photo, Location location, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, int numOfScans, Location location, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
         this.score = score;
-        this.photoCreature = photo;
+        this.numOfScans = numOfScans;
         this.location = location;
         this.comments = comments;
     }
@@ -106,6 +106,7 @@ public class Creature {
         }
         score += count; // Final addition for the end of the loop.
     }
+    // getters
     public String getHash() {
         return hash;
     }
@@ -115,26 +116,36 @@ public class Creature {
     public int getScore() {
         return score;
     }
-    public Image getPhotoCreature() {
-        return photoCreature;
+    public String getPhotoCreatureUrl() {
+        return photoCreatureUrl;
     }
-    public Uri getPhotoLocationUrl() {
+    public String getPhotoLocationUrl() {
         return photoLocationUrl;
     }
     public Location getLocation() {
         return location;
     }
-    public void setPhotoCreature(Image photoCreature) {
-        this.photoCreature = photoCreature;
+    public ArrayList<String> getComments() {return comments;}
+    public int getNumOfScans() {
+        return numOfScans;
     }
+
+    // setters
     public void setLocation(Location location) {
         this.location = location;
     }
+    public void setPhotoCreatureUrl(String photoCreatureUrl) {
+        this.photoCreatureUrl = photoCreatureUrl;
+    }
+    public void setPhotoLocationUrl(String photoLocationUrl) {
+        this.photoLocationUrl = photoLocationUrl;
+    }
+
     public void addComment(String comment){
         comments.add(comment);
     }
     public void removeComment(String comment){
         comments.remove(comment);
     }
-    public ArrayList<String> getComments() {return comments;}
+
 }
