@@ -140,13 +140,11 @@ public class TakePhotoActivity extends AppCompatActivity {
             byte[] data = baos.toByteArray();
 
             UploadTask uploadTask = storageReference.putBytes(data);
-            try {
-                Tasks.await(uploadTask);
-                return storageReference.getDownloadUrl().getResult();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-                return null;
-            }
+            CompletableFuture<Uri> future = new CompletableFuture<>();
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                storageReference.getDownloadUrl().addOnSuccessListener(uri -> future.complete(uri));
+            }).addOnFailureListener(e -> future.completeExceptionally(e));
+            return future.join();
         });
 
         CompletableFuture<Uri> codeRepresentationFuture = CompletableFuture.supplyAsync(() -> {
@@ -159,13 +157,11 @@ public class TakePhotoActivity extends AppCompatActivity {
             byte[] data = baos.toByteArray();
 
             UploadTask uploadTask = storageReference.putBytes(data);
-            try {
-                Tasks.await(uploadTask);
-                return storageReference.getDownloadUrl().getResult();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-                return null;
-            }
+            CompletableFuture<Uri> future = new CompletableFuture<>();
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                storageReference.getDownloadUrl().addOnSuccessListener(uri -> future.complete(uri));
+            }).addOnFailureListener(e -> future.completeExceptionally(e));
+            return future.join();
         });
 
         CompletableFuture<List<Uri>> combinedFuture = locationPhotoFuture.thenCombine(codeRepresentationFuture, (photoLocationUrl, codeRepresentationUrl) -> {
@@ -176,42 +172,6 @@ public class TakePhotoActivity extends AppCompatActivity {
         return combinedFuture;
 
     }
-
-//    private CompletableFuture<Uri> uploadLocationImage() {
-//        CompletableFuture<Uri> future = new CompletableFuture<>();
-//        StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_location/test");
-//        if (photoBitmap == null) {
-//            future.complete(null);
-//            return future;
-//        }
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//        byte[] data = baos.toByteArray();
-//
-//        UploadTask uploadTask = storageReference.putBytes(data);
-//        uploadTask.addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                future.completeExceptionally(e);
-//            }
-//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                    @Override
-//                    public void onSuccess(Uri uri) {
-//                        future.complete(uri);
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        future.completeExceptionally(e);
-//                    }
-//                });
-//            }
-//        });
-//        return future;
-//    }
 
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
