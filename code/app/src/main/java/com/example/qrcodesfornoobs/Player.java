@@ -10,7 +10,7 @@ public class Player {
     //TODO: Call to db for Creatures
     private String username;
     private String device;
-    private ArrayList<Creature> creatures = new ArrayList<>();
+    private ArrayList<String> creatures = new ArrayList<>();
 
     public Player(String username, String device) {
         this.username = username;
@@ -41,11 +41,11 @@ public class Player {
     }
 
     public void addCreature(Creature creature) {
-        creatures.add(creature);
+        creatures.add(creature.getHash());
     }
 
     public void removeCreature(Creature creature) {
-        creatures.remove(creature);
+        creatures.remove(creature.getHash());
     }
 
     public void removeCreature(int i) {
@@ -60,6 +60,9 @@ public class Player {
         return device;
     }
 
+    public ArrayList<String> getCreatures() {
+        return creatures;
+    }
 }
 
 
