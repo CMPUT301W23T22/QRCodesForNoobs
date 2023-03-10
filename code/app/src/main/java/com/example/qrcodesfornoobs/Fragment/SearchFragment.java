@@ -92,8 +92,10 @@ public class SearchFragment extends Fragment {
                 if (query.length() > 0) {
                     searchView.clearFocus();
                     //TODO: Bug: searching finds values greater than query
-                    // ex. testinggg --> thonas
+                    // ex. 'testinggg' --> 'thonas'
                     // query value less than others works correctly
+                    // Doesn't account for lowercase uppercase (uppercase < lowercase)
+                    // ex. Search: 'p' doesn't show 'Pola'
                     collectionReference.whereEqualTo("username", query).get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
