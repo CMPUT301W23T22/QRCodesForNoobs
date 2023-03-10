@@ -194,6 +194,8 @@ public class SearchFragment extends Fragment {
     public void onPause() {
         super.onPause();
         radioGroup.clearCheck();
+        searchView.setQuery("", false);
+        searchView.clearFocus();
     }
 
     public void radioGroupCheck (FirebaseFirestore db, RadioGroup radioGroup){
