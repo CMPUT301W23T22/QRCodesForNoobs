@@ -17,7 +17,7 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
-    private int numOfScans = 0;
+    private int numOfScans = 1;
     private String photoCreatureUrl;
     private Location location;
     private String photoLocationUrl;
