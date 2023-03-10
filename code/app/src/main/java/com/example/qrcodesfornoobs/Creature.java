@@ -17,9 +17,9 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
-    private Uri photoCreatureUrl;
+    private String photoCreatureUrl;
     private Location location;
-    private Uri photoLocationUrl;
+    private String photoLocationUrl;
     private ArrayList<String> comments = new ArrayList<>();
 
     /**
@@ -113,10 +113,10 @@ public class Creature {
     public int getScore() {
         return score;
     }
-    public Uri getPhotoCreatureUrl() {
+    public String getPhotoCreatureUrl() {
         return photoCreatureUrl;
     }
-    public Uri getPhotoLocationUrl() {
+    public String getPhotoLocationUrl() {
         return photoLocationUrl;
     }
     public Location getLocation() {
@@ -133,11 +133,11 @@ public class Creature {
     }
     public ArrayList<String> getComments() {return comments;}
 
-    public void setPhotoCreatureUrl(Uri photoCreatureUrl) {
+    public void setPhotoCreatureUrl(String photoCreatureUrl) {
         this.photoCreatureUrl = photoCreatureUrl;
     }
 
-    public void setPhotoLocationUrl(Uri photoLocationUrl) {
+    public void setPhotoLocationUrl(String photoLocationUrl) {
         this.photoLocationUrl = photoLocationUrl;
     }
 }

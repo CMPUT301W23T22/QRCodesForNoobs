@@ -36,11 +36,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class TakePhotoActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 666;
@@ -72,7 +73,6 @@ public class TakePhotoActivity extends AppCompatActivity {
                 // TODO: upload code, photo (of qr & place), location (if selected) to db
                 String scannedCode = getIntent().getExtras().getString("code");
 
-                Uri photoCreatureUrl = null;
                 Location location = null; //setting this in part4
                 Creature creature = new Creature(scannedCode, location);
                 if (binding.saveLocationCheckBox.isChecked()) {
@@ -129,26 +129,29 @@ public class TakePhotoActivity extends AppCompatActivity {
                 });
     }
 
-    private CompletableFuture<List<Uri>> uploadImages(Creature creature, boolean isSavingLocationPhoto) {
-        CompletableFuture<Uri> locationPhotoFuture = CompletableFuture.supplyAsync(() -> {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_location/test_photo");
+    private CompletableFuture<ArrayList<String>> uploadImages(Creature creature, boolean isSavingLocationPhoto) {
+        CompletableFuture<String> locationPhotoFuture = CompletableFuture.supplyAsync(() -> {
             if (photoBitmap == null || !isSavingLocationPhoto) {
                 return null;
             }
+            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA).format(new Date());
+            String storageLocation = "photo_location/" + date;
+            StorageReference locationPhotoStorageReference = FirebaseStorage.getInstance().getReference(storageLocation);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
 
-            UploadTask uploadTask = storageReference.putBytes(data);
-            CompletableFuture<Uri> future = new CompletableFuture<>();
+            UploadTask uploadTask = locationPhotoStorageReference.putBytes(data);
+            CompletableFuture<String> getUriFuture = new CompletableFuture<>();
             uploadTask.addOnSuccessListener(taskSnapshot -> {
-                storageReference.getDownloadUrl().addOnSuccessListener(uri -> future.complete(uri));
-            }).addOnFailureListener(e -> future.completeExceptionally(e));
-            return future.join();
+                locationPhotoStorageReference.getDownloadUrl().addOnSuccessListener(uri -> getUriFuture.complete(uri.toString()));
+            }).addOnFailureListener(e -> getUriFuture.completeExceptionally(null));
+            return getUriFuture.join();
         });
 
-        CompletableFuture<Uri> codeRepresentationFuture = CompletableFuture.supplyAsync(() -> {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference("code_representation/test_photo");
+        CompletableFuture<String> creaturePhotoFuture = CompletableFuture.supplyAsync(() -> {
+            String storageLocation = "photo_creature/" + creature.getHash();
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(storageLocation);
             if (codeRepresentationBitmap == null) {
                 return null;
             }
@@ -157,20 +160,18 @@ public class TakePhotoActivity extends AppCompatActivity {
             byte[] data = baos.toByteArray();
 
             UploadTask uploadTask = storageReference.putBytes(data);
-            CompletableFuture<Uri> future = new CompletableFuture<>();
+            CompletableFuture<String> getUriFuture = new CompletableFuture<>();
             uploadTask.addOnSuccessListener(taskSnapshot -> {
-                storageReference.getDownloadUrl().addOnSuccessListener(uri -> future.complete(uri));
-            }).addOnFailureListener(e -> future.completeExceptionally(e));
-            return future.join();
+                storageReference.getDownloadUrl().addOnSuccessListener(uri -> getUriFuture.complete(uri.toString()));
+            }).addOnFailureListener(e -> getUriFuture.completeExceptionally(null));
+            return getUriFuture.join();
         });
 
-        CompletableFuture<List<Uri>> combinedFuture = locationPhotoFuture.thenCombine(codeRepresentationFuture, (photoLocationUrl, codeRepresentationUrl) -> {
-            List<Uri> urls = new ArrayList<>(Arrays.asList(photoLocationUrl, codeRepresentationUrl));
+        CompletableFuture<ArrayList<String>> combinedFuture = locationPhotoFuture.thenCombine(creaturePhotoFuture, (photoLocationUrl, photoCreatureUrl) -> {
+            ArrayList<String> urls = new ArrayList<>(Arrays.asList(photoLocationUrl, photoCreatureUrl));
             return urls;
         });
-
         return combinedFuture;
-
     }
 
     private void openCamera() {
