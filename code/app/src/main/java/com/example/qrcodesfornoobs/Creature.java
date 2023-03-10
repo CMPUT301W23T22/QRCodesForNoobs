@@ -17,6 +17,7 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
+    private int numOfScans = 0;
     private String photoCreatureUrl;
     private Location location;
     private String photoLocationUrl;
@@ -46,11 +47,12 @@ public class Creature {
         // TODO: Image & location functionality
     }
 
-    public Creature(String name, String hash, int score, Location location, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, int numOfScans, Location location, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
         this.score = score;
+        this.numOfScans = numOfScans;
         this.location = location;
         this.comments = comments;
     }
@@ -104,6 +106,7 @@ public class Creature {
         }
         score += count; // Final addition for the end of the loop.
     }
+    // getters
     public String getHash() {
         return hash;
     }
@@ -122,22 +125,27 @@ public class Creature {
     public Location getLocation() {
         return location;
     }
+    public ArrayList<String> getComments() {return comments;}
+    public int getNumOfScans() {
+        return numOfScans;
+    }
+
+    // setters
     public void setLocation(Location location) {
         this.location = location;
     }
+    public void setPhotoCreatureUrl(String photoCreatureUrl) {
+        this.photoCreatureUrl = photoCreatureUrl;
+    }
+    public void setPhotoLocationUrl(String photoLocationUrl) {
+        this.photoLocationUrl = photoLocationUrl;
+    }
+
     public void addComment(String comment){
         comments.add(comment);
     }
     public void removeComment(String comment){
         comments.remove(comment);
     }
-    public ArrayList<String> getComments() {return comments;}
 
-    public void setPhotoCreatureUrl(String photoCreatureUrl) {
-        this.photoCreatureUrl = photoCreatureUrl;
-    }
-
-    public void setPhotoLocationUrl(String photoLocationUrl) {
-        this.photoLocationUrl = photoLocationUrl;
-    }
 }

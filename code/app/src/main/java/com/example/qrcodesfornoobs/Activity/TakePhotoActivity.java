@@ -11,11 +11,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -29,7 +26,6 @@ import com.example.qrcodesfornoobs.Creature;
 import com.example.qrcodesfornoobs.databinding.ActivityTakePhotoBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -78,6 +74,7 @@ public class TakePhotoActivity extends AppCompatActivity {
                 if (binding.saveLocationCheckBox.isChecked()) {
                     // set local isPhotoLocation to the photo
                 }
+                // TODO: implement checking existence
                 uploadImages(creature, binding.saveImageCheckBox.isChecked()).thenAccept((urlList) -> {
                     creature.setPhotoLocationUrl(urlList.get(0));
                     creature.setPhotoCreatureUrl(urlList.get(1));
@@ -137,33 +134,37 @@ public class TakePhotoActivity extends AppCompatActivity {
             String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA).format(new Date());
             String storageLocation = "photo_location/" + date;
             StorageReference locationPhotoStorageReference = FirebaseStorage.getInstance().getReference(storageLocation);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
-
             UploadTask uploadTask = locationPhotoStorageReference.putBytes(data);
+
             CompletableFuture<String> getUriFuture = new CompletableFuture<>();
             uploadTask.addOnSuccessListener(taskSnapshot -> {
                 locationPhotoStorageReference.getDownloadUrl().addOnSuccessListener(uri -> getUriFuture.complete(uri.toString()));
             }).addOnFailureListener(e -> getUriFuture.completeExceptionally(null));
+
             return getUriFuture.join();
         });
 
         CompletableFuture<String> creaturePhotoFuture = CompletableFuture.supplyAsync(() -> {
-            String storageLocation = "photo_creature/" + creature.getHash();
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference(storageLocation);
             if (codeRepresentationBitmap == null) {
                 return null;
             }
+            String storageLocation = "photo_creature/" + creature.getHash();
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(storageLocation);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             codeRepresentationBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
-
             UploadTask uploadTask = storageReference.putBytes(data);
+
             CompletableFuture<String> getUriFuture = new CompletableFuture<>();
             uploadTask.addOnSuccessListener(taskSnapshot -> {
                 storageReference.getDownloadUrl().addOnSuccessListener(uri -> getUriFuture.complete(uri.toString()));
             }).addOnFailureListener(e -> getUriFuture.completeExceptionally(null));
+
             return getUriFuture.join();
         });
 
