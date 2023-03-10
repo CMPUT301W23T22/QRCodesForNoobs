@@ -37,7 +37,8 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name=".Activity.MainActivity" />
+        <activity android:name=".Activity.MainActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".Dashboard" />
         <activity android:name=".Activity.SettingsActivity" />
         <activity android:name=".Profile" />

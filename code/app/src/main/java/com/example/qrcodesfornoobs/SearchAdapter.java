@@ -1,5 +1,6 @@
 package com.example.qrcodesfornoobs;
 
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,35 +13,34 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 
-public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserAdapter.MyHolder>{
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
 
     Context context;
-    ArrayList<SearchUser> arrayList;
+    ArrayList<String> codes;
     LayoutInflater layoutInflater;
 
-    public SearchUserAdapter(Context context, ArrayList<SearchUser> arrayList) {
+    public SearchAdapter(Context context, ArrayList<String> codes) {
         this.context = context;
-        this.arrayList = arrayList;
+        this.codes = codes;
         layoutInflater = layoutInflater.from(context);
     }
 
     @NonNull
     @Override
-    public SearchUserAdapter.MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = layoutInflater.inflate(R.layout.search_item, parent, false);
         return new MyHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SearchUserAdapter.MyHolder holder, int position) {
-        holder.userName.setText(arrayList.get(position).getUsername());
-
+    public void onBindViewHolder(@NonNull MyHolder holder, int position) {
+        holder.userName.setText(codes.get(position));
 
     }
 
     @Override
     public int getItemCount() {
-        return arrayList.size();
+        return codes.size();
     }
 
     public class MyHolder extends RecyclerView.ViewHolder {
