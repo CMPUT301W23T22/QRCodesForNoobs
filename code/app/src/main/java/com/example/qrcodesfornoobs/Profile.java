@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -73,6 +74,8 @@ public class Profile extends AppCompatActivity {
     Spinner sortListSpinner;
     RecyclerView recyclerView;
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
+    TextView playerName;
+    TextView codeCount;
 
     LinearLayout filterBar;
     private Intent mainIntent;
@@ -91,6 +94,7 @@ public class Profile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile);
+
 
         // When we add a new creature we need to update the datalist first
         // From the datalist we will add them into the database
@@ -161,6 +165,7 @@ public class Profile extends AppCompatActivity {
                                                             creature = doc.toObject(Creature.class);
                                                             creaturesToDisplay.add(creature);
                                                         }
+                                                        codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
@@ -317,7 +322,9 @@ public class Profile extends AppCompatActivity {
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
-
+        playerName = findViewById(R.id.profile_playername_textview);
+        playerName.setText(Player.LOCAL_USERNAME);
+        codeCount = findViewById(R.id.profile_playercodecount_textview);
         // Initialize spinner data
         ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, R.layout.spinner_item);
