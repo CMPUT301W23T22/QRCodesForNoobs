@@ -17,6 +17,7 @@ public class Creature {
     private String name;
     private String hash;
     private int score;
+    private int numOfScans;
     private Image photoCreature;
     private Location location;
     private Uri photoLocationUrl;
@@ -124,6 +125,7 @@ public class Creature {
     public Location getLocation() {
         return location;
     }
+    public int getNumOfScans(){return numOfScans;}
     public void setPhotoCreature(Image photoCreature) {
         this.photoCreature = photoCreature;
     }
