@@ -100,7 +100,6 @@ public class Profile extends AppCompatActivity {
         // From the datalist we will add them into the database
         creaturesToDisplay = new ArrayList<>();
         playerCreatureList = new ArrayList<>();
-        mainIntent = new Intent(this, MainActivity.class);
 
         // Initialize buttons and spinners
         initWidgets();
@@ -147,6 +146,7 @@ public class Profile extends AppCompatActivity {
                                 Player dbPlayer = document.toObject(Player.class);
                                 // Fill local array with creatures from database
                                 playerCreatureList = dbPlayer.getCreatures();
+                                Log.d(TAG, "playercreaturelist " + playerCreatureList.size());
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns
                                     creatureCollectionReference.whereIn("hash",playerCreatureList)
@@ -159,7 +159,7 @@ public class Profile extends AppCompatActivity {
                                                         // query success
                                                         creaturesToDisplay.clear();
                                                         for (QueryDocumentSnapshot doc : task.getResult()){
-                                                            // Add creatures that the player owns to the local datalist
+                                                            // Add creatures that the player owns to the local creatureToDisplay
                                                             Log.d(TAG, "Doc data: " + doc.getId());
                                                             Creature creature;
                                                             creature = doc.toObject(Creature.class);
@@ -172,6 +172,12 @@ public class Profile extends AppCompatActivity {
                                                     }
                                                 }
                                             });
+                                }
+                                else{
+                                    //empty list
+                                    creaturesToDisplay.clear();
+                                    codeArrayAdapter.notifyDataSetChanged();
+                                    codeCount.setText("0 Codes Scanned");
                                 }
                             } else {
                                 Log.d(TAG, "No such document");
@@ -197,6 +203,7 @@ public class Profile extends AppCompatActivity {
         codeArrayAdapter = new com.example.qrcodesfornoobs.ProfileCodeArrayAdapter(Profile.this, creaturesToDisplay);
         recyclerView.setAdapter(codeArrayAdapter);
         setSwipeToDelete();
+        mainIntent = new Intent(this, MainActivity.class);
 
     }
 
@@ -230,7 +237,6 @@ public class Profile extends AppCompatActivity {
                                 Log.w(TAG, "Error deleting document", e);
                             }
                         });
-
 
                 // UNDO DELETE: not the same hashmap tho
                 Snackbar.make(recyclerView, "Deleted " + QR.getName(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
