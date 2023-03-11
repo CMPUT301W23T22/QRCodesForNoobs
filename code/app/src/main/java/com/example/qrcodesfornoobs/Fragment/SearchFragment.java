@@ -96,11 +96,18 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         searchAdapter = new SearchAdapter(getContext(), valueList, rvInterface);
         recyclerView.setAdapter(searchAdapter);
 
-        radioGroupCheck(db, radioGroup);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
         //TODO: Query works with username, need Location documentPath and change hardcoded field "username" to work with location as well
             @Override
             public boolean onQueryTextSubmit(String query) {
+
+
+                // Added this inside the onQueryTextSubmit portion so users had to search for the names to pop up
+                radioGroupCheck(db, radioGroup);
+
+
                 searchList = new ArrayList<>();
                 if (query.length() > 0) {
                     searchView.clearFocus();
@@ -225,7 +232,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         field = "location";
                         break;
                 }
-                Log.d("RADIO_SELECTION", field);
+
                 collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
@@ -253,11 +260,11 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
     private void launchPlayerProfile(int pos){
         profileIntent = new Intent(getActivity(), Profile.class);
-
-        String userToOpen = searchList.get(pos);
-        System.out.println(userToOpen);
-        profileIntent.putExtra("userToOpen",userToOpen);
-        getActivity().startActivity(profileIntent);
-
+        if (searchList != null){
+            String userToOpen = searchList.get(pos);
+            System.out.println(userToOpen);
+            profileIntent.putExtra("userToOpen",userToOpen);
+            getActivity().startActivity(profileIntent);
+        }
     }
 }
