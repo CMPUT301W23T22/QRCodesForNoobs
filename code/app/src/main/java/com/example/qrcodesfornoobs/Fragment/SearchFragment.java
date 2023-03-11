@@ -1,5 +1,6 @@
 package com.example.qrcodesfornoobs.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,7 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
+import com.example.qrcodesfornoobs.Profile;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.SearchAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +37,7 @@ import com.google.firebase.firestore.Source;
 import java.util.ArrayList;
 
 
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements SearchAdapter.RecyclerViewInterface {
     private RadioGroup radioGroup;
 
     private SearchView searchView;
@@ -47,7 +50,10 @@ public class SearchFragment extends Fragment {
     private CollectionReference collectionReference;
     private String field;
 
+    private Intent profileIntent;
     private ArrayList<String> searchList;
+    private SearchAdapter.RecyclerViewInterface rvInterface;
+
 
     public SearchFragment() {
         // Required empty public constructor
@@ -80,14 +86,28 @@ public class SearchFragment extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        searchAdapter = new SearchAdapter(getContext(), valueList);
+        rvInterface = new SearchAdapter.RecyclerViewInterface() {
+            @Override
+            public void onItemClick(int pos) {
+                launchPlayerProfile(pos);
+            }
+        };
+
+        searchAdapter = new SearchAdapter(getContext(), valueList, rvInterface);
         recyclerView.setAdapter(searchAdapter);
 
-        radioGroupCheck(db, radioGroup);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
         //TODO: Query works with username, need Location documentPath and change hardcoded field "username" to work with location as well
             @Override
             public boolean onQueryTextSubmit(String query) {
+
+
+                // Added this inside the onQueryTextSubmit portion so users had to search for the names to pop up
+                radioGroupCheck(db, radioGroup);
+
+
                 searchList = new ArrayList<>();
                 if (query.length() > 0) {
                     searchView.clearFocus();
@@ -134,7 +154,7 @@ public class SearchFragment extends Fragment {
                                                                         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                                                                         recyclerView.setLayoutManager(layoutManager);
 
-                                                                        SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList);
+                                                                        SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
                                                                         recyclerView.setAdapter(searchAdapter);
                                                                     }
                                                                 });
@@ -162,7 +182,7 @@ public class SearchFragment extends Fragment {
                                                             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                                                             recyclerView.setLayoutManager(layoutManager);
 
-                                                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList);
+                                                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
                                                             recyclerView.setAdapter(searchAdapter);
                                                         }
                                                     });
@@ -212,7 +232,7 @@ public class SearchFragment extends Fragment {
                         field = "location";
                         break;
                 }
-                Log.d("RADIO_SELECTION", field);
+
                 collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
@@ -231,5 +251,20 @@ public class SearchFragment extends Fragment {
                 });
             }
         });
+    }
+
+    @Override
+    public void onItemClick(int pos) {
+
+    }
+
+    private void launchPlayerProfile(int pos){
+        profileIntent = new Intent(getActivity(), Profile.class);
+        if (searchList != null){
+            String userToOpen = searchList.get(pos);
+            System.out.println(userToOpen);
+            profileIntent.putExtra("userToOpen",userToOpen);
+            getActivity().startActivity(profileIntent);
+        }
     }
 }

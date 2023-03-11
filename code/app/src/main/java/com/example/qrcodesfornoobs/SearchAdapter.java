@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,10 +19,17 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
     Context context;
     ArrayList<String> codes;
     LayoutInflater layoutInflater;
+    private RecyclerViewInterface rvListener;
+    private String searchName;
 
-    public SearchAdapter(Context context, ArrayList<String> codes) {
+    public interface RecyclerViewInterface {
+        void onItemClick(int pos);
+    }
+
+    public SearchAdapter(Context context, ArrayList<String> codes, RecyclerViewInterface rvListener) {
         this.context = context;
         this.codes = codes;
+        this.rvListener = rvListener;
         layoutInflater = layoutInflater.from(context);
     }
 
@@ -35,6 +43,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         holder.userName.setText(codes.get(position));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int pos = holder.getAdapterPosition();
+                searchName = codes.get(pos);
+                rvListener.onItemClick(pos);
+            }
+        });
 
     }
 
@@ -48,6 +64,20 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             userName = itemView.findViewById(R.id.txt);
+
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    if (rvInterface != null){
+//                        int pos = getAdapterPosition();
+//                        rvInterface.onItemClick(pos);
+//                        searchName = codes.get(pos);
+//                        Toast.makeText(view.getContext(), searchName,Toast.LENGTH_SHORT).show();
+//
+//                    }
+//                }
+//            });
+
 
         }
     }
