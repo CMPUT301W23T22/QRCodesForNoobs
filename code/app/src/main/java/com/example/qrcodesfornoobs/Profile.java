@@ -122,6 +122,7 @@ public class Profile extends AppCompatActivity {
         setSwipeToDelete();
 
         // INTENT
+        // TODO: clicking back button goes to old dashboard, change to new DashboardFragment
         dashboardIntent = new Intent(this, Dashboard.class);
     }
 
