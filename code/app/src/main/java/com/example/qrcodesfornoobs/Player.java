@@ -60,6 +60,11 @@ public class Player {
         return device;
     }
 
+    public boolean containsCreature(Creature creature) {
+        return creatures.contains(creature.getHash());
+    }
+
+
     public ArrayList<String> getCreatures() {
         return creatures;
     }

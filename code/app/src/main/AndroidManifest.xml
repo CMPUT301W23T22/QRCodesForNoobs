@@ -43,7 +43,6 @@
         <activity android:name=".Activity.SettingsActivity" />
         <activity android:name=".Profile" />
         <activity android:name=".Leaderboard" />
-        <activity android:name=".Search" />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
