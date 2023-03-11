@@ -76,6 +76,7 @@ public class Profile extends AppCompatActivity {
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
     TextView playerName;
     TextView codeCount;
+    TextView playerScore;
 
     LinearLayout filterBar;
     private Intent mainIntent;
@@ -141,10 +142,10 @@ public class Profile extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                // Gets players codes from their 'creatures' database array list
+                                // Gets players codes from their creatures array list
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                 Player dbPlayer = document.toObject(Player.class);
-                                // Fill local array with creatures from database
+                                // Fill array with creatures from database
                                 playerCreatureList = dbPlayer.getCreatures();
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns
@@ -157,29 +158,25 @@ public class Profile extends AppCompatActivity {
                                                     if (task.isSuccessful()){
                                                         // query success
                                                         creaturesToDisplay.clear();
+                                                        int totalScore = 0; // Initialize total score variable
                                                         for (QueryDocumentSnapshot doc : task.getResult()){
-                                                            // Add creatures that the player owns to the local creatureToDisplay
+                                                            // Add creatures that the player owns to the local datalist
                                                             Log.d(TAG, "Doc data: " + doc.getId());
                                                             Creature creature;
                                                             creature = doc.toObject(Creature.class);
                                                             creaturesToDisplay.add(creature);
+                                                            totalScore += creature.getScore(); // Add creature score to total score
                                                         }
-
+                                                        // Update player document with total score
+                                                        dbPlayer.setScore(totalScore);
+                                                        playerRef.set(dbPlayer);
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
-                                                        String sortValue = sortListSpinner.getSelectedItem().toString();
-                                                        sort(sortValue);
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
                                                     }
                                                 }
                                             });
-                                }
-                                else{
-                                    //empty list
-                                    creaturesToDisplay.clear();
-                                    codeArrayAdapter.notifyDataSetChanged();
-                                    codeCount.setText("0 Codes Scanned");
                                 }
                             } else {
                                 Log.d(TAG, "No such document");
@@ -189,7 +186,6 @@ public class Profile extends AppCompatActivity {
                         }
                     }
                 });
-
             }
         });
 
@@ -333,6 +329,7 @@ public class Profile extends AppCompatActivity {
         playerName = findViewById(R.id.profile_playername_textview);
         playerName.setText(Player.LOCAL_USERNAME);
         codeCount = findViewById(R.id.profile_playercodecount_textview);
+        playerScore = findViewById(R.id.profile_playerpoints_textview);
         // Initialize spinner data
         ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, R.layout.spinner_item);
