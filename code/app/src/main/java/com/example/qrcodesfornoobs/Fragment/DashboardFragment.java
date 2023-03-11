@@ -54,9 +54,6 @@ public class DashboardFragment extends Fragment {
         binding.profileImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                profileIntent.setAction(Intent.ACTION_SEND);
-                profileIntent.setType("text/plain");
-                profileIntent.putExtra(Intent.EXTRA_TEXT, Player.LOCAL_USERNAME);
                 startActivity(profileIntent);
             }
         });
