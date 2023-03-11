@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Profile extends AppCompatActivity {
     Button backButton;
@@ -75,10 +76,12 @@ public class Profile extends AppCompatActivity {
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
 
     LinearLayout filterBar;
-    private Intent mainIntent;
+    Intent mainIntent;
+    private Intent profileIntent;
     private ArrayList<Creature> creaturesToDisplay;
     private ArrayList<String> playerCreatureList;
     private DocumentReference playerRef;
+    private String userToOpen;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -98,34 +101,13 @@ public class Profile extends AppCompatActivity {
         playerCreatureList = new ArrayList<>();
         mainIntent = new Intent(this, MainActivity.class);
 
+        setProfileUser();
+
         // Initialize buttons and spinners
         initWidgets();
-        //TODO: Implement actual adding function when that is finished
-
-//        creatureCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//            // For use when updating our datalist from the database
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-//            FirebaseFirestoreException error) {
-//
-//                // Clear the old list
-//                dataList.clear();
-//                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                    // Get attributes from the document using doc.getString(attribute name)
-//                    // Create a creature object and use setters to set its attributes to the ones from document
-//                    // Add the creature to database
-//                    Creature creature;
-//                    creature = doc.toObject(Creature.class);
-//                    dataList.add(creature);
-//                }
-//                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-//
-//            }
-//        });
-
 
         // Get reference to player's collection
-        playerRef = playerCollectionReference.document(Player.LOCAL_USERNAME);
+        playerRef = playerCollectionReference.document(userToOpen);
 
         playerRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             // Listens for changes to the player's collection on the database
@@ -167,6 +149,9 @@ public class Profile extends AppCompatActivity {
                                                     }
                                                 }
                                             });
+                                } else {
+                                    creaturesToDisplay.clear();
+                                    codeArrayAdapter.notifyDataSetChanged();
                                 }
                             } else {
                                 Log.d(TAG, "No such document");
@@ -180,8 +165,6 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        // INITIALIZATION
-        initWidgets(); // Initialize buttons and spinners
         addListenerOnButtons(); // Initialize button listeners
 
         // RECYCLER VIEW  CHANGES 230301
@@ -191,7 +174,10 @@ public class Profile extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         codeArrayAdapter = new com.example.qrcodesfornoobs.ProfileCodeArrayAdapter(Profile.this, creaturesToDisplay);
         recyclerView.setAdapter(codeArrayAdapter);
-        setSwipeToDelete();
+
+        if (userToOpen == Player.LOCAL_USERNAME){
+            setSwipeToDelete();
+        }
 
     }
 
@@ -211,7 +197,7 @@ public class Profile extends AppCompatActivity {
                 // Get the swiped Creature and delete it from the database
                 Creature QR = creaturesToDisplay.get(position);
                 db.collection("Players")
-                        .document(Player.LOCAL_USERNAME)
+                        .document(userToOpen)
                         .update("creatures", FieldValue.arrayRemove(QR.getHash()))
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -236,7 +222,7 @@ public class Profile extends AppCompatActivity {
                         if (QR.getHash().length() > 0) {
 
                             playerCollectionReference
-                                    .document(Player.LOCAL_USERNAME)
+                                    .document(userToOpen)
                                     .update("creatures",FieldValue.arrayUnion(QR.getHash()))
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -312,6 +298,10 @@ public class Profile extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
         editProfileButton = findViewById(R.id.edit_profile_button);
+        if (!Objects.equals(userToOpen, Player.LOCAL_USERNAME)){
+            editProfileButton.setVisibility(View.GONE);
+        }
+
         toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
         toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
         filterBar = findViewById(R.id.filterbar);
@@ -388,4 +378,34 @@ public class Profile extends AppCompatActivity {
             }
         });
     }
+
+    private void setProfileUser(){
+        profileIntent = getIntent();
+        userToOpen = profileIntent.getStringExtra("userToOpen");
+        if (userToOpen == null){
+            userToOpen = Player.LOCAL_USERNAME;
+        }
+        System.out.println("Opening profile of user " + userToOpen);
+    }
 }
+
+//        creatureCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            // For use when updating our datalist from the database
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//            FirebaseFirestoreException error) {
+//
+//                // Clear the old list
+//                dataList.clear();
+//                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+//                    // Get attributes from the document using doc.getString(attribute name)
+//                    // Create a creature object and use setters to set its attributes to the ones from document
+//                    // Add the creature to database
+//                    Creature creature;
+//                    creature = doc.toObject(Creature.class);
+//                    dataList.add(creature);
+//                }
+//                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+//
+//            }
+//        });

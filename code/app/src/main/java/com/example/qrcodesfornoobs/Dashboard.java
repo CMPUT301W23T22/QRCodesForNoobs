@@ -40,7 +40,6 @@ public class Dashboard extends AppCompatActivity {
 
         profileIntent = new Intent(this, Profile.class);
         settingsIntent = new Intent(this, SettingsActivity.class);
-        searchIntent = new Intent(this, Search.class);
         leaderboardIntent = new Intent(this, Leaderboard.class);
         dashboardIntent = new Intent(this, Dashboard.class);
         cameraIntentIntegrator = new IntentIntegrator(Dashboard.this);
