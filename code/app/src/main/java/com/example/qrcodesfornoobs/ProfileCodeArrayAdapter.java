@@ -59,7 +59,6 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
         holder.creatureName.setText(creature.getName());
         holder.creatureScore.setText(creature.getScore() + " points");
         Glide.with(context).load(creatureImageUrl).apply(options).into(creatureImage);
-
         holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
     }
 
@@ -78,8 +77,6 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
             creatureName = itemView.findViewById(R.id.profile_code_txt);
             creatureScore = itemView.findViewById(R.id.profile_code_points);
             creatureImage = itemView.findViewById(R.id.profile_creature_img);
-
-
             creatureNumOfScans = itemView.findViewById(R.id.profile_num_of_scans);
         }
     }

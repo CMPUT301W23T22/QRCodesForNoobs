@@ -26,6 +26,7 @@ public class SignInActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mainIntent = new Intent(this, MainActivity.class);
         if (isLoggedInBefore()) {
             Player.LOCAL_USERNAME = getSharedPreferences(SignInActivity.CACHE_NAME, MODE_PRIVATE).getString("username", "");
@@ -33,7 +34,6 @@ public class SignInActivity extends AppCompatActivity {
             finish();
             return;
         }
-        super.onCreate(savedInstanceState);
         binding = ActivitySigninBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         addListenerOnButtons();

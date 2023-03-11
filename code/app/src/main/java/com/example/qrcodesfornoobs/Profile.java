@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,6 +75,8 @@ public class Profile extends AppCompatActivity {
     Spinner sortListSpinner;
     RecyclerView recyclerView;
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
+    TextView playerName;
+    TextView codeCount;
 
     LinearLayout filterBar;
     Intent mainIntent;
@@ -137,21 +140,28 @@ public class Profile extends AppCompatActivity {
                                                         // query success
                                                         creaturesToDisplay.clear();
                                                         for (QueryDocumentSnapshot doc : task.getResult()){
-                                                            // Add creatures that the player owns to the local datalist
+                                                            // Add creatures that the player owns to the local creatureToDisplay
                                                             Log.d(TAG, "Doc data: " + doc.getId());
                                                             Creature creature;
                                                             creature = doc.toObject(Creature.class);
                                                             creaturesToDisplay.add(creature);
                                                         }
+
+                                                        codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
+                                                        String sortValue = sortListSpinner.getSelectedItem().toString();
+                                                        sort(sortValue);
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
                                                     }
                                                 }
                                             });
-                                } else {
+                                }
+                                else{
+                                    //empty list
                                     creaturesToDisplay.clear();
                                     codeArrayAdapter.notifyDataSetChanged();
+                                    codeCount.setText("0 Codes Scanned");
                                 }
                             } else {
                                 Log.d(TAG, "No such document");
@@ -211,7 +221,6 @@ public class Profile extends AppCompatActivity {
                                 Log.w(TAG, "Error deleting document", e);
                             }
                         });
-
 
                 // UNDO DELETE: not the same hashmap tho
                 Snackbar.make(recyclerView, "Deleted " + QR.getName(), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
@@ -307,7 +316,9 @@ public class Profile extends AppCompatActivity {
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
-
+        playerName = findViewById(R.id.profile_playername_textview);
+        playerName.setText(userToOpen);
+        codeCount = findViewById(R.id.profile_playercodecount_textview);
         // Initialize spinner data
         ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, R.layout.spinner_item);
@@ -361,14 +372,7 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selected = sortListSpinner.getItemAtPosition(i).toString();
-                if (selected.equals("SCORE (ASCENDING)")) {
-                    System.out.println("ASCENDING");
-                    creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
-                } else if (selected.equals("SCORE (DESCENDING)")) {
-                    System.out.println("DESCENDING");
-                    creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
-                    Collections.reverse(creaturesToDisplay);
-                }
+                sort(selected);
                 codeArrayAdapter.notifyDataSetChanged();
             }
 
@@ -377,6 +381,15 @@ public class Profile extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void sort(String sortValue){
+        if (sortValue.equals("SCORE (ASCENDING)")) {
+            creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
+        } else if (sortValue.equals("SCORE (DESCENDING)")) {
+            creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
+            Collections.reverse(creaturesToDisplay);
+        }
     }
 
     private void setProfileUser(){
@@ -388,24 +401,3 @@ public class Profile extends AppCompatActivity {
         System.out.println("Opening profile of user " + userToOpen);
     }
 }
-
-//        creatureCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//            // For use when updating our datalist from the database
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-//            FirebaseFirestoreException error) {
-//
-//                // Clear the old list
-//                dataList.clear();
-//                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                    // Get attributes from the document using doc.getString(attribute name)
-//                    // Create a creature object and use setters to set its attributes to the ones from document
-//                    // Add the creature to database
-//                    Creature creature;
-//                    creature = doc.toObject(Creature.class);
-//                    dataList.add(creature);
-//                }
-//                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-//
-//            }
-//        });
