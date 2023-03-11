@@ -1,4 +1,4 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Activity;
 
 
 import android.content.Intent;
@@ -31,7 +31,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.qrcodesfornoobs.Activity.MainActivity;
+import com.example.qrcodesfornoobs.Adapter.ProfileCodeArrayAdapter;
+import com.example.qrcodesfornoobs.Models.Creature;
+import com.example.qrcodesfornoobs.Models.Player;
+import com.example.qrcodesfornoobs.Tools.ProfileCreatureScoreComparator;
+import com.example.qrcodesfornoobs.Fragment.ProfileEditInfoFragment;
+import com.example.qrcodesfornoobs.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -52,14 +57,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
-public class Profile extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity {
     Button backButton;
     ImageButton editProfileButton;
     ImageButton toggleFilterButton;
     ImageButton toggleRecyclerViewButton;
     Spinner sortListSpinner;
     RecyclerView recyclerView;
-    com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
+    ProfileCodeArrayAdapter codeArrayAdapter;
     TextView playerName;
     TextView codeCount;
     LinearLayout filterBar;
@@ -80,7 +85,7 @@ public class Profile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.profile);
+        setContentView(R.layout.activity_profile);
 
         // When we add a new creature we need to update the datalist first
         // From the datalist we will add them into the database
@@ -162,11 +167,11 @@ public class Profile extends AppCompatActivity {
         addListenerOnButtons(); // Initialize button listeners
 
         // RECYCLER VIEW  CHANGES 230301
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Profile.this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(ProfileActivity.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        codeArrayAdapter = new com.example.qrcodesfornoobs.ProfileCodeArrayAdapter(Profile.this, creaturesToDisplay);
+        codeArrayAdapter = new ProfileCodeArrayAdapter(ProfileActivity.this, creaturesToDisplay);
         recyclerView.setAdapter(codeArrayAdapter);
 
         if (userToOpen == Player.LOCAL_USERNAME){

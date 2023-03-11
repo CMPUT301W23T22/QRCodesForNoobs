@@ -10,7 +10,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.qrcodesfornoobs.Player;
+import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.databinding.ActivitySigninBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
