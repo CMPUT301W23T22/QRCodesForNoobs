@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:text="Edit Profile"
         android:textAlignment="center"
-        android:text="Delete &quot;QR Code Name?&quot;"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,25 +24,25 @@
         android:layout_marginTop="8dp"
         android:fontFamily="sans-serif-black"
         android:textAlignment="center"
-        android:text="This cannot be undone!"
+        android:text="Stuff goes here"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirm_delete_text" />
 
     <Button
-        android:id="@+id/confirm_delete_button"
+        android:id="@+id/confirm_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:backgroundTint="#FA3D3D"
-        android:text="Delete"
-        app:layout_constraintEnd_toStartOf="@+id/cancel_delete_button"
+        android:text="Confirm"
+        app:layout_constraintEnd_toStartOf="@+id/cancel_edit_button"
         app:layout_constraintHorizontal_bias="0.198"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirm_delete_text2" />
 
     <Button
-        android:id="@+id/cancel_delete_button"
+        android:id="@+id/cancel_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"

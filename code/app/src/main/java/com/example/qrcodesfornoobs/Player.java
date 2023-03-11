@@ -65,6 +65,9 @@ public class Player {
     }
 
 
+    public ArrayList<String> getCreatures() {
+        return creatures;
+    }
 }
 
 

@@ -12,27 +12,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class ProfileDeleteCodeFragment extends DialogFragment {
+public class ProfileEditInfoFragment extends DialogFragment {
     Button confirmButton;
     Button cancelButton;
     AlertDialog dialog;
     private int position; // The position of the listview item
-    public static ProfileDeleteCodeFragment newInstance(int pos) {
-        ProfileDeleteCodeFragment fragment = new ProfileDeleteCodeFragment();
+    public static ProfileEditInfoFragment newInstance(String contactInfo) {
+        ProfileEditInfoFragment fragment = new ProfileEditInfoFragment();
         Bundle args = new Bundle();
-        args.putInt("position", pos);
+        args.putString("contactInfo", contactInfo);
         fragment.setArguments(args);
         return fragment;
     }
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.delete_code_fragment,null);
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.edit_profile_fragment,null);
 
-        Bundle args = getArguments();
-        if (args != null){
-            position = args.getInt("position");
-        }
+        // Use a bundle to pass in player data
+//        Bundle args = getArguments();
+//        if (args != null){
+//            position = args.getInt("position");
+//        }
 
         // Builder for the delete item dialog popup
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -40,8 +41,8 @@ public class ProfileDeleteCodeFragment extends DialogFragment {
         dialog = builder.create();
 
         // Initialize buttons and their click listeners
-        confirmButton = view.findViewById(R.id.confirm_delete_button);
-        cancelButton = view.findViewById(R.id.cancel_delete_button);
+        confirmButton = view.findViewById(R.id.confirm_edit_button);
+        cancelButton = view.findViewById(R.id.cancel_edit_button);
         addListenerOnButtons();
 
         // Show the dialog
@@ -54,7 +55,7 @@ public class ProfileDeleteCodeFragment extends DialogFragment {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Delete item at position" + position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Confirm", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
 
@@ -63,7 +64,7 @@ public class ProfileDeleteCodeFragment extends DialogFragment {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Delete cancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Cancel", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
         });

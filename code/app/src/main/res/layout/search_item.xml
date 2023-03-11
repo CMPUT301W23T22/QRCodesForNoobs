@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="60dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginHorizontal="10dp"
     android:layout_marginTop="10dp"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:background="@color/background">
         <ImageView
-            android:id="@+id/img"
+            android:id="@+id/profile_creature_img"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="5dp"
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_toRightOf="@id/img"
+            android:layout_toRightOf="@id/profile_creature_img"
             android:singleLine="true"
             android:layout_marginLeft="10dp"
             android:textColor="@color/all_white"
