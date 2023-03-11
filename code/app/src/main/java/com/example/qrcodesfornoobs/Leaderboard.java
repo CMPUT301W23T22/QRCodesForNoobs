@@ -8,6 +8,8 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+//TODO: Delete, using LeaderboardFragment instead.
+
 public class Leaderboard extends AppCompatActivity {
     Button backButton;
     private Intent dashboardIntent;
