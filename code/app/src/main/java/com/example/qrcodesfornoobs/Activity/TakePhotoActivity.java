@@ -16,6 +16,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -33,12 +34,9 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class TakePhotoActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 666;
@@ -57,64 +55,68 @@ public class TakePhotoActivity extends AppCompatActivity {
         String scannedCode = getIntent().getExtras().getString("code");
         Location location = null; //setting this in part4
         Creature newCreature = new Creature(scannedCode, location);
-
-        checkValidCreatureToAdd(newCreature).thenCombine(checkExistingCreature(newCreature), (isValid, dbCreature) -> {
+        checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
             }
-            loadPhotoCreatureImageView(dbCreature);
+            checkExistingCreature(newCreature).thenAccept((modifiedDbCreature) -> {
 
-            // make sure camera permission is granted
-            while (ContextCompat.checkSelfPermission(TakePhotoActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(TakePhotoActivity.this, new String[]{android.Manifest.permission.CAMERA}, 666);
-            }
+                loadPhotoCreatureImageView(modifiedDbCreature);
 
-            binding.cameraButton.setOnClickListener(v -> openCamera());
-            binding.confirmButton.setOnClickListener(v -> {
-                // TODO: upload code, photo (of qr & place), location (if selected) to db
+                // make sure camera permission is granted
+                while (ContextCompat.checkSelfPermission(TakePhotoActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(TakePhotoActivity.this, new String[]{android.Manifest.permission.CAMERA}, 666);
+                }
 
-
-                if (dbCreature != null) {
+                binding.cameraButton.setOnClickListener(v -> openCamera());
+                binding.confirmButton.setOnClickListener(v -> {
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                    // if scanned creature is already in db
+                    if (modifiedDbCreature != null) {
+                        if (binding.saveLocationCheckBox.isChecked()) {
+                            // set local isPhotoLocation to the photo
+                        }
+                        if (binding.saveImageCheckBox.isChecked()) {
+                            uploadPhotoLocation().thenAccept(photoLocationUrl -> {
+                                modifiedDbCreature.setPhotoLocationUrl(photoLocationUrl);
+                                uploadToDatabase(modifiedDbCreature);
+                            });
+                            return;
+                        }
+                        uploadToDatabase(modifiedDbCreature);
+                        return;
+                    }
+                    // if scanned creature is not in db
                     if (binding.saveLocationCheckBox.isChecked()) {
                         // set local isPhotoLocation to the photo
                     }
-                    if (binding.saveImageCheckBox.isChecked()) {
-                        uploadPhotoLocation().thenAccept(photoLocationUrl -> {
-                            dbCreature.setPhotoLocationUrl(photoLocationUrl);
-                        }).thenRun(() -> {
-                            uploadToDatabase(dbCreature);
-                            finish();
-                       });
-                    } else {
-                        uploadPhotoCreature(dbCreature);
-                        finish();
-                    }
-                } else {
-                    if (binding.saveImageCheckBox.isChecked()) {
-                        uploadPhotoLocation().thenCombine(uploadPhotoCreature(newCreature), (photoLocationUrl, photoCreatureUrl) -> {
-                            newCreature.setPhotoLocationUrl(photoLocationUrl);
-                            newCreature.setPhotoCreatureUrl(photoCreatureUrl);
-                            return null;
-                        }).thenRun(() -> {
-                        });
-                    }
-
-                }
+                    uploadPhotoCreature(newCreature).thenAccept((photoCreatureUrl) -> {
+                        newCreature.setPhotoCreatureUrl(photoCreatureUrl);
+                        if (binding.saveImageCheckBox.isChecked()) {
+                            uploadPhotoLocation().thenAccept((photoLocationUrl) -> {
+                                newCreature.setPhotoLocationUrl(photoLocationUrl);
+                                uploadToDatabase(newCreature);
+                            });
+                        }
+                    });
+                });
             });
-            openCamera();
+        }).exceptionally(e -> {
+            Toast.makeText(getBaseContext(), "Can't fetch creature from database. Please try again later!", Toast.LENGTH_SHORT).show();
+            finish();
+            return null;
         });
-//                .exceptionally(e -> {
-//            Toast.makeText(getBaseContext(), "Can't fetch creature from database. Please try again later!", Toast.LENGTH_SHORT).show();
-//            finish();
-//            return null;
-//        });
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     /**
-     *
      * @param creature
      * @return true if local player does not have the code, false otherwise
      */
@@ -136,7 +138,6 @@ public class TakePhotoActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param creature
      * @return return a creature from db if it exists, null otherwise
      */
@@ -158,6 +159,7 @@ public class TakePhotoActivity extends AppCompatActivity {
 
     /**
      * Load photo into photo location image view (use dbCreature url to load if it exists)
+     *
      * @param dbCreature
      */
     private void loadPhotoCreatureImageView(Creature dbCreature) {
@@ -182,11 +184,13 @@ public class TakePhotoActivity extends AppCompatActivity {
 
     private void uploadToDatabase(Creature creature) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         // update Creatures collection
         db.collection("Creatures").document(creature.getHash())
                 .set(creature)
-                .addOnSuccessListener(aVoid -> Toast.makeText(getBaseContext(), "Code added successfully!", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(aVoid -> {
+                    finish();
+                    Toast.makeText(getBaseContext(), "Code added successfully!", Toast.LENGTH_SHORT).show();
+                })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getBaseContext(), "Failed to add code!", Toast.LENGTH_SHORT).show();
                     Log.w(TAG, "Error writing document", e);
@@ -243,54 +247,6 @@ public class TakePhotoActivity extends AppCompatActivity {
         });
         return creaturePhotoFuture;
     }
-//    private CompletableFuture<ArrayList<String>> uploadImages(Creature creature, boolean isSavingLocationPhoto) {
-//        CompletableFuture<String> locationPhotoFuture = CompletableFuture.supplyAsync(() -> {
-//            if (photoLocationBitmap == null || !isSavingLocationPhoto) {
-//                return null;
-//            }
-//            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA).format(new Date());
-//            String storageLocation = "photo_location/" + date;
-//            StorageReference locationPhotoStorageReference = FirebaseStorage.getInstance().getReference(storageLocation);
-//
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            photoLocationBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//            byte[] data = baos.toByteArray();
-//            UploadTask uploadTask = locationPhotoStorageReference.putBytes(data);
-//
-//            CompletableFuture<String> getUriFuture = new CompletableFuture<>();
-//            uploadTask.addOnSuccessListener(taskSnapshot -> {
-//                locationPhotoStorageReference.getDownloadUrl().addOnSuccessListener(uri -> getUriFuture.complete(uri.toString()));
-//            }).addOnFailureListener(e -> getUriFuture.completeExceptionally(null));
-//
-//            return getUriFuture.join();
-//        });
-//
-//        CompletableFuture<String> creaturePhotoFuture = CompletableFuture.supplyAsync(() -> {
-//            if (photoCreatureBitmap == null) {
-//                return null;
-//            }
-//            String storageLocation = "photo_creature/" + creature.getHash();
-//            StorageReference storageReference = FirebaseStorage.getInstance().getReference(storageLocation);
-//
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            photoCreatureBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//            byte[] data = baos.toByteArray();
-//            UploadTask uploadTask = storageReference.putBytes(data);
-//
-//            CompletableFuture<String> getUriFuture = new CompletableFuture<>();
-//            uploadTask.addOnSuccessListener(taskSnapshot -> {
-//                storageReference.getDownloadUrl().addOnSuccessListener(uri -> getUriFuture.complete(uri.toString()));
-//            }).addOnFailureListener(e -> getUriFuture.completeExceptionally(null));
-//
-//            return getUriFuture.join();
-//        });
-//
-//        CompletableFuture<ArrayList<String>> combinedFuture = locationPhotoFuture.thenCombine(creaturePhotoFuture, (photoLocationUrl, photoCreatureUrl) -> {
-//            ArrayList<String> urls = new ArrayList<>(Arrays.asList(photoLocationUrl, photoCreatureUrl));
-//            return urls;
-//        });
-//        return combinedFuture;
-//    }
 
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
