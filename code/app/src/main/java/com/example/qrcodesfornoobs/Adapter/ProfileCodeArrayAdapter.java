@@ -1,9 +1,7 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Adapter;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.qrcodesfornoobs.Models.Creature;
+import com.example.qrcodesfornoobs.R;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
 
         holder.creatureName.setText(creature.getName());
         holder.creatureScore.setText(creature.getScore() + " points");
-        Glide.with(context).load(creatureImageUrl).apply(options).into(creatureImage);
+        Glide.with(context).load(creature.getPhotoCreatureUrl()).apply(options).into(creatureImage);
         holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
     }
 
