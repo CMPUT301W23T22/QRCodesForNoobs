@@ -146,7 +146,6 @@ public class Profile extends AppCompatActivity {
                                 Player dbPlayer = document.toObject(Player.class);
                                 // Fill local array with creatures from database
                                 playerCreatureList = dbPlayer.getCreatures();
-                                Log.d(TAG, "playercreaturelist " + playerCreatureList.size());
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns
                                     creatureCollectionReference.whereIn("hash",playerCreatureList)
@@ -165,7 +164,10 @@ public class Profile extends AppCompatActivity {
                                                             creature = doc.toObject(Creature.class);
                                                             creaturesToDisplay.add(creature);
                                                         }
+
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
+                                                        String sortValue = sortListSpinner.getSelectedItem().toString();
+                                                        sort(sortValue);
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
@@ -384,14 +386,7 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selected = sortListSpinner.getItemAtPosition(i).toString();
-                if (selected.equals("SCORE (ASCENDING)")) {
-                    System.out.println("ASCENDING");
-                    creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
-                } else if (selected.equals("SCORE (DESCENDING)")) {
-                    System.out.println("DESCENDING");
-                    creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
-                    Collections.reverse(creaturesToDisplay);
-                }
+                sort(selected);
                 codeArrayAdapter.notifyDataSetChanged();
             }
 
@@ -400,5 +395,14 @@ public class Profile extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void sort(String sortValue){
+        if (sortValue.equals("SCORE (ASCENDING)")) {
+            creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
+        } else if (sortValue.equals("SCORE (DESCENDING)")) {
+            creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
+            Collections.reverse(creaturesToDisplay);
+        }
     }
 }
