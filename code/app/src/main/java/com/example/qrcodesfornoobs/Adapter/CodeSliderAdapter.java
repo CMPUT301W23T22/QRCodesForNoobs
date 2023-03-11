@@ -1,4 +1,4 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.qrcodesfornoobs.R;
 import com.smarteist.autoimageslider.SliderViewAdapter;
 
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ public class CodeSliderAdapter extends SliderViewAdapter<CodeSliderAdapter.Slide
 
     @Override
     public void onBindViewHolder(SliderAdapterViewHolder viewHolder, int position) {
-        System.out.println("hello");
         String sliderItem = sliderItems.get(position); // URL of display item
 
         Glide.with(viewHolder.itemView)
