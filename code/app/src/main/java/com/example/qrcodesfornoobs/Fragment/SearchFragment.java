@@ -15,16 +15,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
-import com.example.qrcodesfornoobs.Profile;
+import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.R;
-import com.example.qrcodesfornoobs.SearchAdapter;
+import com.example.qrcodesfornoobs.Adapter.SearchAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,7 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 
@@ -259,7 +256,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     }
 
     private void launchPlayerProfile(int pos){
-        profileIntent = new Intent(getActivity(), Profile.class);
+        profileIntent = new Intent(getActivity(), ProfileActivity.class);
         if (searchList != null){
             String userToOpen = searchList.get(pos);
             System.out.println(userToOpen);
