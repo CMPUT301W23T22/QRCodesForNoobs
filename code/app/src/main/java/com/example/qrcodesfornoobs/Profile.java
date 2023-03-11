@@ -171,6 +171,7 @@ public class Profile extends AppCompatActivity {
                                                         dbPlayer.setScore(totalScore);
                                                         playerRef.set(dbPlayer);
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
+                                                        playerScore.setText(totalScore);
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
