@@ -67,6 +67,8 @@ public class SignInActivity extends AppCompatActivity {
                         if (localPlayer.equals(dbPlayer)) {
                             login(localPlayer,false);
                             Toast.makeText(getBaseContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            binding.usernameEditText.setError("Username existed!");
                         }
                     } else { // login as new user
                         login(localPlayer, true);

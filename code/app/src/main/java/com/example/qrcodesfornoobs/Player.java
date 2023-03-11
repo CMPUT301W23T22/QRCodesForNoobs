@@ -11,8 +11,8 @@ public class Player {
     //TODO: Call to db for Creatures
     private String username;
     private String device;
-    private ArrayList<Creature> creatures = new ArrayList<>();
-    private ContactsContract.CommonDataKinds.Email contact;
+    private ArrayList<String> creatures = new ArrayList<>();
+    private String contact;
 
     public Player(String username, String device) {
         this.username = username;
@@ -43,11 +43,11 @@ public class Player {
     }
 
     public void addCreature(Creature creature) {
-        creatures.add(creature);
+        creatures.add(creature.getHash());
     }
 
     public void removeCreature(Creature creature) {
-        creatures.remove(creature);
+        creatures.remove(creature.getHash());
     }
 
     public void removeCreature(int i) {
@@ -62,13 +62,16 @@ public class Player {
         return device;
     }
 
-    public ContactsContract.CommonDataKinds.Email getContact() {
+    public String getContact() {
         return contact;
     }
-
-    public ArrayList<Creature> getCreatures() {
+    public ArrayList<String> getCreatures() {
         return creatures;
     }
+    public boolean containsCreature(Creature creature) {
+        return creatures.contains(creature.getHash());
+    }
+
 }
 
 

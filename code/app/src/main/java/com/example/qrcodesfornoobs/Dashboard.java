@@ -18,6 +18,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+// TODO: Delete with Search.java, using DashboardFragment and SearchFragment instead.
 
 public class Dashboard extends AppCompatActivity {
 
@@ -39,7 +40,6 @@ public class Dashboard extends AppCompatActivity {
 
         profileIntent = new Intent(this, Profile.class);
         settingsIntent = new Intent(this, SettingsActivity.class);
-        searchIntent = new Intent(this, Search.class);
         leaderboardIntent = new Intent(this, Leaderboard.class);
         dashboardIntent = new Intent(this, Dashboard.class);
         cameraIntentIntegrator = new IntentIntegrator(Dashboard.this);

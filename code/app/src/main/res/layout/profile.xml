@@ -35,8 +35,9 @@
                 android:id="@+id/profile_playername_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="48dp"
+                android:layout_marginTop="60dp"
                 android:fontFamily="sans-serif"
+                android:text="Player Name"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
@@ -94,6 +95,17 @@
                 app:layout_constraintTop_toBottomOf="@+id/back_button"
                 app:layout_constraintVertical_bias="0.514"
                 app:srcCompat="@drawable/ic_launcher_foreground" />
+
+            <ImageButton
+                android:id="@+id/edit_profile_button"
+                android:layout_width="57dp"
+                android:layout_height="41dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:scaleType="fitXY"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/edit_fill0_wght400_grad0_opsz48" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
