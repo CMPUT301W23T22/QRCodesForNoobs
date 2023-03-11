@@ -24,8 +24,11 @@ public class Creature {
     private ArrayList<String> comments = new ArrayList<>(); // update every comment
 
     /**
-     *
-     * @param code
+     * Constructor for a Creature when it is scanned for the first time. Will generate score, name and
+     * hash.
+     * @param code code received from the QRCode scan.
+     * @param location  * **location to be implemented in part4
+     * @return Creature Object
      */
     public Creature (String code, Location location) {
         //this will be used when we scan a code
@@ -46,7 +49,18 @@ public class Creature {
 
         // TODO: Image & location functionality
     }
-
+    /**
+     * Constructor for a Creature when it has been already scanned, all Creature attributes will
+     * already exists. No need to regenerate name, score, visual representation.
+     * **location to be implemented in part4
+     * @param name String Value
+     * @param location String Value
+     * @param comments list of String
+     * @param hash String
+     * @param score int
+     * @param numOfScans int that represent how many players have scanned a Creature
+     * @return Creature Object
+     */
     public Creature(String name, String hash, int score, int numOfScans, Location location, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
@@ -62,6 +76,12 @@ public class Creature {
     // https://stackoverflow.com/questions/60389906/could-not-deserialize-object-does-not-define-a-no-argument-constructor-if-you
     public Creature(){}
 
+    /**
+     * Function to generate a name with a given hash.
+     * @param hash
+     * @return Return String, generated name of a Creature
+     * @see Creature
+     */
     public void genName(String hash){
         name = "";
         for(int i = 0; i < 4; i++){
@@ -88,7 +108,12 @@ public class Creature {
 
         // TODO: Image functionality
     }
-
+    /**
+     * Function to generate the score with a given hash.
+     * @param hash
+     * @return int, calculated score of a Creature.
+     * @see Creature
+     */
     public void calcScore(String hash){
         int count = 0;
         int prev = -1;
@@ -106,48 +131,113 @@ public class Creature {
         }
         score += count; // Final addition for the end of the loop.
     }
-    // getters
+    /**
+     * Getter for a Creature's hash value.
+     * @return String, assigned hash of a Creature.
+     * @see Creature
+     */
     public String getHash() {
         return hash;
     }
+    /**
+     * Getter for a Creature's name value.
+     * @return String, assigned name of a Creature.
+     * @see Creature
+     */
     public String getName() {
         return name;
     }
+    /**
+     * Getter for a Creature's score value.
+     * @return int, assigned score of a Creature.
+     * @see Creature
+     */
     public int getScore() {
         return score;
     }
+    /**
+     * Getter for a Creature's photoCreatureUrl value.
+     * @return String, assigned photoCreatureUrl of a Creature.
+     * @see Creature
+     */
     public String getPhotoCreatureUrl() {
         return photoCreatureUrl;
     }
+    /**
+     * Getter for a Creature's photoLocationUrl value. **implemented in part4
+     * @return String, assigned photoLocationUrl of a Creature.
+     * @see Creature
+     */
     public String getPhotoLocationUrl() {
         return photoLocationUrl;
     }
+    /**
+     * Getter for a Creature's location value. **implemented in part4
+     * @return Location, assigned location of a Creature.
+     * @see Creature
+     */
     public Location getLocation() {
         return location;
     }
+    /**
+     * Getter for a Creature's location value. **implemented in part4
+     * @return ArrayList<String>, List of Creature's comments.
+     * @see Creature
+     */
     public ArrayList<String> getComments() {return comments;}
+    /**
+     * Getter for a Creature's numOfScans value.
+     * @return int, assigned numOfScans of a Creature.
+     * @see Creature
+     */
     public int getNumOfScans() {
         return numOfScans;
     }
 
-    // setters
+    /**
+     * Setter for a Creature's location value. **implemented in part4
+     * @param location, Location value
+     * @see Creature
+     */
     public void setLocation(Location location) {
         this.location = location;
     }
+    /**
+     * Setter for a Creature's photoCreatureUrl value.
+     * @param photoCreatureUrl, String value
+     * @see Creature
+     */
     public void setPhotoCreatureUrl(String photoCreatureUrl) {
         this.photoCreatureUrl = photoCreatureUrl;
     }
+    /**
+     * Setter for a Creature's photoLocationUrl value.
+     * @param photoLocationUrl, String value
+     * @see Creature
+     */
     public void setPhotoLocationUrl(String photoLocationUrl) {
         this.photoLocationUrl = photoLocationUrl;
     }
-
+    /**
+     * Function to increment a Creature's numOfScans value by 1.
+     * @see Creature
+     */
     public void incrementScan() {
         this.numOfScans++;
     }
-
+    /**
+     * Function to add a comment to Creature's comments array.
+     * @param comment, String value
+     * @see Creature
+     */
     public void addComment(String comment){
         comments.add(comment);
     }
+    /**
+     * Function to remove a comment from Creature's comments array.
+     * @param comment, String value
+     * @see Creature
+     */
     public void removeComment(String comment){
         comments.remove(comment);
     }
