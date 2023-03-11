@@ -20,7 +20,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:scaleType="fitXY"
@@ -48,6 +48,18 @@
             android:layout_toRightOf="@id/img"
             android:singleLine="true"
             android:text="Points"
+            android:textColor="@color/all_white"
+            android:textSize="14dp"/>
+        <TextView
+            android:id="@+id/profile_num_of_scans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/profile_code_points"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="-3dp"
+            android:layout_toRightOf="@id/img"
+            android:singleLine="true"
+            android:text="Scanned by X Players"
             android:textColor="@color/all_white"
             android:textSize="14dp"/>
     </RelativeLayout>

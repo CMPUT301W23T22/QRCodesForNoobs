@@ -38,7 +38,7 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
         Creature creature = codes.get(position);
         holder.creatureName.setText(creature.getName());
         holder.creatureScore.setText(creature.getScore() + " points");
-
+        holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
     }
 
     @Override
@@ -49,13 +49,13 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     public class MyHolder extends RecyclerView.ViewHolder {
         TextView creatureName;
         TextView creatureScore;
+        TextView creatureNumOfScans;
         public MyHolder(@NonNull View itemView) {
             // Obtain list item textviews
             super(itemView);
             creatureName = itemView.findViewById(R.id.profile_code_txt);
             creatureScore = itemView.findViewById(R.id.profile_code_points);
-
-
+            creatureNumOfScans = itemView.findViewById(R.id.profile_num_of_scans);
         }
     }
 }
