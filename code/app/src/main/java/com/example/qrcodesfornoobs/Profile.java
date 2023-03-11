@@ -77,7 +77,6 @@ public class Profile extends AppCompatActivity {
     com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
     TextView playerName;
     TextView codeCount;
-
     LinearLayout filterBar;
     Intent mainIntent;
     private Intent profileIntent;
@@ -93,9 +92,9 @@ public class Profile extends AppCompatActivity {
     final String TAG = "tag";
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.profile);
 
         // When we add a new creature we need to update the datalist first
