@@ -103,12 +103,16 @@ public class Player {
     public String getContact() {
         return contact;
     }
-
+    /**
+     * Sets the contact information for the player.
+     * @param contact The contact to be set for the player.
+     */
+    public void setContact(String contact){this.contact = contact;}
     /**
      * Returns the list of creatures associated with the player.
      * @return the list of creatures associated with the player.
      */
-    public ArrayList<String> getCreatures() {
+        public ArrayList<String> getCreatures() {
         return creatures;
     }
 

@@ -56,7 +56,13 @@ public class SignInActivity extends AppCompatActivity {
         binding.signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptToLogin(binding.usernameEditText.getText().toString());
+                String userInput = binding.usernameEditText.getText().toString().trim();
+                if (userInput.isEmpty()){
+                    binding.usernameEditText.setError("Provide a Username!");
+                    return;
+                }
+                attemptToLogin(userInput);
+
             }
         });
     }
@@ -84,7 +90,7 @@ public class SignInActivity extends AppCompatActivity {
                             login(localPlayer,false);
                             Toast.makeText(getBaseContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
                         } else {
-                            binding.usernameEditText.setError("Username existed!");
+                            binding.usernameEditText.setError("Username Already Exists!");
                         }
                     } else { // login as new user
                         login(localPlayer, true);

@@ -95,21 +95,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             userName = itemView.findViewById(R.id.txt);
-
-//            itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    if (rvInterface != null){
-//                        int pos = getAdapterPosition();
-//                        rvInterface.onItemClick(pos);
-//                        searchName = codes.get(pos);
-//                        Toast.makeText(view.getContext(), searchName,Toast.LENGTH_SHORT).show();
-//
-//                    }
-//                }
-//            });
-
-
         }
     }
 }
