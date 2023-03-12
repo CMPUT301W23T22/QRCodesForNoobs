@@ -63,6 +63,7 @@ public class Player {
     public String getContact() {
         return contact;
     }
+    public void setContact(String contact){this.contact = contact;}
     public ArrayList<String> getCreatures() {
         return creatures;
     }
