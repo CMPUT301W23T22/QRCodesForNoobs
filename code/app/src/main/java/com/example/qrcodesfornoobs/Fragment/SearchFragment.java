@@ -33,7 +33,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-
+/**
+ * This class defines the search UI fragment that shows on click of the search icon.
+ */
 public class SearchFragment extends Fragment implements SearchAdapter.RecyclerViewInterface {
     private RadioGroup radioGroup;
 
@@ -56,6 +58,11 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         // Required empty public constructor
     }
 
+    /**
+     * On create of the fragment, initializes non-view components of the class.
+     * @param savedInstanceState
+     *  Unused. Bundle to be used if carrying information over from parent activity.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +71,13 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         valueList = new ArrayList<>();
     }
 
+    /**
+     * Initializes view to be used.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -71,6 +85,12 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         return view;
     }
 
+    /**
+     * After successful creation of view, initialize xml components.
+     * Contains searching function and click to view player profile function.
+     * @param view
+     * @param savedInstanceState
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -107,91 +127,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
                 searchList = new ArrayList<>();
                 if (query.length() > 0) {
-                    searchView.clearFocus();
-                    //TODO: Bug: searching finds values greater than query
-                    // ex. 'testinggg' --> 'thonas'
-                    // query value less than others works correctly
-                    // Doesn't account for lowercase uppercase (uppercase < lowercase)
-                    // ex. Search: 'p' doesn't show 'Pola'
-                    collectionReference.whereEqualTo("username", query).get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if(task.isSuccessful()){
-
-                                        if(!task.getResult().isEmpty()) { // if query exists
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                Log.d("equalToQuery", document.getId() + " => " + document.getData());
-                                                searchList.add(String.valueOf(document.getData().get("username")));
-
-                                                collectionReference.document(query).get()
-                                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                            @Override
-                                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                                Query moreQuery = collectionReference
-                                                                        .orderBy("username")
-                                                                        .startAt(documentSnapshot)
-                                                                        .limit(10);
-
-                                                                moreQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                        if(task.isSuccessful()){
-                                                                            for(QueryDocumentSnapshot moreDoc : task.getResult()){
-                                                                                Log.d("existingQueryResult", moreDoc.getId()+ " => "+moreDoc.getData());
-                                                                                if(!searchList.contains(moreDoc.getData().get("username").toString())) {
-                                                                                    searchList.add(moreDoc.getData().get("username").toString());
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                        else{ // moreQuery failed
-                                                                            Log.d("existingQueryResult", "Error getting documents:", task.getException());
-                                                                        }
-
-                                                                        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                                                                        recyclerView.setLayoutManager(layoutManager);
-
-                                                                        SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
-                                                                        recyclerView.setAdapter(searchAdapter);
-                                                                    }
-                                                                });
-                                                            }
-                                                        });
-
-                                            }
-                                        }// end task.getResult().isEmpty()
-                                        else{
-                                            Log.d("EqualToQuery", "Value '"+query+ "' does not exist in any document.");
-                                            // See if other values startAt(query)
-                                            collectionReference.orderBy("username").startAt(query).limit(10).get()
-                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            if(task.isSuccessful()){
-                                                                for(QueryDocumentSnapshot neDoc: task.getResult()){
-                                                                    Log.d("nonExistingQuery", neDoc.getId()+" => "+neDoc.getData());
-                                                                    searchList.add(neDoc.getData().get("username").toString());
-                                                                }
-                                                            }
-                                                            else{
-                                                                Log.d("nonExistingQuery", "Error getting documents: ", task.getException());
-                                                            }
-                                                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                                                            recyclerView.setLayoutManager(layoutManager);
-
-                                                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
-                                                            recyclerView.setAdapter(searchAdapter);
-                                                        }
-                                                    });
-
-                                        }
-
-                                    } // end task.isSuccessful()
-                                    else{
-                                        Log.d("EqualToQuery", "Error getting documents: ", task.getException());
-                                    }
-                                }
-                            });
+                    submitQuery(query);
                 }
                 return false;
             }
@@ -202,11 +138,10 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
+    /**
+     * Called when app is closed or when switching fragments/activities.
+     * Clears the radio group selection and any SearchView text.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -215,6 +150,114 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         searchView.clearFocus();
     }
 
+    /**
+     * On submit of a nonempty query text, first checks if the exact query is in any Firebase document.
+     * If an exact query document exists, adds that document to a list.
+     * Then uses that query to look for more documents that has the query with more characters.
+     * Add those documents to a list.
+     *
+     * If the query does not exist, use the query to look for documents that has the query with more characters.
+     * Add those documents to a list.
+     *
+     * Notify the RecyclerView's adapter to display the list of query documents.
+     * @param query
+     * User inputted string to be used to find documents in a Firebase collection.
+     */
+    public void submitQuery(String query){
+        searchView.clearFocus();
+        //TODO: Bug: searching finds values greater than query
+        // ex. 'testinggg' --> 'thonas'
+        // query value less than others works correctly
+        // Doesn't account for lowercase uppercase (uppercase < lowercase)
+        // ex. Search: 'p' doesn't show 'Pola'
+        collectionReference.whereEqualTo("username", query).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+
+                            if(!task.getResult().isEmpty()) { // if query exists
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    Log.d("equalToQuery", document.getId() + " => " + document.getData());
+                                    searchList.add(String.valueOf(document.getData().get("username")));
+
+                                    collectionReference.document(query).get()
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                    Query moreQuery = collectionReference
+                                                            .orderBy("username")
+                                                            .startAt(documentSnapshot)
+                                                            .limit(10);
+
+                                                    moreQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                            if(task.isSuccessful()){
+                                                                for(QueryDocumentSnapshot moreDoc : task.getResult()){
+                                                                    Log.d("existingQueryResult", moreDoc.getId()+ " => "+moreDoc.getData());
+                                                                    if(!searchList.contains(moreDoc.getData().get("username").toString())) {
+                                                                        searchList.add(moreDoc.getData().get("username").toString());
+                                                                    }
+                                                                }
+                                                            }
+                                                            else{ // moreQuery failed
+                                                                Log.d("existingQueryResult", "Error getting documents:", task.getException());
+                                                            }
+
+                                                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                                                            recyclerView.setLayoutManager(layoutManager);
+
+                                                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                                                            recyclerView.setAdapter(searchAdapter);
+                                                        }
+                                                    });
+                                                }
+                                            });
+
+                                }
+                            }// end task.getResult().isEmpty()
+                            else{
+                                Log.d("EqualToQuery", "Value '"+query+ "' does not exist in any document.");
+                                // See if other values startAt(query)
+                                collectionReference.orderBy("username").startAt(query).limit(10).get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    for(QueryDocumentSnapshot neDoc: task.getResult()){
+                                                        Log.d("nonExistingQuery", neDoc.getId()+" => "+neDoc.getData());
+                                                        searchList.add(neDoc.getData().get("username").toString());
+                                                    }
+                                                }
+                                                else{
+                                                    Log.d("nonExistingQuery", "Error getting documents: ", task.getException());
+                                                }
+                                                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                                                recyclerView.setLayoutManager(layoutManager);
+
+                                                SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                                                recyclerView.setAdapter(searchAdapter);
+                                            }
+                                        });
+
+                            }
+
+                        } // end task.isSuccessful()
+                        else{
+                            Log.d("EqualToQuery", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Checks which radio button is selected and changes the Firebase collection path accordingly.
+     * @param db
+     * Firebase database collection.
+     * @param radioGroup
+     * Contains radio buttons.
+     */
     public void radioGroupCheck (FirebaseFirestore db, RadioGroup radioGroup){
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -255,6 +298,11 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
     }
 
+    /**
+     * Opens a player's profile on click of a searched user.
+     * @param pos
+     * Position of selected searched user.
+     */
     private void launchPlayerProfile(int pos){
         profileIntent = new Intent(getActivity(), ProfileActivity.class);
         if (searchList != null){
