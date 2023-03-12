@@ -20,7 +20,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-
+/**
+ * Adapter class for the profile code recycler view.
+ * Binds the creature object's data to the corresponding view holder.
+ */
 public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArrayAdapter.MyHolder>{
 
     Context context;
@@ -28,12 +31,25 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     LayoutInflater layoutInflater;
     ImageView creatureImage;
 
+    /**
+     * Constructor that takes in the current context and list of creature codes.
+     * @param context The current context.
+     * @param codes The list of creature codes.
+     */
     public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes) {
         this.context = context;
         this.codes = codes;
         layoutInflater = layoutInflater.from(context);
     }
 
+    /**
+     * This method is called when RecyclerView needs a new ViewHolder of the given type to represent an item.
+     * It creates and initializes a new MyHolder object by inflating a view from the layout file.
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new MyHolder object that holds a view of the given view type.
+     */
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,6 +57,13 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
         return new MyHolder(view);
     }
 
+    /**
+     * This method updates the contents of the ViewHolder to reflect the item at the given position.
+     * It sets the creature name, score, number of scans, and image using data from the Creature object at the given position.
+     *
+     * @param holder   The MyHolder object to update.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         // Set list item info
@@ -61,15 +84,28 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
         holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
     }
 
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     *
+     * @return The total number of items in this adapter.
+     */
     @Override
     public int getItemCount() {
         return codes.size();
     }
 
+    /**
+     * View holder class that contains the view objects of a single recycler view row.
+     */
     public class MyHolder extends RecyclerView.ViewHolder {
         TextView creatureName;
         TextView creatureScore;
         TextView creatureNumOfScans;
+
+        /**
+         * Constructor that takes in the view object and initializes the view objects of the row.
+         * @param itemView The view object of the recycler view row.
+         */
         public MyHolder(@NonNull View itemView) {
             // Obtain list item textviews
             super(itemView);

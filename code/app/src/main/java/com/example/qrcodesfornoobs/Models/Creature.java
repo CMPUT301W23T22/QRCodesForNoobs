@@ -77,7 +77,6 @@ public class Creature {
     /**
      * Function to generate a name with a given hash.
      * @param hash
-     * @return Return String, generated name of a Creature
      * @see Creature
      */
     public void genName(String hash){
@@ -109,7 +108,6 @@ public class Creature {
     /**
      * Function to generate the score with a given hash.
      * @param hash
-     * @return int, calculated score of a Creature.
      * @see Creature
      */
     public void calcScore(String hash){

@@ -57,6 +57,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
+/**
+ * The ProfileActivity class displays the profile of a player, including their
+ * name, the number of codes they have scanned, and their total score. It also
+ * displays a filter bar and allows the player to toggle between a list view and
+ * a grid view of their codes.
+ */
 public class ProfileActivity extends AppCompatActivity {
     Button backButton;
     ImageButton editProfileButton;
@@ -85,6 +91,13 @@ public class ProfileActivity extends AppCompatActivity {
     final CollectionReference playerCollectionReference = db.collection("Players");
     final String TAG = "tag";
 
+    /**
+     * Called when the activity is starting. Initializes the activity by setting the layout, initializing
+     * data structures and widgets, and setting up event listeners. Listens for changes to the player's
+     * collection on the database and updates the UI with the new data.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -190,6 +203,13 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Sets swipe to delete functionality for the RecyclerView items.
+     * When an item is swiped left, it gets removed from the list and the
+     * corresponding data gets deleted from the Firestore database. An undo
+     * option is also displayed in a Snackbar, which allows the user to undo
+     * the deletion.
+     */
     // For RecyclerView Delete
     private void setSwipeToDelete() {
         final String TAG = "Sample";
@@ -267,6 +287,18 @@ public class ProfileActivity extends AppCompatActivity {
         }).attachToRecyclerView(recyclerView);
     }
 
+    /**
+     * Draws a delete icon on the canvas at the specified location. This function
+     * is called by the setSwipeToDelete function.
+     *
+     * @param c the canvas on which to draw the icon
+     * @param recyclerView the RecyclerView containing the item that is being swiped
+     * @param viewHolder the ViewHolder for the item that is being swiped
+     * @param dX the amount of horizontal displacement caused by the swipe
+     * @param dY the amount of vertical displacement caused by the swipe
+     * @param actionState the state of the swipe action
+     * @param isCurrentlyActive true if the swipe is currently active
+     */
     private void setDeleteIcon(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         Paint mClearPaint = new Paint();
         mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
@@ -302,6 +334,9 @@ public class ProfileActivity extends AppCompatActivity {
         deleteDrawable.draw(c);
     }
 
+    /**
+     * Initializes all the UI widgets for the activity.
+     */
     private void initWidgets() {
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
@@ -327,6 +362,9 @@ public class ProfileActivity extends AppCompatActivity {
         sortListSpinner.setAdapter(spinAdapter);
     }
 
+    /**
+     * Adds click listeners to the UI buttons for the activity.
+     */
     private void addListenerOnButtons() {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -385,6 +423,13 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sorts the creatures to display on the profile page based on the given sort value.
+     * If sortValue is "SCORE (ASCENDING)", sorts the creatures in ascending order of score.
+     * If sortValue is "SCORE (DESCENDING)", sorts the creatures in descending order of score.
+     * Uses a ProfileCreatureScoreComparator to compare the creatures based on score.
+     * @param sortValue the value to sort the creatures by
+     */
     public void sort(String sortValue){
         if (sortValue.equals("SCORE (ASCENDING)")) {
             creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
@@ -394,6 +439,11 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets the user whose profile is being viewed to the value stored in the profileIntent.
+     * If profileIntent does not contain an extra for "userToOpen", sets userToOpen to the value of Player.LOCAL_USERNAME.
+     * Prints a message to the console indicating which user's profile is being viewed.
+     */
     private void setProfileUser(){
         profileIntent = getIntent();
         userToOpen = profileIntent.getStringExtra("userToOpen");

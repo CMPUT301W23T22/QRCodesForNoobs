@@ -53,7 +53,9 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private ArrayList<String> searchList;
     private SearchAdapter.RecyclerViewInterface rvInterface;
 
-
+    /**
+     * Empty public constructor
+     */
     public SearchFragment() {
         // Required empty public constructor
     }
@@ -293,6 +295,11 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         });
     }
 
+    /**
+     * Callback function for item click events in the RecyclerView.
+     *
+     * @param pos The position of the clicked item in the RecyclerView.
+     */
     @Override
     public void onItemClick(int pos) {
 
