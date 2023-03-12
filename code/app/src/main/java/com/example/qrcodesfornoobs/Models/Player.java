@@ -22,11 +22,6 @@ public class Player {
 
     }
 
-    /**
-     * 2 Player are considered equal if they have the same username & device
-     * @param o player to be compared with
-     * @return true if equal, false otherwise
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
