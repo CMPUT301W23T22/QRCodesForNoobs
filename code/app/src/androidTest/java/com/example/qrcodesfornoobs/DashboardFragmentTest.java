@@ -3,6 +3,7 @@ package com.example.qrcodesfornoobs;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -53,7 +54,6 @@ public class DashboardFragmentTest {
         public void testHomePage() throws Exception{
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 assertTrue(solo.waitForText(Player.LOCAL_USERNAME, 1, 2000));
-
                 Fragment fragment = solo.getCurrentActivity().getFragmentManager().getFragments().get(0);
                 Log.d(TAG, fragment.getTag());
         }
@@ -95,13 +95,14 @@ public class DashboardFragmentTest {
                 solo.assertCurrentActivity("Not in Settings", SettingsActivity.class);
         }
 
-        @Test
-        public void testPhotoButton() throws Exception{
-                solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
-                solo.clickOnView(solo.getView(R.id.camera));
-
-                solo.assertCurrentActivity("Not in TakePhotoActivity", TakePhotoActivity.class);
-        }
+//        @Test
+//        public void testPhotoButton() throws Exception{
+//                solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
+//                solo.clickOnView(solo.getView(R.id.camera));
+//                assertTrue(solo.waitForText("Scan a barcode or QR Code"));
+//        }
+        //could not perform this test since its using an outside library.
+        // https://stackoverflow.com/questions/3840034/how-do-i-write-a-solo-robotium-testcase-that-uses-the-builtin-camera-to-take-a-p
 
         @Test
         public void  testSearchButton() throws Exception{
