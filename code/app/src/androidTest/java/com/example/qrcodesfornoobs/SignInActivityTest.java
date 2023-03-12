@@ -82,11 +82,11 @@ public class SignInActivityTest {
      * @throws Exception
      */
     @Test
-    public void UnsucessfulSignIn() throws Exception{
+    public void UnsuccessfulSignIn() throws Exception{
         Activity activity = rule.getActivity();
         solo.assertCurrentActivity("Wrong Activity",SignInActivity.class);
         EditText editText = (EditText) solo.getView(R.id.username_EditText);
-        solo.enterText(editText,"frannys");
+        solo.enterText(editText,"differentDevice");
         solo.clickOnView(solo.getView(R.id.sign_in_button));
         solo.waitForText("Username Already Exists!");
         String error1 = editText.getError().toString();
