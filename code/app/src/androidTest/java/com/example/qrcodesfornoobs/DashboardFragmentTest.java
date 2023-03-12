@@ -18,6 +18,7 @@ import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.Activity.SettingsActivity;
 import com.example.qrcodesfornoobs.Activity.SignInActivity;
+import com.example.qrcodesfornoobs.Activity.TakePhotoActivity;
 import com.example.qrcodesfornoobs.Fragment.DashboardFragment;
 import com.example.qrcodesfornoobs.Fragment.MapFragment;
 import com.example.qrcodesfornoobs.Models.Player;
@@ -95,25 +96,27 @@ public class DashboardFragmentTest {
         }
 
         @Test
+        public void testPhotoButton() throws Exception{
+                solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
+                solo.clickOnView(solo.getView(R.id.camera));
+
+                assertTrue(solo.waitForText("Scan a barcode or QR Code", 1, 2000));
+        }
+
+        @Test
         public void  testSearchButton() throws Exception{
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.search));
 
                 assertTrue(solo.waitForText("SEARCH", 1, 2000));
-
-                Fragment fragment = solo.getCurrentActivity().getFragmentManager().getFragments().get(0);
-                Log.d(TAG, fragment.getTag());
         }
 
         @Test
-        public void  testLeaderboardFragment() throws Exception{
+        public void  testLeaderboardFragment() throws Exception {
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.leaderboard));
 
                 assertTrue(solo.waitForText("Leaderboard Screen", 1, 2000));
-
-                Fragment fragment = solo.getCurrentActivity().getFragmentManager().getFragments().get(0);
-                Log.d(TAG, fragment.getTag());
         }
 
         @Test
@@ -122,9 +125,6 @@ public class DashboardFragmentTest {
                 solo.clickOnView(solo.getView(R.id.map));
 
                 assertTrue(solo.waitForText("Map Screen", 1, 2000));
-
-                Fragment fragment = solo.getCurrentActivity().getFragmentManager().getFragments().get(0);
-                Log.d(TAG, fragment.getTag());
         }
 
         @After
