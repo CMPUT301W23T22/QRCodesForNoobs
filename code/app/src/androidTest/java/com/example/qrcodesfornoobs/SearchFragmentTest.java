@@ -66,10 +66,10 @@ public class SearchFragmentTest {
     public void checkSearchUser(){
         checkOpenFragment();
         solo.clickOnView(solo.getView(R.id.searchView));
-        assertFalse(solo.searchText("s"));
-        solo.enterText(0, "s");
+        assertFalse(solo.searchText("reynel"));
+        solo.enterText(0, "reynel");
         solo.sendKey(Solo.ENTER);
-        assertTrue(solo.waitForText("s", 1, 2000));
+        assertTrue(solo.waitForText("reynel", 1, 2000));
     }
 
     /**
@@ -80,6 +80,16 @@ public class SearchFragmentTest {
         checkSearchUser();
         solo.clickInRecyclerView(0);
         solo.assertCurrentActivity("Wrong activity.", ProfileActivity.class);
+    }
+
+    /**
+     * US 02.03.01 As a player, I want to be able to browse QR codes that other players have scanned.
+     */
+    @Test
+    public void checkBrowsePlayerQR(){
+        checkSelectUserProfile();
+        solo.clickOnView(solo.getView(R.id.toggle_recyclerView_button));
+        solo.searchText("PenGoTriChi");
     }
 
 
