@@ -100,7 +100,7 @@ public class DashboardFragmentTest {
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.camera));
 
-                assertTrue(solo.waitForText("Scan a barcode or QR Code", 1, 2000));
+                solo.assertCurrentActivity("Not in TakePhotoActivity", TakePhotoActivity.class);
         }
 
         @Test
