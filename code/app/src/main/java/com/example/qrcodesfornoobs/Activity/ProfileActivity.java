@@ -1,7 +1,5 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Activity;
 
-
-import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -11,8 +9,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -36,53 +31,51 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.qrcodesfornoobs.Activity.MainActivity;
+import com.example.qrcodesfornoobs.Adapter.ProfileCodeArrayAdapter;
+import com.example.qrcodesfornoobs.Models.Creature;
+import com.example.qrcodesfornoobs.Models.Player;
+import com.example.qrcodesfornoobs.Tools.ProfileCreatureScoreComparator;
+import com.example.qrcodesfornoobs.Fragment.ProfileEditInfoFragment;
+import com.example.qrcodesfornoobs.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import com.example.qrcodesfornoobs.Dashboard;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Objects;
 
-public class Profile extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity {
     Button backButton;
     ImageButton editProfileButton;
     ImageButton toggleFilterButton;
     ImageButton toggleRecyclerViewButton;
     Spinner sortListSpinner;
     RecyclerView recyclerView;
-    com.example.qrcodesfornoobs.ProfileCodeArrayAdapter codeArrayAdapter;
+    ProfileCodeArrayAdapter codeArrayAdapter;
     TextView playerName;
     TextView codeCount;
     TextView playerScore;
 
     LinearLayout filterBar;
-    private Intent mainIntent;
+    Intent mainIntent;
+    private Intent profileIntent;
     private ArrayList<Creature> creaturesToDisplay;
     private ArrayList<String> playerCreatureList;
     private DocumentReference playerRef;
+    private String userToOpen;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -91,45 +84,24 @@ public class Profile extends AppCompatActivity {
     final String TAG = "tag";
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile);
 
+        setContentView(R.layout.activity_profile);
 
         // When we add a new creature we need to update the datalist first
         // From the datalist we will add them into the database
         creaturesToDisplay = new ArrayList<>();
         playerCreatureList = new ArrayList<>();
+        mainIntent = new Intent(this, MainActivity.class);
+
+        setProfileUser();
 
         // Initialize buttons and spinners
         initWidgets();
-        //TODO: Implement actual adding function when that is finished
-
-//        creatureCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//            // For use when updating our datalist from the database
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-//            FirebaseFirestoreException error) {
-//
-//                // Clear the old list
-//                dataList.clear();
-//                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                    // Get attributes from the document using doc.getString(attribute name)
-//                    // Create a creature object and use setters to set its attributes to the ones from document
-//                    // Add the creature to database
-//                    Creature creature;
-//                    creature = doc.toObject(Creature.class);
-//                    dataList.add(creature);
-//                }
-//                codeArrayAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-//
-//            }
-//        });
-
 
         // Get reference to player's collection
-        playerRef = playerCollectionReference.document(Player.LOCAL_USERNAME);
+        playerRef = playerCollectionReference.document(userToOpen);
 
         playerRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             // Listens for changes to the player's collection on the database
@@ -171,13 +143,20 @@ public class Profile extends AppCompatActivity {
                                                         dbPlayer.setScore(totalScore);
                                                         playerRef.set(dbPlayer);
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
-                                                        playerScore.setText(totalScore);
+                                                        playerScore.setText(totalScore + " Points");
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
                                                     }
                                                 }
                                             });
+                                }
+                                else{
+                                    //empty list
+                                    creaturesToDisplay.clear();
+                                    codeCount.setText("0 Codes Scanned");
+                                    playerScore.setText("0 Points");
+                                    codeArrayAdapter.notifyDataSetChanged();
                                 }
                             } else {
                                 Log.d(TAG, "No such document");
@@ -187,22 +166,23 @@ public class Profile extends AppCompatActivity {
                         }
                     }
                 });
+
             }
         });
 
-        // INITIALIZATION
-        initWidgets(); // Initialize buttons and spinners
         addListenerOnButtons(); // Initialize button listeners
 
         // RECYCLER VIEW  CHANGES 230301
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(Profile.this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(ProfileActivity.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        codeArrayAdapter = new com.example.qrcodesfornoobs.ProfileCodeArrayAdapter(Profile.this, creaturesToDisplay);
+        codeArrayAdapter = new ProfileCodeArrayAdapter(ProfileActivity.this, creaturesToDisplay);
         recyclerView.setAdapter(codeArrayAdapter);
-        setSwipeToDelete();
-        mainIntent = new Intent(this, MainActivity.class);
+
+        if (userToOpen == Player.LOCAL_USERNAME){
+            setSwipeToDelete();
+        }
 
     }
 
@@ -222,7 +202,7 @@ public class Profile extends AppCompatActivity {
                 // Get the swiped Creature and delete it from the database
                 Creature QR = creaturesToDisplay.get(position);
                 db.collection("Players")
-                        .document(Player.LOCAL_USERNAME)
+                        .document(userToOpen)
                         .update("creatures", FieldValue.arrayRemove(QR.getHash()))
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -246,7 +226,7 @@ public class Profile extends AppCompatActivity {
                         if (QR.getHash().length() > 0) {
 
                             playerCollectionReference
-                                    .document(Player.LOCAL_USERNAME)
+                                    .document(userToOpen)
                                     .update("creatures",FieldValue.arrayUnion(QR.getHash()))
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -322,13 +302,17 @@ public class Profile extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
         backButton.setBackgroundResource(R.drawable.back_arrow);
         editProfileButton = findViewById(R.id.edit_profile_button);
+        if (!Objects.equals(userToOpen, Player.LOCAL_USERNAME)){
+            editProfileButton.setVisibility(View.GONE);
+        }
+
         toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
         toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
         playerName = findViewById(R.id.profile_playername_textview);
-        playerName.setText(Player.LOCAL_USERNAME);
+        playerName.setText(userToOpen);
         codeCount = findViewById(R.id.profile_playercodecount_textview);
         playerScore = findViewById(R.id.profile_playerpoints_textview);
         // Initialize spinner data
@@ -402,5 +386,14 @@ public class Profile extends AppCompatActivity {
             creaturesToDisplay.sort(new ProfileCreatureScoreComparator());
             Collections.reverse(creaturesToDisplay);
         }
+    }
+
+    private void setProfileUser(){
+        profileIntent = getIntent();
+        userToOpen = profileIntent.getStringExtra("userToOpen");
+        if (userToOpen == null){
+            userToOpen = Player.LOCAL_USERNAME;
+        }
+        System.out.println("Opening profile of user " + userToOpen);
     }
 }

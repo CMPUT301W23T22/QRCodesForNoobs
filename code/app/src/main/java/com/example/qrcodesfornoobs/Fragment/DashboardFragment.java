@@ -10,7 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.qrcodesfornoobs.Adapter.CodeSliderAdapter;
-import com.example.qrcodesfornoobs.Profile;
+import com.example.qrcodesfornoobs.Models.Player;
+import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.Activity.SettingsActivity;
 import com.example.qrcodesfornoobs.databinding.FragmentDashboardBinding;
 
@@ -33,8 +34,9 @@ public class DashboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentDashboardBinding.inflate(getLayoutInflater());
+        binding.usernameTextView.setText(Player.LOCAL_USERNAME);
 
-        profileIntent = new Intent(getActivity(), Profile.class);
+        profileIntent = new Intent(getActivity(), ProfileActivity.class);
         settingsIntent = new Intent(getActivity(), SettingsActivity.class);
         setUpSliders();
         addListenerOnButtons();

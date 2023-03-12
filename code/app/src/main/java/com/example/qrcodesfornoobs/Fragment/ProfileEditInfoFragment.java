@@ -1,4 +1,4 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.qrcodesfornoobs.R;
 
 public class ProfileEditInfoFragment extends DialogFragment {
     Button confirmButton;
