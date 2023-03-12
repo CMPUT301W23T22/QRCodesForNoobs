@@ -100,9 +100,9 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-
+                //TODO: implement radiobutton check when we can get location
                 // Added this inside the onQueryTextSubmit portion so users had to search for the names to pop up
-                radioGroupCheck(db, radioGroup);
+                //radioGroupCheck(db, radioGroup);
 
 
                 searchList = new ArrayList<>();
