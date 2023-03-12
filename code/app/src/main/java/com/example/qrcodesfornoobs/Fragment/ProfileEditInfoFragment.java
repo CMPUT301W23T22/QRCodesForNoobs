@@ -14,11 +14,20 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.qrcodesfornoobs.R;
 
+/**
+ * A fragment for editing profile information.
+ */
 public class ProfileEditInfoFragment extends DialogFragment {
     Button confirmButton;
     Button cancelButton;
     AlertDialog dialog;
     private int position; // The position of the listview item
+
+    /**
+     * Returns a new instance of the fragment with the given contact info.
+     * @param contactInfo the contact info to edit
+     * @return a new instance of the fragment with the given contact info
+     */
     public static ProfileEditInfoFragment newInstance(String contactInfo) {
         ProfileEditInfoFragment fragment = new ProfileEditInfoFragment();
         Bundle args = new Bundle();
@@ -26,6 +35,12 @@ public class ProfileEditInfoFragment extends DialogFragment {
         fragment.setArguments(args);
         return fragment;
     }
+
+    /**
+     * Called to create the dialog shown by this fragment.
+     * @param savedInstanceState the previously saved instance state
+     * @return a new dialog
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -52,6 +67,9 @@ public class ProfileEditInfoFragment extends DialogFragment {
         return dialog;
     }
 
+    /**
+     * Adds click listeners to the confirm and cancel buttons.
+     */
     private void addListenerOnButtons(){
         // Buttons do nothing right now
         confirmButton.setOnClickListener(new View.OnClickListener() {

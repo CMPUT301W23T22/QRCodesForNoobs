@@ -33,7 +33,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-
+/**
+ * A Fragment subclass that displays a search feature for querying player data stored in the Firestore database.
+ * The user can search for player usernames and locations.
+ * Results are displayed in a RecyclerView.
+ */
 public class SearchFragment extends Fragment implements SearchAdapter.RecyclerViewInterface {
     private RadioGroup radioGroup;
 
@@ -51,11 +55,19 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private ArrayList<String> searchList;
     private SearchAdapter.RecyclerViewInterface rvInterface;
 
-
+    /**
+     * Empty public constructor
+     */
     public SearchFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * Initializes the Firebase Firestore instance and CollectionReference.
+     * Initializes an empty ArrayList to store search results.
+     *
+     * @param savedInstanceState A Bundle object containing the instance's previously saved state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +76,14 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         valueList = new ArrayList<>();
     }
 
+    /**
+     * Inflates the layout for this Fragment.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate any views in the Fragment.
+     * @param container The parent view that the Fragment's UI should be attached to.
+     * @param savedInstanceState A Bundle object containing the instance's previously saved state.
+     * @return A View object inflated from the fragment_search.xml layout file.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -71,6 +91,13 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         return view;
     }
 
+    /**
+     * Initializes the UI elements and RecyclerView adapter for this Fragment.
+     * Sets the OnQueryTextListener for the SearchView.
+     *
+     * @param view The View returned by onCreateView().
+     * @param savedInstanceState A Bundle object containing the instance's previously saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -202,11 +229,18 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         });
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running
+     */
     @Override
     public void onResume() {
         super.onResume();
     }
 
+    /**
+     * Called when the Fragment is no longer resumed
+     * Clears the focus from the SearchView when the Fragment is paused.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -215,6 +249,12 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         searchView.clearFocus();
     }
 
+    /**
+     * Queries the Firestore database based on the selected radio button.
+     *
+     * @param db The FirebaseFirestore instance.
+     * @param radioGroup The RadioGroup containing the radio buttons for the search type.
+     */
     public void radioGroupCheck (FirebaseFirestore db, RadioGroup radioGroup){
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -250,11 +290,21 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         });
     }
 
+    /**
+     * Callback function for item click events in the RecyclerView.
+     *
+     * @param pos The position of the clicked item in the RecyclerView.
+     */
     @Override
     public void onItemClick(int pos) {
 
     }
 
+    /**
+     * Launches the ProfileActivity with the document path of the clicked item.
+     *
+     * @param pos The position of the clicked item in the RecyclerView.
+     */
     private void launchPlayerProfile(int pos){
         profileIntent = new Intent(getActivity(), ProfileActivity.class);
         if (searchList != null){
