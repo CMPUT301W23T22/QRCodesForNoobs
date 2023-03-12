@@ -44,10 +44,17 @@ public class MapFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Required empty public constructor for fragment.
+     */
     public MapFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * Called when the fragment is created. Gets the arguments passed in and inflates the layout.
+     * @param savedInstanceState The saved instance state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +65,13 @@ public class MapFragment extends Fragment {
         }
     }
 
+    /**
+     * Called when the fragment's view is created. Returns the root view for the fragment.
+     * @param inflater The layout inflater for inflating the layout.
+     * @param container The container view for the fragment.
+     * @param savedInstanceState The saved instance state bundle.
+     * @return The root view for the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
