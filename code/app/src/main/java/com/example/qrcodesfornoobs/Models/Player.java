@@ -63,6 +63,10 @@ public class Player {
         return creatures;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
     public boolean containsCreature(Creature creature) {
         return creatures.contains(creature.getHash());
     }
