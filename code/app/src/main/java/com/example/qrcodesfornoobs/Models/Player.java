@@ -22,11 +22,6 @@ public class Player {
 
     }
 
-    /**
-     * 2 Player are considered equal if they have the same username & device
-     * @param o player to be compared with
-     * @return true if equal, false otherwise
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -63,6 +58,7 @@ public class Player {
     public String getContact() {
         return contact;
     }
+
     public ArrayList<String> getCreatures() {
         return creatures;
     }
@@ -70,6 +66,7 @@ public class Player {
     public void setScore(int score) {
         this.score = score;
     }
+
     public boolean containsCreature(Creature creature) {
         return creatures.contains(creature.getHash());
     }
