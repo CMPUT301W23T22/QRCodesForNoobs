@@ -58,7 +58,7 @@ public class Player {
     public String getContact() {
         return contact;
     }
-
+    public void setContact(String contact){this.contact = contact;}
     public ArrayList<String> getCreatures() {
         return creatures;
     }
@@ -66,7 +66,6 @@ public class Player {
     public void setScore(int score) {
         this.score = score;
     }
-
     public boolean containsCreature(Creature creature) {
         return creatures.contains(creature.getHash());
     }
