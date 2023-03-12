@@ -1,41 +1,24 @@
 package com.example.qrcodesfornoobs;
 import android.app.Activity;
-
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
-import android.content.Intent;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
-import com.example.qrcodesfornoobs.Activity.MainActivity;
+import android.util.Log;
+import android.widget.TextView;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
-import com.example.qrcodesfornoobs.Activity.SignInActivity;
-import com.example.qrcodesfornoobs.Fragment.DashboardFragment;
-import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
-import junit.framework.TestCase;
 
 public class ProfileIntentTest {
 
