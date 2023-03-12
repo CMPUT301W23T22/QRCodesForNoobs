@@ -68,9 +68,11 @@ public class ProfileActivity extends AppCompatActivity {
     TextView playerName;
     TextView codeCount;
     TextView playerScore;
+    TextView contactText;
 
     LinearLayout filterBar;
     Intent mainIntent;
+    private Player currentPlayer;
     private Intent profileIntent;
     private ArrayList<Creature> creaturesToDisplay;
     private ArrayList<String> playerCreatureList;
@@ -116,8 +118,10 @@ public class ProfileActivity extends AppCompatActivity {
                             if (document.exists()) {
                                 // Gets players codes from their creatures array list
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                currentPlayer = document.toObject(Player.class);
                                 Player dbPlayer = document.toObject(Player.class);
                                 // Fill array with creatures from database
+                                contactText.setText("Contact Info: " + dbPlayer.getContact());
                                 playerCreatureList = dbPlayer.getCreatures();
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns
@@ -315,6 +319,7 @@ public class ProfileActivity extends AppCompatActivity {
         playerName.setText(userToOpen);
         codeCount = findViewById(R.id.profile_playercodecount_textview);
         playerScore = findViewById(R.id.profile_playerpoints_textview);
+        contactText = findViewById(R.id.profile_contact_textview);
         // Initialize spinner data
         ArrayAdapter<CharSequence> spinAdapter = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, R.layout.spinner_item);
@@ -333,8 +338,9 @@ public class ProfileActivity extends AppCompatActivity {
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 // Replace 'contact' with Player.getInfo() or something when we have that set up
-                DialogFragment editInfoFrag = ProfileEditInfoFragment.newInstance("contact");
+                DialogFragment editInfoFrag = ProfileEditInfoFragment.newInstance(currentPlayer.getContact());
                 editInfoFrag.show(getSupportFragmentManager(),"Edit Contact Info");
             }
         });
