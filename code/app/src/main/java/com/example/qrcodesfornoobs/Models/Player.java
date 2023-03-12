@@ -8,6 +8,7 @@ public class Player {
     //TODO: Call to db for Creatures
     private String username;
     private String device;
+    private int score;
     private ArrayList<String> creatures = new ArrayList<>();
     private String contact;
 
@@ -64,6 +65,10 @@ public class Player {
     }
     public ArrayList<String> getCreatures() {
         return creatures;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
     public boolean containsCreature(Creature creature) {
         return creatures.contains(creature.getHash());
