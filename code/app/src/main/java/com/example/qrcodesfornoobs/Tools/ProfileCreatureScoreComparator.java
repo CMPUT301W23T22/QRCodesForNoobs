@@ -1,4 +1,6 @@
-package com.example.qrcodesfornoobs;
+package com.example.qrcodesfornoobs.Tools;
+
+import com.example.qrcodesfornoobs.Models.Creature;
 
 import java.util.Comparator;
 

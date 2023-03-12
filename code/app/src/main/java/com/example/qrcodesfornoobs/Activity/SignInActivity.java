@@ -10,7 +10,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.qrcodesfornoobs.Player;
+import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.databinding.ActivitySigninBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,6 +26,7 @@ public class SignInActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mainIntent = new Intent(this, MainActivity.class);
         if (isLoggedInBefore()) {
             Player.LOCAL_USERNAME = getSharedPreferences(SignInActivity.CACHE_NAME, MODE_PRIVATE).getString("username", "");
@@ -33,7 +34,6 @@ public class SignInActivity extends AppCompatActivity {
             finish();
             return;
         }
-        super.onCreate(savedInstanceState);
         binding = ActivitySigninBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         addListenerOnButtons();

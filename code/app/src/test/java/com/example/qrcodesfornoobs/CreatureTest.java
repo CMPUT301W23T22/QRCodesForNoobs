@@ -3,6 +3,8 @@ package com.example.qrcodesfornoobs;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import com.example.qrcodesfornoobs.Models.Creature;
+
 import java.security.NoSuchAlgorithmException;
 
 public class CreatureTest {
