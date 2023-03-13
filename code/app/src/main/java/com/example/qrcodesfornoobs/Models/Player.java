@@ -35,7 +35,7 @@ public class Player {
     }
 
     /**
-     * 2 Player are considered equal if they have the same username & device
+     * 2 Player are considered equal if they have the same username and device
      * @param o player to be compared with
      * @return true if equal, false otherwise
      */
