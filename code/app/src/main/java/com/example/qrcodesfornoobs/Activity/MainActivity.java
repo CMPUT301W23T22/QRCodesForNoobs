@@ -22,7 +22,11 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-
+/**
+ * The main activity of the application, responsible for handling the bottom navigation view and
+ * switching between the different fragments in the app. The activity also initializes and handles
+ * the camera for scanning QR codes and barcodes.
+ */
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private Fragment dashboardFragment;
@@ -31,7 +35,11 @@ public class MainActivity extends AppCompatActivity {
     private Fragment leaderboardFragment;
     private Fragment mapFragment;
 
-
+    /**
+     * Called when the activity is starting. Initializes the activity and sets the initial fragment
+     * to the dashboard fragment.
+     * @param savedInstanceState the saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(dashboardFragment);
     }
 
+    /**
+     * Initializes all fragments used in the activity, as well as the camera used for scanning QR
+     * codes and barcodes.
+     */
     private void initializeFragments() {
         dashboardFragment = new DashboardFragment();
         mapFragment = new MapFragment();
@@ -53,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
         cameraIntentIntegrator.setPrompt("Scan a barcode or QR Code");
     }
 
+    /**
+     * Adds a listener to the bottom navigation view, which is used to switch between the different
+     * fragments in the app.
+     */
     private void addListenerOnButtons() {
 
         binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {

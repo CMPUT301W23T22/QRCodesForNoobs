@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
                 android:textAlignment="center"
-                android:text="# Points"
+                android:text="0 Points"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.444"
                 app:layout_constraintStart_toEndOf="@+id/profile_avatar_view"
@@ -64,14 +64,14 @@
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
                 android:textAlignment="center"
-                android:text="# Codes Scanned"
+                android:text="0 Codes Scanned"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.444"
                 app:layout_constraintStart_toEndOf="@+id/profile_avatar_view"
                 app:layout_constraintTop_toBottomOf="@+id/profile_playerpoints_textview" />
 
             <TextView
-                android:id="@+id/profile_playercontact_textview"
+                android:id="@+id/profile_contact_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
