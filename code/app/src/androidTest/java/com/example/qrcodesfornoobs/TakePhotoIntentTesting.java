@@ -11,16 +11,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.example.qrcodesfornoobs.Activity.TakePhotoActivity;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,7 +30,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 
 
-public class ThomasTest {
+public class TakePhotoIntentTesting {
     private Solo solo;
     private final static String MOCK_USERNAME = "_ThomasTest_";
     private final static String MOCK_CODE = "###Thomas###";

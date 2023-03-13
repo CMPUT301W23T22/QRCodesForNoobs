@@ -109,7 +109,7 @@ public class SignInActivityTest {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove("username");
         editor.apply();
-        System.out.println(sharedPreferences.getString("username",""));
+        solo.finishOpenedActivities();
     }
     String TAG = "IntentTesting";
 }

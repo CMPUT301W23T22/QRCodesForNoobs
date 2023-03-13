@@ -38,6 +38,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Allows the user to take a photo of a creature and optionally a location.
+ * The photo(s) can be saved to the Firebase Storage and the creature information is saved to the Firebase Firestore.
+ */
 public class TakePhotoActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 666;
     final String TAG = "Sample";
@@ -46,6 +50,11 @@ public class TakePhotoActivity extends AppCompatActivity {
     Bitmap photoCreatureBitmap;
     Bitmap photoLocationBitmap;
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized then this Bundle contains the data
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +129,8 @@ public class TakePhotoActivity extends AppCompatActivity {
     }
 
     /**
+     * Checks whether the cretaure to add already exists in the db
+     *
      * @param creature
      * @return true if local player does not have the code, false otherwise
      */
@@ -185,6 +196,11 @@ public class TakePhotoActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Uploads the creature information to Firebase Firestore.
+     *
+     * @param creature The creature to upload the information for.
+     */
     private void uploadToDatabase(Creature creature) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         // update Creatures collection
@@ -205,6 +221,11 @@ public class TakePhotoActivity extends AppCompatActivity {
                 .update("creatures", FieldValue.arrayUnion(creature.getHash()));
     }
 
+    /**
+     * Uploads the location photo to Firebase Storage.
+     *
+     * @return A CompletableFuture that completes with the download URL of the uploaded photo.
+     */
     private CompletableFuture<String> uploadPhotoLocation() {
         CompletableFuture<String> locationPhotoFuture = CompletableFuture.supplyAsync(() -> {
             if (photoLocationBitmap == null) {
@@ -229,6 +250,12 @@ public class TakePhotoActivity extends AppCompatActivity {
         return locationPhotoFuture;
     }
 
+    /**
+     * Uploads the creature photo to Firebase Storage.
+     *
+     * @param creature The creature to upload the photo for.
+     * @return A CompletableFuture
+     */
     private CompletableFuture<String> uploadPhotoCreature(Creature creature) {
         CompletableFuture<String> creaturePhotoFuture = CompletableFuture.supplyAsync(() -> {
             if (photoCreatureBitmap == null) {
@@ -252,11 +279,21 @@ public class TakePhotoActivity extends AppCompatActivity {
         return creaturePhotoFuture;
     }
 
+    /**
+     * Opens the camera app to take a photo.
+     */
     private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
         startActivityForResult(cameraIntent, CAMERA_REQUEST);
     }
 
+    /**
+     * Called when an activity you launched exits
+     *
+     * @param requestCode The integer request code
+     * @param resultCode The integer result code
+     * @param data An Intent, which can return result data to the caller
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
