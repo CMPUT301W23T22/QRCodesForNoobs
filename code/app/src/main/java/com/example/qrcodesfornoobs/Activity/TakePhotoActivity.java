@@ -108,9 +108,12 @@ public class TakePhotoActivity extends AppCompatActivity {
                                 newCreature.setPhotoLocationUrl(photoLocationUrl);
                                 uploadToDatabase(newCreature);
                             });
+                            return;
                         }
+                        uploadToDatabase(newCreature);
                     });
                 });
+                System.out.println("[INTENT TESTING] confirm button binded."); // VITAL for intent testing
             });
         }).exceptionally(e -> {
             Toast.makeText(getBaseContext(), "Can't fetch creature from database. Please try again later!", Toast.LENGTH_SHORT).show();
@@ -204,6 +207,7 @@ public class TakePhotoActivity extends AppCompatActivity {
         db.collection("Creatures").document(creature.getHash())
                 .set(creature)
                 .addOnSuccessListener(aVoid -> {
+                    System.out.println("[INTENT TESTING] Code added successfully!");
                     finish();
                     Toast.makeText(getBaseContext(), "Code added successfully!", Toast.LENGTH_SHORT).show();
                 })
