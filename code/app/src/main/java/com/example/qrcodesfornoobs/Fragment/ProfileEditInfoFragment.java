@@ -29,6 +29,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+/**
+ * A fragment for editing profile information.
+ */
 public class ProfileEditInfoFragment extends DialogFragment {
     Button confirmButton;
     Button cancelButton;
@@ -36,6 +39,12 @@ public class ProfileEditInfoFragment extends DialogFragment {
     AlertDialog dialog;
     String initialEmail;
     private int position; // The position of the listview item
+
+    /**
+     * Returns a new instance of the fragment with the given contact info.
+     * @param contactInfo the contact info to edit
+     * @return a new instance of the fragment with the given contact info
+     */
 
     public static ProfileEditInfoFragment newInstance(String contactInfo) {
         ProfileEditInfoFragment fragment = new ProfileEditInfoFragment();
@@ -45,6 +54,11 @@ public class ProfileEditInfoFragment extends DialogFragment {
         return fragment;
     }
 
+    /**
+     * Called to create the dialog shown by this fragment.
+     * @param savedInstanceState the previously saved instance state
+     * @return a new dialog
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -74,7 +88,10 @@ public class ProfileEditInfoFragment extends DialogFragment {
         return dialog;
     }
 
-    private void addListenerOnButtons() {
+    /**
+     * Adds click listeners to the confirm and cancel buttons.
+     */
+    private void addListenerOnButtons(){
         // Buttons do nothing right now
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
