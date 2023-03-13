@@ -26,7 +26,6 @@ public class Creature {
      * hash.
      * @param code code received from the QRCode scan.
      * @param location  * **location to be implemented in part4
-     * @return Creature Object
      */
     public Creature (String code, Location location) {
         //this will be used when we scan a code
@@ -57,7 +56,6 @@ public class Creature {
      * @param hash String
      * @param score int
      * @param numOfScans int that represent how many players have scanned a Creature
-     * @return Creature Object
      */
     public Creature(String name, String hash, int score, int numOfScans, Location location, ArrayList<String> comments){
         //this will be used when creature is already in database
@@ -177,7 +175,7 @@ public class Creature {
     }
     /**
      * Getter for a Creature's location value. **implemented in part4
-     * @return ArrayList<String>, List of Creature's comments.
+     * @return List of Creature's comments.
      * @see Creature
      */
     public ArrayList<String> getComments() {return comments;}
