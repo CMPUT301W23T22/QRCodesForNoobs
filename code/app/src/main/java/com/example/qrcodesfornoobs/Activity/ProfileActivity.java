@@ -1,6 +1,9 @@
 package com.example.qrcodesfornoobs.Activity;
 
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,7 +34,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrcodesfornoobs.Adapter.CommentAdapter;
 import com.example.qrcodesfornoobs.Adapter.ProfileCodeArrayAdapter;
+import com.example.qrcodesfornoobs.Adapter.SearchAdapter;
+import com.example.qrcodesfornoobs.Fragment.CommentFragment;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.Tools.ProfileCreatureScoreComparator;
@@ -63,7 +69,7 @@ import java.util.Objects;
  * displays a filter bar and allows the player to toggle between a list view and
  * a grid view of their codes.
  */
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements ProfileCodeArrayAdapter.RecyclerViewInterface {
     Button backButton;
     ImageButton editProfileButton;
     ImageButton toggleFilterButton;
@@ -84,6 +90,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ArrayList<String> playerCreatureList;
     private DocumentReference playerRef;
     private String userToOpen;
+
+    private Intent commentIntent;
+
+    private ProfileCodeArrayAdapter.RecyclerViewInterface rvInterface;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -117,6 +127,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Get reference to player's collection
         playerRef = playerCollectionReference.document(userToOpen);
+
+        rvInterface = new ProfileCodeArrayAdapter.RecyclerViewInterface() {
+            @Override
+            public void onItemClick(int pos) {
+                openCreatureComments(pos);
+            }
+        };
+
 
         playerRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             // Listens for changes to the player's collection on the database
@@ -194,7 +212,7 @@ public class ProfileActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        codeArrayAdapter = new ProfileCodeArrayAdapter(ProfileActivity.this, creaturesToDisplay);
+        codeArrayAdapter = new ProfileCodeArrayAdapter(ProfileActivity.this, creaturesToDisplay, rvInterface);
         recyclerView.setAdapter(codeArrayAdapter);
 
         if (userToOpen == Player.LOCAL_USERNAME){
@@ -451,5 +469,21 @@ public class ProfileActivity extends AppCompatActivity {
             userToOpen = Player.LOCAL_USERNAME;
         }
         System.out.println("Opening profile of user " + userToOpen);
+    }
+
+    private void openCreatureComments(int pos){
+        commentIntent = new Intent(this, CommentFragment.class);
+        Creature selectedCreature = creaturesToDisplay.get(pos);
+        String selectedCreatureHash = selectedCreature.getHash();
+        System.out.println(selectedCreature.getName());
+        commentIntent.putExtra("CreatureHash",selectedCreatureHash);
+
+        CommentFragment commentFragment = CommentFragment.newInstance(selectedCreatureHash);
+        commentFragment.show(getSupportFragmentManager(),"Open Comments");
+    }
+
+    @Override
+    public void onItemClick(int pos) {
+
     }
 }

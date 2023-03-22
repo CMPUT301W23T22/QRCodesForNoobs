@@ -29,16 +29,23 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     Context context;
     ArrayList<Creature> codes;
     LayoutInflater layoutInflater;
+
+    private RecyclerViewInterface rvListener;
     ImageView creatureImage;
+
+    public interface RecyclerViewInterface {
+        void onItemClick(int pos);
+    }
 
     /**
      * Constructor that takes in the current context and list of creature codes.
      * @param context The current context.
      * @param codes The list of creature codes.
      */
-    public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes) {
+    public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes, RecyclerViewInterface rvListener) {
         this.context = context;
         this.codes = codes;
+        this.rvListener = rvListener;
         layoutInflater = layoutInflater.from(context);
     }
 
@@ -77,11 +84,19 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
 
         RequestOptions options = new RequestOptions().circleCrop().placeholder(R.drawable.face_icon);
 
-
         holder.creatureName.setText(creature.getName());
         holder.creatureScore.setText(creature.getScore() + " points");
         Glide.with(context).load(creature.getPhotoCreatureUrl()).apply(options).into(creatureImage);
         holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int pos = holder.getAdapterPosition();
+                rvListener.onItemClick(pos);
+
+            }
+        });
     }
 
     /**
