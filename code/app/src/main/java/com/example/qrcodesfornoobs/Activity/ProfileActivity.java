@@ -59,6 +59,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.checkerframework.checker.units.qual.C;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
@@ -475,7 +477,6 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
         commentIntent = new Intent(this, CommentFragment.class);
         Creature selectedCreature = creaturesToDisplay.get(pos);
         String selectedCreatureHash = selectedCreature.getHash();
-        System.out.println(selectedCreature.getName());
         commentIntent.putExtra("CreatureHash",selectedCreatureHash);
 
         CommentFragment commentFragment = CommentFragment.newInstance(selectedCreatureHash);

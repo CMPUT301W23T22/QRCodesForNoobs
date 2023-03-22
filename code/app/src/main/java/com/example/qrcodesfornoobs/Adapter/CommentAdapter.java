@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyHolder>{
     Context context;
     ArrayList<String> comments;
-    TextView commentText;
     LayoutInflater layoutInflater;
 
 
@@ -36,13 +35,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyHolder
 
     @Override
     public void onBindViewHolder(@NonNull CommentAdapter.MyHolder holder, int position) {
-        holder.userName.setText(comments.get(position));
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int pos = holder.getAdapterPosition();
-            }
-        });
+        System.out.println("PRINTING COMMENT" + comments.get(position));
+        holder.commentText.setText(comments.get(position));
 
     }
 
@@ -51,8 +45,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyHolder
         return 0;
     }
 
+
+
     public class MyHolder extends RecyclerView.ViewHolder {
-        TextView userName;
+        TextView commentText;
         public MyHolder(@NonNull View itemView) {
             super(itemView);
             commentText = itemView.findViewById(R.id.comment_txt);
