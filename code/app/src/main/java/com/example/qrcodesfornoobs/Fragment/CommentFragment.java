@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +20,7 @@ import com.example.qrcodesfornoobs.Adapter.CommentAdapter;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -40,6 +43,8 @@ public class CommentFragment extends BottomSheetDialogFragment {
 
     CommentAdapter commentAdapter;
     RecyclerView recyclerView;
+    EditText addCommentEditText;
+    Button submitButton;
     private ArrayList<String> commentsList;
     private FirebaseFirestore db;
     CollectionReference creatureCollectionReference;
@@ -58,13 +63,27 @@ public class CommentFragment extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.comment_dialog,container,false);
-
-
         recyclerView = view.findViewById(R.id.comment_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        commentAdapter = new CommentAdapter(getContext(),commentsList);
-        recyclerView.setAdapter(commentAdapter);
+        recyclerView.setAdapter(new CommentAdapter(getContext(),commentsList));
+
+
+        addCommentEditText = view.findViewById(R.id.comment_input_edittext);
+        submitButton = view.findViewById(R.id.submit_comment_button);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = addCommentEditText.getText().toString().trim();
+                if(!text.isEmpty()){
+                    addComment(text);
+                    addCommentEditText.setText("");
+                }
+            }
+        });
+
+
         return view;
     }
 
@@ -107,13 +126,12 @@ public class CommentFragment extends BottomSheetDialogFragment {
                                 creatureName.setText(creature.getName());
                                 creatureNumScan.setText("Scanned by " + creature.getNumOfScans() + " other players!");
 
+                                commentsList.clear();
                                 if (!commentArray.isEmpty()){
-                                    commentsList.add(commentArray.get(1));
+                                    commentsList.addAll(commentArray);
+
                                 }
 
-//                                for (String string: commentArray){
-//
-//                                }
                                 commentAdapter.notifyDataSetChanged();
 
 
@@ -132,5 +150,10 @@ public class CommentFragment extends BottomSheetDialogFragment {
 
 
 
+    }
+
+    private void addComment(String text){
+        commentsList.add(text);
+        commentAdapter.notifyDataSetChanged();
     }
 }
