@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.R;
@@ -114,24 +115,26 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             }
         };
 
+        radioGroupCheck(db, radioGroup);
+
         searchAdapter = new SearchAdapter(getContext(), valueList, rvInterface);
         recyclerView.setAdapter(searchAdapter);
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
-            //TODO: Query works with username, need Location documentPath and change hardcoded field "username" to work with location as well
             @Override
             public boolean onQueryTextSubmit(String query) {
-
-                //TODO: implement radiobutton check when we can get location
-                // Added this inside the onQueryTextSubmit portion so users had to search for the names to pop up
-                //radioGroupCheck(db, radioGroup);
-
-
-                searchList = new ArrayList<>();
-                if (query.length() > 0) {
-                    submitQuery(query);
+                if (radioGroup.getCheckedRadioButtonId() == -1){
+                    searchView.setQuery("", false);
+                    Toast.makeText(getContext(), "Select Username or Location above.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                else {
+                    searchList = new ArrayList<>();
+                    if (query.length() > 0) {
+                        submitQuery(query);
+                    }
                 }
                 return false;
             }
@@ -153,16 +156,13 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         radioGroup.clearCheck();
         searchView.setQuery("", false);
         searchView.clearFocus();
+        collectionReference = null;
+        field = "";
     }
 
     /**
-     * On submit of a nonempty query text, first checks if the exact query is in any Firebase document.
-     * If an exact query document exists, adds that document to a list.
-     * Then uses that query to look for more documents that has the query with more characters.
-     * Add those documents to a list.
-     * <p>
-     * If the query does not exist, use the query to look for documents that has the query with more characters.
-     * Add those documents to a list.
+     * On submit of a nonempty query text, searches database for the "field" depending on which
+     * radio button was selected (username / location).
      * <p>
      * Notify the RecyclerView's adapter to display the list of query documents.
      *
@@ -170,23 +170,17 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
      */
     public void submitQuery(String query) {
         searchView.clearFocus();
-        //TODO: Bug: searching finds values greater than query
-        // ex. 'testinggg' --> 'thonas'
-        // query value less than others works correctly
-        // Doesn't account for lowercase uppercase (uppercase < lowercase)
-        // ex. Search: 'p' doesn't show 'Pola'
-
-        collectionReference.orderBy("username").startAt(query.toUpperCase()).endAt(query.toUpperCase() + "\uf8ff").startAt(query).endAt(query + "\uf8ff").limit(10).get()
+        collectionReference.orderBy(field).startAt(query.toUpperCase()).endAt(query.toUpperCase() + "\uf8ff").startAt(query).endAt(query + "\uf8ff").limit(10).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot neDoc : task.getResult()) {
-                                Log.d("nonExistingQuery", neDoc.getId() + " => " + neDoc.getData());
-                                searchList.add(neDoc.getData().get("username").toString());
+                            for (QueryDocumentSnapshot doc : task.getResult()) {
+                                Log.d("Query", doc.getId() + " => " + doc.getData());
+                                searchList.add(doc.getData().get(field).toString());
                             }
                         } else {
-                            Log.d("nonExistingQuery", "Error getting documents: ", task.getException());
+                            Log.d("Query", "Error getting documents: ", task.getException());
                         }
                         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                         recyclerView.setLayoutManager(layoutManager);
@@ -218,22 +212,23 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         break;
                 }
 
-                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                            FirebaseFirestoreException error) {
-
-                        // Clear the old list
-                        valueList.clear();
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            // doc.get(field) gets document name only
-                            String value = String.valueOf(doc.getData().get("username")); // field value
-                            valueList.add(value);
-                        }
-
-                        searchAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-                    }
-                });
+                // Displays list of documents before user submits a query
+//                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//                            FirebaseFirestoreException error) {
+//
+//                        // Clear the old list
+//                        valueList.clear();
+//                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+//                            // doc.get(field) gets document name only
+//                            String value = String.valueOf(doc.getData().get("username")); // field value
+//                            valueList.add(value);
+//                        }
+//
+//                        searchAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
+//                    }
+//                });
             }
         });
     }
