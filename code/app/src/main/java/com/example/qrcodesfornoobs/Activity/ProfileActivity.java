@@ -478,8 +478,9 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
         Creature selectedCreature = creaturesToDisplay.get(pos);
         String selectedCreatureHash = selectedCreature.getHash();
         commentIntent.putExtra("CreatureHash",selectedCreatureHash);
+        commentIntent.putExtra("User",Player.LOCAL_USERNAME);
 
-        CommentFragment commentFragment = CommentFragment.newInstance(selectedCreatureHash);
+        CommentFragment commentFragment = CommentFragment.newInstance(selectedCreatureHash, Player.LOCAL_USERNAME);
         commentFragment.show(getSupportFragmentManager(),"Open Comments");
     }
 

@@ -32,15 +32,21 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class CommentFragment extends BottomSheetDialogFragment {
     private DocumentReference creatureRef;
+    private DocumentReference playerRef;
 
+    private String creatureHash;
+    private String userName;
+    private boolean canComment;
     CommentAdapter commentAdapter;
     RecyclerView recyclerView;
     EditText addCommentEditText;
@@ -49,11 +55,13 @@ public class CommentFragment extends BottomSheetDialogFragment {
     private FirebaseFirestore db;
     CollectionReference creatureCollectionReference;
 
+    CollectionReference playerCollectionReference;
 
-    public static CommentFragment newInstance(String creatureHash) {
+    public static CommentFragment newInstance(String creatureHash, String userName) {
         CommentFragment fragment = new CommentFragment();
         Bundle args = new Bundle();
         args.putString("creatureHash", creatureHash);
+        args.putString("User", userName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,11 +74,13 @@ public class CommentFragment extends BottomSheetDialogFragment {
         recyclerView = view.findViewById(R.id.comment_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new CommentAdapter(getContext(),commentsList));
-
+        commentAdapter = new CommentAdapter(getContext(),commentsList);
+        recyclerView.setAdapter(commentAdapter);
 
         addCommentEditText = view.findViewById(R.id.comment_input_edittext);
         submitButton = view.findViewById(R.id.submit_comment_button);
+
+        checkCommentPerms();
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,23 +88,26 @@ public class CommentFragment extends BottomSheetDialogFragment {
                 String text = addCommentEditText.getText().toString().trim();
                 if(!text.isEmpty()){
                     addComment(text);
+                    addCommentToFirebase(text);
                     addCommentEditText.setText("");
                 }
             }
         });
-
 
         return view;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        String creatureHash = getArguments().getString("creatureHash");
-
-
+        creatureHash = getArguments().getString("creatureHash");
+        userName = getArguments().getString("User");
+        canComment = false;
         db = FirebaseFirestore.getInstance();
         creatureCollectionReference = db.collection("Creatures");
+        playerCollectionReference = db.collection("Players");
         creatureRef = creatureCollectionReference.document(creatureHash);
+        playerRef = playerCollectionReference.document(userName);
+
         commentsList = new ArrayList<>();
 
         super.onCreate(savedInstanceState);
@@ -122,7 +135,10 @@ public class CommentFragment extends BottomSheetDialogFragment {
                                 Creature creature = document.toObject(Creature.class);
                                 ArrayList<String> commentArray = creature.getComments();
 
-                                Glide.with(getContext()).load(creature.getPhotoCreatureUrl()).into(creatureImage);
+                                if(isAdded()){
+                                    Glide.with(getContext()).load(creature.getPhotoCreatureUrl()).into(creatureImage);
+                                }
+
                                 creatureName.setText(creature.getName());
                                 creatureNumScan.setText("Scanned by " + creature.getNumOfScans() + " other players!");
 
@@ -152,8 +168,61 @@ public class CommentFragment extends BottomSheetDialogFragment {
 
     }
 
+    private void checkCommentPerms(){
+        playerRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    ArrayList<String> playerCreatures = (ArrayList<String>) documentSnapshot.get("creatures");
+                    if (playerCreatures.contains(creatureHash)){
+                        System.out.println("TRUE!!!");
+                        canComment = true;
+                    }
+                } else {
+                    Log.d("TAG","Player document  does not exist!");
+                }
+
+                setEditTextVisibility();
+
+            }
+        });
+    }
+
+    private void setEditTextVisibility(){
+        if (canComment){
+            addCommentEditText.setVisibility(View.VISIBLE);
+            submitButton.setVisibility(View.VISIBLE);
+        } else {
+            addCommentEditText.setVisibility(View.GONE);
+            submitButton.setVisibility(View.GONE);
+        }
+
+    }
+    private void addCommentToFirebase(String text){
+        creatureRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                List<String> stringArray = (List<String>) documentSnapshot.get("comments");
+                stringArray.add(userName + " : " + text);
+                creatureRef.update("comments", stringArray)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d("TAG","Comment successfully added to array");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e("TAG","Comment failed to add to array", e);
+                            }
+                        });
+
+            }
+        });
+    }
     private void addComment(String text){
-        commentsList.add(text);
+        commentsList.add(userName + " : " + text);
         commentAdapter.notifyDataSetChanged();
     }
 }

@@ -84,13 +84,15 @@
                     android:id="@+id/comment_input_edittext"
                     android:layout_width="317dp"
                     android:layout_height="57dp"
-                    android:hint="Write a comment..." />
+                    android:hint="Write a comment..."
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/submit_comment_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Submit" />
+                    android:text="Submit"
+                    android:visibility="gone" />
 
 
             </LinearLayout>
