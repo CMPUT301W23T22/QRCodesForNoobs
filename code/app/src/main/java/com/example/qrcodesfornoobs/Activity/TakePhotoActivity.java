@@ -218,7 +218,8 @@ public class TakePhotoActivity extends AppCompatActivity {
 
         // update Players collection
         db.collection("Players").document(Player.LOCAL_USERNAME)
-                .update("creatures", FieldValue.arrayUnion(creature.getHash()));
+                .update("creatures", FieldValue.arrayUnion(creature.getHash()),
+                "score", FieldValue.increment(creature.getScore()));
     }
 
     /**
