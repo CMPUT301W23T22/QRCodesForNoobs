@@ -26,7 +26,7 @@
             android:id="@+id/top_player_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/temp_top_player"
+            android:text="RANK 1 USERNAME"
             android:textColor="#FFFFFF"
             android:textSize="35sp"
             android:layout_marginTop="5dp"
@@ -46,6 +46,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="25sp" />
 
+            <!-- add more rows as needed -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/leaderboard_recyclerView"
             android:layout_width="match_parent"

@@ -12,7 +12,6 @@
             android:backgroundTint="@color/background"
             app:cardCornerRadius="0dp">
 
-
             <TextView
                 android:id="@+id/rank_textView"
                 android:layout_width="match_parent"
@@ -44,7 +43,6 @@
             android:layout_height="match_parent"
             android:backgroundTint="@color/background"
             app:cardCornerRadius="0dp">
-
 
             <TextView
                 android:id="@+id/score_textView"

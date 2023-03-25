@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 import com.example.qrcodesfornoobs.Adapter.LeaderboardPlayerAdapter;
 import com.example.qrcodesfornoobs.Models.Player;
-import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.FragmentLeaderboardBinding;
 
 import java.util.ArrayList;
@@ -46,19 +45,26 @@ public class LeaderboardFragment extends Fragment {
         super.onCreate(savedInstanceState);
         binding = FragmentLeaderboardBinding.inflate(getLayoutInflater());
 
-        setRecyclerView();
     }
 
-    private void setRecyclerView() {
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadLeaderBoard(); // <= put db call here so that every time user comes back to this page, it will refresh [FOR REYNEL]
+    }
+
+    private void loadLeaderBoard() { // TODO: move this method inside on success of the db call [FOR REYNEL]
         binding.leaderboardRecyclerView.setHasFixedSize(true);
         binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        adapter = new LeaderboardPlayerAdapter(this.getContext(), getList());
+        adapter = new LeaderboardPlayerAdapter(this.getContext(), getList()); // list is a dummy data, should be replaced with db stuff
         binding.leaderboardRecyclerView.setAdapter(adapter);
+        binding.topPlayerScore.setText(String.valueOf(getList().get(0).getScore()));
+        binding.topPlayerUsername.setText(getList().get(0).getUsername());
     }
 
     private List<Player> getList() {
         List<Player> players = new ArrayList<>();
-        players.add(new Player("Player 1", "100"));
+        players.add(new Player("Rank 1 Player", "10000"));
         players.add(new Player("Player 2", "200"));
         players.add(new Player("Player 3", "300"));
         players.add(new Player("Player 4", "400"));
