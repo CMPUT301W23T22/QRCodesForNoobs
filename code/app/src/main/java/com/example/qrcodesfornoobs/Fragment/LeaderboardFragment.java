@@ -3,13 +3,19 @@ package com.example.qrcodesfornoobs.Fragment;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.qrcodesfornoobs.Adapter.LeaderboardPlayerAdapter;
+import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.FragmentLeaderboardBinding;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,6 +25,7 @@ import com.example.qrcodesfornoobs.databinding.FragmentLeaderboardBinding;
 public class LeaderboardFragment extends Fragment {
 
     FragmentLeaderboardBinding binding;
+    LeaderboardPlayerAdapter adapter;
 
 
     /**
@@ -38,6 +45,35 @@ public class LeaderboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentLeaderboardBinding.inflate(getLayoutInflater());
+
+        setRecyclerView();
+    }
+
+    private void setRecyclerView() {
+        binding.leaderboardRecyclerView.setHasFixedSize(true);
+        binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        adapter = new LeaderboardPlayerAdapter(this.getContext(), getList());
+        binding.leaderboardRecyclerView.setAdapter(adapter);
+    }
+
+    private List<Player> getList() {
+        List<Player> players = new ArrayList<>();
+        players.add(new Player("Player 1", "100"));
+        players.add(new Player("Player 2", "200"));
+        players.add(new Player("Player 3", "300"));
+        players.add(new Player("Player 4", "400"));
+        players.add(new Player("Player 5", "500"));
+        players.add(new Player("Player 6", "600"));
+        players.add(new Player("Player 7", "700"));
+        players.add(new Player("Player 8", "800"));
+        players.add(new Player("Player 9", "900"));
+        players.add(new Player("Player 10", "1000"));
+        players.add(new Player("Player 11", "1100"));
+        players.add(new Player("Player 12", "1200"));
+        players.add(new Player("Player 13", "1300"));
+        players.add(new Player("Player 14", "1400"));
+        players.add(new Player("Player 15", "1500"));
+        return players;
     }
 
     /**

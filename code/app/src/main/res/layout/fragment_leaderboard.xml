@@ -49,9 +49,9 @@
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="1,2,3"
+            android:layout_height="0dp"
             android:layout_margin="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/top_player_score">
@@ -59,20 +59,20 @@
             <TableRow>
 
                 <TextView
-                    android:layout_column="1"
+                    android:layout_weight="0.25"
                     android:text="Rank"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_column="1"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:text="Player"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_column="1"
+                    android:layout_weight="0.25"
                     android:gravity="end"
                     android:text="Score"
                     android:textColor="@android:color/white"
@@ -80,8 +80,15 @@
             </TableRow>
 
             <!-- add more rows as needed -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/leaderboard_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
 
         </TableLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
