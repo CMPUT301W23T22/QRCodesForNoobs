@@ -43,8 +43,8 @@ public class LeaderboardPlayerAdapter extends RecyclerView.Adapter<LeaderboardPl
             holder.scoreTextView.setText("Score");
             return;
         }
-        Player player = playerList.get(position-1);
-        holder.rankTextView.setText(String.valueOf(position));
+        Player player = playerList.get(position);
+        holder.rankTextView.setText(String.valueOf(position + 1));
         holder.playerTextView.setText(player.getUsername());
         holder.scoreTextView.setText(String.valueOf(player.getScore()));
     }
