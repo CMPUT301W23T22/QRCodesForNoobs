@@ -134,7 +134,9 @@ public class ProfileActivity extends AppCompatActivity {
                                 currentPlayer = document.toObject(Player.class);
                                 Player dbPlayer = document.toObject(Player.class);
                                 // Fill array with creatures from database
-                                contactText.setText("Contact Info: " + dbPlayer.getContact());
+                                String contact = "None";
+                                if (dbPlayer.getContact() != null) contact = dbPlayer.getContact();
+                                contactText.setText("Contact Info: " + contact);
                                 playerCreatureList = dbPlayer.getCreatures();
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns
@@ -156,9 +158,6 @@ public class ProfileActivity extends AppCompatActivity {
                                                             creaturesToDisplay.add(creature);
                                                             totalScore += creature.getScore(); // Add creature score to total score
                                                         }
-                                                        // Update player document with total score
-                                                        dbPlayer.setScore(totalScore);
-                                                        playerRef.set(dbPlayer);
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
                                                         playerScore.setText(totalScore + " Points");
                                                         codeArrayAdapter.notifyDataSetChanged();
@@ -227,7 +226,8 @@ public class ProfileActivity extends AppCompatActivity {
                 Creature QR = creaturesToDisplay.get(position);
                 db.collection("Players")
                         .document(userToOpen)
-                        .update("creatures", FieldValue.arrayRemove(QR.getHash()))
+                        .update("creatures", FieldValue.arrayRemove(QR.getHash()),
+                                "score", FieldValue.increment(QR.getScore()*-1))
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -251,7 +251,8 @@ public class ProfileActivity extends AppCompatActivity {
 
                             playerCollectionReference
                                     .document(userToOpen)
-                                    .update("creatures",FieldValue.arrayUnion(QR.getHash()))
+                                    .update("creatures",FieldValue.arrayUnion(QR.getHash()),
+                                            "score", FieldValue.increment(QR.getScore()))
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -267,6 +268,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         }
                                     });
                         }
+
                         recyclerView.scrollToPosition(position);
                     }
                 }).show();

@@ -3,52 +3,35 @@ package com.example.qrcodesfornoobs.Fragment;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.qrcodesfornoobs.R;
+import com.example.qrcodesfornoobs.Adapter.LeaderboardPlayerAdapter;
+import com.example.qrcodesfornoobs.Models.Player;
+import com.example.qrcodesfornoobs.databinding.FragmentLeaderboardBinding;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link LeaderboardFragment#newInstance} factory method to
+ * Use the {@link LeaderboardFragment} factory method to
  * create an instance of this fragment.
  */
 public class LeaderboardFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    FragmentLeaderboardBinding binding;
+    LeaderboardPlayerAdapter adapter;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     /**
      * Required empty public constructor for fragment.
      */
     public LeaderboardFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LeaderboardFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LeaderboardFragment newInstance(String param1, String param2) {
-        LeaderboardFragment fragment = new LeaderboardFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     /**
@@ -60,10 +43,43 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        binding = FragmentLeaderboardBinding.inflate(getLayoutInflater());
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadLeaderBoard(); // <= put db call here so that every time user comes back to this page, it will refresh [FOR REYNEL]
+    }
+
+    private void loadLeaderBoard() { // TODO: move this method inside on success of the db call [FOR REYNEL]
+        binding.leaderboardRecyclerView.setHasFixedSize(true);
+        binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        adapter = new LeaderboardPlayerAdapter(this.getContext(), getList()); // list is a dummy data, should be replaced with db stuff
+        binding.leaderboardRecyclerView.setAdapter(adapter);
+        binding.topPlayerScore.setText(String.valueOf(getList().get(0).getScore()));
+        binding.topPlayerUsername.setText(getList().get(0).getUsername());
+    }
+
+    private List<Player> getList() {
+        List<Player> players = new ArrayList<>();
+        players.add(new Player("Rank 1 Player", "10000"));
+        players.add(new Player("Player 2", "200"));
+        players.add(new Player("Player 3", "300"));
+        players.add(new Player("Player 4", "400"));
+        players.add(new Player("Player 5", "500"));
+        players.add(new Player("Player 6", "600"));
+        players.add(new Player("Player 7", "700"));
+        players.add(new Player("Player 8", "800"));
+        players.add(new Player("Player 9", "900"));
+        players.add(new Player("Player 10", "1000"));
+        players.add(new Player("Player 11", "1100"));
+        players.add(new Player("Player 12", "1200"));
+        players.add(new Player("Player 13", "1300"));
+        players.add(new Player("Player 14", "1400"));
+        players.add(new Player("Player 15", "1500"));
+        return players;
     }
 
     /**
@@ -78,7 +94,6 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_leaderboard, container, false);
+        return binding.getRoot();
     }
 }
