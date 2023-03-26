@@ -7,16 +7,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -31,10 +38,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.type.LatLng;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,13 +51,17 @@ import java.util.concurrent.CompletableFuture;
  * Allows the user to take a photo of a creature and optionally a location.
  * The photo(s) can be saved to the Firebase Storage and the creature information is saved to the Firebase Firestore.
  */
-public class TakePhotoActivity extends AppCompatActivity {
+public class TakePhotoActivity extends AppCompatActivity implements LocationListener {
     private static final int CAMERA_REQUEST = 666;
     final String TAG = "Sample";
     ActivityTakePhotoBinding binding;
 
     Bitmap photoCreatureBitmap;
     Bitmap photoLocationBitmap;
+
+    LocationManager locationManager;
+    String address;
+    Creature newCreature;
 
     /**
      * Called when the activity is starting.
@@ -62,8 +75,20 @@ public class TakePhotoActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         String scannedCode = getIntent().getExtras().getString("code");
-        Location location = null; //setting this in part4
-        Creature newCreature = new Creature(scannedCode, location);
+        //TODO: move location permission to camera permission?
+        binding.saveLocationCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (ContextCompat.checkSelfPermission(TakePhotoActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(TakePhotoActivity.this, new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    }, 100);
+                }
+                getLocation();
+            }
+        });
+        newCreature = new Creature(scannedCode, address);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
@@ -85,7 +110,11 @@ public class TakePhotoActivity extends AppCompatActivity {
                     // if scanned creature is already in db
                     if (modifiedDbCreature != null) {
                         if (binding.saveLocationCheckBox.isChecked()) {
-                            // set local isPhotoLocation to the photo
+                             modifiedDbCreature.setLocation(address);
+
+                        }
+                        else{
+                            modifiedDbCreature.setLocation(null);
                         }
                         if (binding.saveImageCheckBox.isChecked()) {
                             uploadPhotoLocation().thenAccept(photoLocationUrl -> {
@@ -99,7 +128,10 @@ public class TakePhotoActivity extends AppCompatActivity {
                     }
                     // if scanned creature is not in db
                     if (binding.saveLocationCheckBox.isChecked()) {
-                        // set local isPhotoLocation to the photo
+                        modifiedDbCreature.setLocation(address);
+                    }
+                    else{
+                        modifiedDbCreature.setLocation(null);
                     }
                     uploadPhotoCreature(newCreature).thenAccept((photoCreatureUrl) -> {
                         newCreature.setPhotoCreatureUrl(photoCreatureUrl);
@@ -121,6 +153,8 @@ public class TakePhotoActivity extends AppCompatActivity {
             return null;
         });
     }
+
+
 
     @Override
     protected void onStop() {
@@ -303,5 +337,47 @@ public class TakePhotoActivity extends AppCompatActivity {
                 binding.locationImageView.setImageBitmap(photoLocationBitmap);
             }
         }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private void getLocation() {
+        try{
+            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, TakePhotoActivity.this);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        Toast.makeText(this, ""+location.getLatitude()+","+location.getLongitude(), Toast.LENGTH_SHORT);
+
+        try{
+            Geocoder geocoder = new Geocoder(TakePhotoActivity.this, Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            String getAddress = addresses.get(0).getAddressLine(0);
+
+            address = getAddress;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        LocationListener.super.onStatusChanged(provider, status, extras);
+    }
+
+    @Override
+    public void onProviderEnabled(@NonNull String provider) {
+        LocationListener.super.onProviderEnabled(provider);
+    }
+
+    @Override
+    public void onProviderDisabled(@NonNull String provider) {
+        LocationListener.super.onProviderDisabled(provider);
     }
 }

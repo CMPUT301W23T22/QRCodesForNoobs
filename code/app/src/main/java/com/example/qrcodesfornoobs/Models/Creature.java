@@ -17,7 +17,7 @@ public class Creature {
     private int score; // const
     private int numOfScans = 1; // update every scan
     private String photoCreatureUrl; // const
-    private Location location; // update every scan
+    private String location; // update every scan
     private String photoLocationUrl; // update every scan
     private ArrayList<String> comments = new ArrayList<>(); // update every comment
 
@@ -27,7 +27,7 @@ public class Creature {
      * @param code code received from the QRCode scan.
      * @param location  * **location to be implemented in part4
      */
-    public Creature (String code, Location location) {
+    public Creature (String code, String location) {
         //this will be used when we scan a code
         //set hash
         try {
@@ -57,7 +57,7 @@ public class Creature {
      * @param score int
      * @param numOfScans int that represent how many players have scanned a Creature
      */
-    public Creature(String name, String hash, int score, int numOfScans, Location location, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, int numOfScans, String location, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
@@ -170,7 +170,7 @@ public class Creature {
      * @return Location, assigned location of a Creature.
      * @see Creature
      */
-    public Location getLocation() {
+    public String getLocation() {
         return location;
     }
     /**
@@ -193,7 +193,7 @@ public class Creature {
      * @param location, Location value
      * @see Creature
      */
-    public void setLocation(Location location) {
+    public void setLocation(String location) {
         this.location = location;
     }
     /**

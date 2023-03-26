@@ -211,24 +211,6 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         field = "location";
                         break;
                 }
-
-                // Displays list of documents before user submits a query
-//                collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-//                            FirebaseFirestoreException error) {
-//
-//                        // Clear the old list
-//                        valueList.clear();
-//                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                            // doc.get(field) gets document name only
-//                            String value = String.valueOf(doc.getData().get("username")); // field value
-//                            valueList.add(value);
-//                        }
-//
-//                        searchAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
-//                    }
-//                });
             }
         });
     }
@@ -249,6 +231,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
      * @param pos Position of selected searched user.
      */
     private void launchPlayerProfile(int pos) {
+        //TODO: on click of Location item, opens a "Location Profile"
         profileIntent = new Intent(getActivity(), ProfileActivity.class);
         if (searchList != null) {
             String userToOpen = searchList.get(pos);
