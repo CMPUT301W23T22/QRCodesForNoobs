@@ -62,11 +62,6 @@ public class LeaderboardFragment extends Fragment {
         super.onCreate(savedInstanceState);
         binding = FragmentLeaderboardBinding.inflate(getLayoutInflater());
         playersToDisplay = new ArrayList<>();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -83,11 +78,9 @@ public class LeaderboardFragment extends Fragment {
                 loadLeaderBoard();
             }
         });
-//        loadLeaderBoard(); // <= put db call here so that every time user comes back to this page, it will refresh [FOR REYNEL]
-
     }
 
-    private void loadLeaderBoard() { // TODO: move this method inside on success of the db call [FOR REYNEL]
+    private void loadLeaderBoard() {
         binding.leaderboardRecyclerView.setHasFixedSize(true);
         binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
         adapter = new LeaderboardPlayerAdapter(this.getContext(), playersToDisplay); // list is a dummy data, should be replaced with db stuff
