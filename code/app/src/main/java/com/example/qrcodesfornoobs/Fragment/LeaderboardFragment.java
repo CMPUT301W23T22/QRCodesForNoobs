@@ -2,16 +2,27 @@ package com.example.qrcodesfornoobs.Fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.qrcodesfornoobs.Adapter.LeaderboardPlayerAdapter;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.databinding.FragmentLeaderboardBinding;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +36,13 @@ public class LeaderboardFragment extends Fragment {
 
     FragmentLeaderboardBinding binding;
     LeaderboardPlayerAdapter adapter;
+    private ArrayList<Player> playersToDisplay;
 
+    // FIREBASE INITIALIZE
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final CollectionReference playerCollectionReference = db.collection("Players");
+    final String TAG = "tag";
+    Query query = playerCollectionReference.orderBy("score", Query.Direction.DESCENDING);
 
     /**
      * Required empty public constructor for fragment.
@@ -44,43 +61,35 @@ public class LeaderboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentLeaderboardBinding.inflate(getLayoutInflater());
-
+        playersToDisplay = new ArrayList<>();
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error!= null){
+                    Log.w(TAG, "Listen failed.", error);
+                    return;
+                }
+                playersToDisplay.clear();
+                for (QueryDocumentSnapshot document : value) {
+                    // Extract data from the document
+                    Player tempPlayer = document.toObject(Player.class);
+                    playersToDisplay.add(tempPlayer);
+                }
+                loadLeaderBoard();
+            }
+        });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadLeaderBoard(); // <= put db call here so that every time user comes back to this page, it will refresh [FOR REYNEL]
-    }
-
-    private void loadLeaderBoard() { // TODO: move this method inside on success of the db call [FOR REYNEL]
+    private void loadLeaderBoard() {
         binding.leaderboardRecyclerView.setHasFixedSize(true);
         binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        adapter = new LeaderboardPlayerAdapter(this.getContext(), getList()); // list is a dummy data, should be replaced with db stuff
+        adapter = new LeaderboardPlayerAdapter(this.getContext(), playersToDisplay); // list is a dummy data, should be replaced with db stuff
         binding.leaderboardRecyclerView.setAdapter(adapter);
-        binding.topPlayerScore.setText(String.valueOf(getList().get(0).getScore()));
-        binding.topPlayerUsername.setText(getList().get(0).getUsername());
+        binding.topPlayerScore.setText(String.valueOf(playersToDisplay.get(0).getScore()));
+        binding.topPlayerUsername.setText(playersToDisplay.get(0).getUsername());
     }
 
-    private List<Player> getList() {
-        List<Player> players = new ArrayList<>();
-        players.add(new Player("Rank 1 Player", "10000"));
-        players.add(new Player("Player 2", "200"));
-        players.add(new Player("Player 3", "300"));
-        players.add(new Player("Player 4", "400"));
-        players.add(new Player("Player 5", "500"));
-        players.add(new Player("Player 6", "600"));
-        players.add(new Player("Player 7", "700"));
-        players.add(new Player("Player 8", "800"));
-        players.add(new Player("Player 9", "900"));
-        players.add(new Player("Player 10", "1000"));
-        players.add(new Player("Player 11", "1100"));
-        players.add(new Player("Player 12", "1200"));
-        players.add(new Player("Player 13", "1300"));
-        players.add(new Player("Player 14", "1400"));
-        players.add(new Player("Player 15", "1500"));
-        return players;
-    }
+
 
     /**
      * Called to have the fragment instantiate its user interface view.
