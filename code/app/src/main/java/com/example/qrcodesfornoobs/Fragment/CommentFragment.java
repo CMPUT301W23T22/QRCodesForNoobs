@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.qrcodesfornoobs.Adapter.CommentAdapter;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
@@ -52,6 +53,7 @@ public class CommentFragment extends BottomSheetDialogFragment {
     EditText addCommentEditText;
     Button submitButton;
     private ArrayList<String> commentsList;
+    private ArrayList<String> imageList;
     private FirebaseFirestore db;
     CollectionReference creatureCollectionReference;
 
@@ -109,6 +111,7 @@ public class CommentFragment extends BottomSheetDialogFragment {
         playerRef = playerCollectionReference.document(userName);
 
         commentsList = new ArrayList<>();
+        imageList = new ArrayList<>();
 
         super.onCreate(savedInstanceState);
 
@@ -119,10 +122,11 @@ public class CommentFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ImageView creatureImage = view.findViewById(R.id.creature_img);
+        ImageView locationImage = view.findViewById(R.id.location_img);
         TextView creatureName = view.findViewById(R.id.creature_name_txt);
         TextView creatureNumScan = view.findViewById(R.id.creature_num_scanned);
-
-
+        TextView creaturePoints = view.findViewById(R.id.creature_points_txt);
+        RequestOptions options = new RequestOptions().circleCrop();
         creatureRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -136,11 +140,19 @@ public class CommentFragment extends BottomSheetDialogFragment {
                                 ArrayList<String> commentArray = creature.getComments();
 
                                 if(isAdded()){
-                                    Glide.with(getContext()).load(creature.getPhotoCreatureUrl()).into(creatureImage);
+                                    Glide.with(getContext()).load(creature.getPhotoCreatureUrl())
+                                            .apply(options)
+                                            .into(creatureImage);
+                                    if (creature.getPhotoCreatureUrl() != null){
+                                        Glide.with(getContext()).load(creature.getPhotoLocationUrl())
+                                                .apply(options)
+                                                .into(locationImage);
+                                    }
                                 }
 
                                 creatureName.setText(creature.getName());
                                 creatureNumScan.setText("Scanned by " + creature.getNumOfScans() + " other players!");
+                                creaturePoints.setText(creature.getScore() + " points");
 
                                 commentsList.clear();
                                 if (!commentArray.isEmpty()){
@@ -164,8 +176,6 @@ public class CommentFragment extends BottomSheetDialogFragment {
         });
 
 
-
-
     }
 
     private void checkCommentPerms(){
@@ -175,7 +185,6 @@ public class CommentFragment extends BottomSheetDialogFragment {
                 if (documentSnapshot.exists()){
                     ArrayList<String> playerCreatures = (ArrayList<String>) documentSnapshot.get("creatures");
                     if (playerCreatures.contains(creatureHash)){
-                        System.out.println("TRUE!!!");
                         canComment = true;
                     }
                 } else {

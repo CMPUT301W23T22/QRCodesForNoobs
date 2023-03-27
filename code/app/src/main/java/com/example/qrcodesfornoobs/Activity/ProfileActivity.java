@@ -1,6 +1,7 @@
 package com.example.qrcodesfornoobs.Activity;
 
 
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -358,15 +359,11 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
      * Initializes all the UI widgets for the activity.
      */
     private void initWidgets() {
-        backButton = findViewById(R.id.back_button);
-        backButton.setBackgroundResource(R.drawable.back_arrow);
         editProfileButton = findViewById(R.id.edit_profile_button);
         if (!Objects.equals(userToOpen, Player.LOCAL_USERNAME)){
             editProfileButton.setVisibility(View.GONE);
         }
 
-        toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
-        toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
@@ -386,13 +383,6 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
      * Adds click listeners to the UI buttons for the activity.
      */
     private void addListenerOnButtons() {
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(mainIntent);
-            }
-        });
-
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -402,32 +392,8 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
                 editInfoFrag.show(getSupportFragmentManager(),"Edit Contact Info");
             }
         });
-        toggleFilterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Hide and show the filter bar
-                if (filterBar.getVisibility() == View.VISIBLE) {
-                    filterBar.setVisibility(View.GONE);
-                } else {
-                    filterBar.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
-        toggleRecyclerViewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Hide and show the listview
-                // (Toggle between sliding view and listview)
-                if (recyclerView.getVisibility() == View.VISIBLE) {
-                    toggleRecyclerViewButton.setImageResource(R.drawable.face_icon);
-                    recyclerView.setVisibility(View.GONE);
-                } else {
-                    toggleRecyclerViewButton.setImageResource(R.drawable.menu_icon);
-                    recyclerView.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+
         sortListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
