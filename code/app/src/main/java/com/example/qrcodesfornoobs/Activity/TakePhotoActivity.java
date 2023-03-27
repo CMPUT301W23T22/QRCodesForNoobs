@@ -63,7 +63,7 @@ public class TakePhotoActivity extends AppCompatActivity {
 
         String scannedCode = getIntent().getExtras().getString("code");
         Location location = null; //setting this in part4
-        Creature newCreature = new Creature(scannedCode, location);
+        Creature newCreature = new Creature(scannedCode);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
