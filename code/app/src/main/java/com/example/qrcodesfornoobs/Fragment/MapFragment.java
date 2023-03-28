@@ -104,11 +104,6 @@ public class MapFragment extends Fragment {
                 }
                 mMap.setMyLocationEnabled(true);
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-                // Example Marker
-                displayMarkers();
-                LatLng sydney = new LatLng(13, 75);
-                mMap.addMarker(new MarkerOptions().position(sydney).title("Test"));
             }
         });
     }
