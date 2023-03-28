@@ -104,6 +104,7 @@ public class MapFragment extends Fragment {
                 }
                 mMap.setMyLocationEnabled(true);
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                displayMarkers();
             }
         });
     }
