@@ -17,7 +17,8 @@ public class Creature {
     private int score; // const
     private int numOfScans = 1; // update every scan
     private String photoCreatureUrl; // const
-    private ArrayList<Double> coordinates;
+    private double latitude;
+    private double longitude;
     private String photoLocationUrl; // update every scan
     private ArrayList<String> comments = new ArrayList<>(); // update every comment
 
@@ -48,19 +49,21 @@ public class Creature {
      * already exists. No need to regenerate name, score, visual representation.
      * **location to be implemented in part4
      * @param name String Value
-     * @param coordinates Latitude and Longitude
+     * @param latitude Latitude double
+     * @param longitude Longitude double
      * @param comments list of String
      * @param hash String
      * @param score int
      * @param numOfScans int that represent how many players have scanned a Creature
      */
-    public Creature(String name, String hash, int score, int numOfScans, ArrayList<Double> coordinates, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, int numOfScans, double latitude, double longitude, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
         this.score = score;
         this.numOfScans = numOfScans;
-        this.coordinates = coordinates;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.comments = comments;
     }
 
@@ -163,12 +166,20 @@ public class Creature {
         return photoLocationUrl;
     }
     /**
-     * Getter for a Creature's location value. **implemented in part4
+     * Getter for a Creature's latitude value. **implemented in part4
      * @return Location, assigned location of a Creature.
      * @see Creature
      */
-    public ArrayList<Double> getCoordinates() {
-        return coordinates;
+    public double getLatitude() {
+        return latitude;
+    }
+    /**
+     * Getter for a Creature's latitude value. **implemented in part4
+     * @return Location, assigned location of a Creature.
+     * @see Creature
+     */
+    public double getLongitude() {
+        return longitude;
     }
     /**
      * Getter for a Creature's location value. **implemented in part4
@@ -188,13 +199,20 @@ public class Creature {
     /**
      * Setter for a Creature's coordinates.
      * Takes the latitude and longitude of the location said creature was found.
-     * @param location, Location value
+     * @param latitude latitude value
      * @see Creature
      */
-    public void setLocation(Location location) {
-        coordinates = new ArrayList<>();
-        coordinates.add(location.getLatitude());
-        coordinates.add(location.getLongitude());
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+    /**
+     * Setter for a Creature's coordinates.
+     * Takes the latitude and longitude of the location said creature was found.
+     * @param longitude longitude value
+     * @see Creature
+     */
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
     /**
      * Setter for a Creature's photoCreatureUrl value.

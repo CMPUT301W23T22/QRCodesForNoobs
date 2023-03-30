@@ -112,7 +112,7 @@ public class MapFragment extends Fragment {
     public void displayMarkers() {
 
         creatureReference
-                .whereNotEqualTo("coordinates", null)
+                .whereNotEqualTo("latitude", null)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -121,10 +121,11 @@ public class MapFragment extends Fragment {
                         for (DocumentSnapshot doc: task.getResult()){
 
                             Creature creature = doc.toObject(Creature.class);
-                            ArrayList<Double> coordinates = creature.getCoordinates();
-                            LatLng marker = new LatLng(coordinates.get(0), coordinates.get(1));
+                            if (creature != null) {
+                                LatLng marker = new LatLng(creature.getLatitude(), creature.getLongitude());
 
-                            mMap.addMarker(new MarkerOptions().position(marker).title(creature.getName()));
+                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getName() + '\n' + creature.getScore()));
+                            }
                         }
                     }
                 });
