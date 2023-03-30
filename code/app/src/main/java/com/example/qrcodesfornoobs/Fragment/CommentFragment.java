@@ -143,7 +143,8 @@ public class CommentFragment extends BottomSheetDialogFragment {
                                     Glide.with(getContext()).load(creature.getPhotoCreatureUrl())
                                             .apply(options)
                                             .into(creatureImage);
-                                    if (creature.getPhotoCreatureUrl() != null){
+                                    if (creature.getPhotoLocationUrl() != null){
+                                        locationImage.setVisibility(View.VISIBLE);
                                         Glide.with(getContext()).load(creature.getPhotoLocationUrl())
                                                 .apply(options)
                                                 .into(locationImage);
