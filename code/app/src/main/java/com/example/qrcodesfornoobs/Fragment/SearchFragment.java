@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,8 +43,13 @@ import java.util.ArrayList;
  */
 public class SearchFragment extends Fragment implements SearchAdapter.RecyclerViewInterface {
     private RadioGroup radioGroup;
+    private int radioSelect = -1;
 
-    private SearchView searchView;
+    private CardView userCard;
+    private CardView locationCard;
+    private SearchView userSearchView;
+    private SearchView longitudeSearchView;
+    private SearchView latitudeSearchView;
     private RecyclerView recyclerView;
 
     // For Firebase
@@ -52,10 +58,14 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private FirebaseFirestore db;
     private CollectionReference collectionReference;
     private String field;
+    private final String longitudeField = "longitude";
+    private int lnglatSubmit = -1;
+    private float GEOFENCE_RADIUS = 200;
 
     private Intent profileIntent;
     private ArrayList<String> searchList;
     private SearchAdapter.RecyclerViewInterface rvInterface;
+
 
     /**
      * Empty public constructor
@@ -104,9 +114,17 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         super.onViewCreated(view, savedInstanceState);
 
         radioGroup = view.findViewById(R.id.radioGroup);
+        userCard = view.findViewById(R.id.user_card);
+        userCard.setVisibility(View.INVISIBLE);
+        locationCard = view.findViewById(R.id.location_card);
+        locationCard.setVisibility(View.INVISIBLE);
         recyclerView = view.findViewById(R.id.recyclerView);
-        searchView = view.findViewById(R.id.searchView);
-        searchView.setIconified(false);
+        userSearchView = view.findViewById(R.id.username_search);
+        userSearchView.setIconified(false);
+        longitudeSearchView = view.findViewById(R.id.longitude_search);
+        longitudeSearchView.setIconified(false);
+        latitudeSearchView = view.findViewById(R.id.latitude_search);
+        latitudeSearchView.setIconified(false);
 
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -119,26 +137,56 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         };
 
         radioGroupCheck(db, radioGroup);
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
+        // Username Search
+        userSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (radioGroup.getCheckedRadioButtonId() == -1){
-                    searchView.setQuery("", false);
-                    Toast.makeText(getContext(), "Select Username or Location above.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                else {
-                    searchList = new ArrayList<>();
-                    if (query.length() > 0) {
-                        submitQuery(query);
-                    }
+                searchList = new ArrayList<>();
+                if (query.length() > 0) {
+                    submitQuery(query, null);
+                    userSearchView.clearFocus();
                 }
                 return false;
             }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
+        // Location Search
+        longitudeSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                searchList = new ArrayList<>();
+                if (query.length() > 0 && latitudeSearchView.getQuery() != null) {
+                    lnglatSubmit = 0;
+                    submitQuery(query, (String) latitudeSearchView.getQuery());
+                    longitudeSearchView.clearFocus();
+                    latitudeSearchView.clearFocus();
+                }
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        latitudeSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                searchList = new ArrayList<>();
+                if (query.length() > 0 && longitudeSearchView.getQuery() != null) {
+                    lnglatSubmit = 1;
+                    submitQuery(query, (String) longitudeSearchView.getQuery());
+                    longitudeSearchView.clearFocus();
+                    latitudeSearchView.clearFocus();
+                }
+                return false;
+            }
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
@@ -154,8 +202,14 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     public void onPause() {
         super.onPause();
         radioGroup.clearCheck();
-        searchView.setQuery("", false);
-        searchView.clearFocus();
+        radioSelect = -1;
+        lnglatSubmit = -1;
+        userSearchView.setQuery("", false);
+        longitudeSearchView.setQuery("", false);
+        latitudeSearchView.setQuery("", false);
+        userSearchView.clearFocus();
+        longitudeSearchView.clearFocus();
+        latitudeSearchView.clearFocus();
         collectionReference = null;
         field = "";
     }
@@ -168,27 +222,46 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
      *
      * @param query User inputted string to be used to find documents in a Firebase collection.
      */
-    public void submitQuery(String query) {
-        searchView.clearFocus();
-        collectionReference.orderBy(field).startAt(query.toUpperCase()).endAt(query.toUpperCase() + "\uf8ff").startAt(query).endAt(query + "\uf8ff").limit(10).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot doc : task.getResult()) {
-                                Log.d("Query", doc.getId() + " => " + doc.getData());
-                                searchList.add(doc.getData().get(field).toString());
+    public void submitQuery(String query, String locationQuery) {
+        // Username Query
+        if (locationQuery == null) {
+            collectionReference.orderBy(field).startAt(query.toUpperCase()).endAt(query.toUpperCase() + "\uf8ff").startAt(query).endAt(query + "\uf8ff").limit(10).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot doc : task.getResult()) {
+                                    Log.d("Query", doc.getId() + " => " + doc.getData());
+                                    searchList.add(doc.getData().get(field).toString());
+                                }
+                            } else {
+                                Log.d("Query", "Error getting documents: ", task.getException());
                             }
-                        } else {
-                            Log.d("Query", "Error getting documents: ", task.getException());
-                        }
-                        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                        recyclerView.setLayoutManager(layoutManager);
+                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                            recyclerView.setLayoutManager(layoutManager);
 
-                        SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
-                        recyclerView.setAdapter(searchAdapter);
-                    }
-            });
+                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                            recyclerView.setAdapter(searchAdapter);
+                        }
+                    });
+        }
+        // Location Geofence
+        else{
+            double longitude;
+            double latitude;
+            // Longitude Submit (0)
+            if(lnglatSubmit == 0 ){
+                longitude = Double.parseDouble(query);
+                latitude = Double.parseDouble(locationQuery);
+            }
+            // Latitude Submit (1)
+            else if(lnglatSubmit == 1){
+                longitude = Double.parseDouble(locationQuery);
+                latitude = Double.parseDouble(query);
+            }
+
+
+        }
     }
 
     /**
@@ -205,10 +278,18 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                     case R.id.radioUser:
                         collectionReference = db.collection("Players");
                         field = "username";
+                        locationCard.setVisibility(View.INVISIBLE);
+                        userCard.setVisibility(View.VISIBLE);
+                        latitudeSearchView.setQuery("", false);
+                        longitudeSearchView.setQuery("",false);
                         break;
                     case R.id.radioLocation:
                         collectionReference = db.collection("Creatures");
-                        field = "locationName";
+                        lnglatSubmit = -1;
+                        field = "latitude";
+                        userCard.setVisibility(View.INVISIBLE);
+                        locationCard.setVisibility(View.VISIBLE);
+                        userSearchView.setQuery("",false);
                         break;
                 }
                 // Clear list on switching search by
