@@ -106,7 +106,7 @@ public class TakePhotoIntentTesting {
         solo.waitForActivity(TakePhotoActivity.class);
         solo.clickOnView(solo.getView(R.id.confirm_button));
         solo.sleep(2000); // give some time to ensure db is updated
-        DocumentReference creatureRef =  db.collection("Creatures").document(new Creature(MOCK_CODE, null).getHash());
+        DocumentReference creatureRef =  db.collection("Creatures").document(new Creature(MOCK_CODE, null, null, null).getHash());
         creatureRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot doc = task.getResult();
@@ -129,7 +129,7 @@ public class TakePhotoIntentTesting {
     @After
     public void tearDown() {
         db.collection("Players").document(MOCK_USERNAME).delete();
-        db.collection("Creatures").document(new Creature(MOCK_CODE, null).getHash()).delete();
+        db.collection("Creatures").document(new Creature(MOCK_CODE, null,null,null).getHash()).delete();
         solo.finishOpenedActivities();
     }
 

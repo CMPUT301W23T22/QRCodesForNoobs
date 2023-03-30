@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.qrcodesfornoobs.Activity.MainActivity;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.FragmentMapBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +30,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,14 +51,8 @@ public class MapFragment extends Fragment {
 
     GoogleMap mMap;
     FragmentMapBinding binding;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final CollectionReference creatureReference = db.collection("Creatures");
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -60,8 +65,6 @@ public class MapFragment extends Fragment {
     public static MapFragment newInstance(String param1, String param2) {
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -81,10 +84,6 @@ public class MapFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentMapBinding.inflate(getLayoutInflater());
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         showMap();
     }
 
@@ -105,12 +104,32 @@ public class MapFragment extends Fragment {
                 }
                 mMap.setMyLocationEnabled(true);
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-                // Example Marker
-                LatLng sydney = new LatLng(-34, 151);
-                mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+                displayMarkers();
             }
         });
+    }
+
+    public void displayMarkers() {
+
+        creatureReference
+                .whereNotEqualTo("latitude", null)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                        for (DocumentSnapshot doc: task.getResult()){
+
+                            Creature creature = doc.toObject(Creature.class);
+                            if (creature != null) {
+                                LatLng marker = new LatLng(creature.getLatitude(), creature.getLongitude());
+
+                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getName() + '\n' + creature.getScore()));
+                            }
+                        }
+                    }
+                });
+
     }
 
     /**

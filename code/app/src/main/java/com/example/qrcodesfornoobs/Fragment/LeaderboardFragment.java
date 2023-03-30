@@ -2,53 +2,53 @@ package com.example.qrcodesfornoobs.Fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.qrcodesfornoobs.R;
+import com.example.qrcodesfornoobs.Adapter.LeaderboardPlayerAdapter;
+import com.example.qrcodesfornoobs.Models.Creature;
+import com.example.qrcodesfornoobs.Models.Player;
+import com.example.qrcodesfornoobs.databinding.FragmentLeaderboardBinding;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link LeaderboardFragment#newInstance} factory method to
+ * Use the {@link LeaderboardFragment} factory method to
  * create an instance of this fragment.
  */
 public class LeaderboardFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    FragmentLeaderboardBinding binding;
+    LeaderboardPlayerAdapter adapter;
+    private ArrayList<Player> playersToDisplay;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    // FIREBASE INITIALIZE
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final CollectionReference playerCollectionReference = db.collection("Players");
+    final String TAG = "tag";
+    Query query = playerCollectionReference.orderBy("score", Query.Direction.DESCENDING);
 
     /**
      * Required empty public constructor for fragment.
      */
     public LeaderboardFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LeaderboardFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LeaderboardFragment newInstance(String param1, String param2) {
-        LeaderboardFragment fragment = new LeaderboardFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     /**
@@ -60,11 +60,36 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        binding = FragmentLeaderboardBinding.inflate(getLayoutInflater());
+        playersToDisplay = new ArrayList<>();
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error!= null){
+                    Log.w(TAG, "Listen failed.", error);
+                    return;
+                }
+                playersToDisplay.clear();
+                for (QueryDocumentSnapshot document : value) {
+                    // Extract data from the document
+                    Player tempPlayer = document.toObject(Player.class);
+                    playersToDisplay.add(tempPlayer);
+                }
+                loadLeaderBoard();
+            }
+        });
     }
+
+    private void loadLeaderBoard() {
+        binding.leaderboardRecyclerView.setHasFixedSize(true);
+        binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        adapter = new LeaderboardPlayerAdapter(this.getContext(), playersToDisplay); // list is a dummy data, should be replaced with db stuff
+        binding.leaderboardRecyclerView.setAdapter(adapter);
+        binding.topPlayerScore.setText(String.valueOf(playersToDisplay.get(0).getScore()));
+        binding.topPlayerUsername.setText(playersToDisplay.get(0).getUsername());
+    }
+
+
 
     /**
      * Called to have the fragment instantiate its user interface view.
@@ -78,7 +103,6 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_leaderboard, container, false);
+        return binding.getRoot();
     }
 }

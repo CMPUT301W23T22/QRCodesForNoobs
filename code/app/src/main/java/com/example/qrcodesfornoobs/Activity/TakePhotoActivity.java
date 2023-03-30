@@ -40,6 +40,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.type.LatLng;
 
+import org.w3c.dom.Text;
+
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -60,7 +62,9 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
     Bitmap photoLocationBitmap;
 
     LocationManager locationManager;
-    String address;
+    Double latitude;
+    Double longitude;
+    String locationName;
     Creature newCreature;
 
     /**
@@ -73,9 +77,9 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         super.onCreate(savedInstanceState);
         binding = ActivityTakePhotoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.testText.setVisibility(View.INVISIBLE);
 
         String scannedCode = getIntent().getExtras().getString("code");
-        //TODO: move location permission to camera permission?
         binding.saveLocationCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -86,9 +90,17 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                     }, 100);
                 }
                 getLocation();
+                if (binding.saveLocationCheckBox.isChecked()){
+                    binding.testText.setVisibility(View.VISIBLE);
+                    binding.testText.setText("Getting location, please wait...");
+                }
+                else{
+                    binding.testText.setVisibility(View.INVISIBLE);
+                    binding.testText.setText("");
+                }
             }
         });
-        newCreature = new Creature(scannedCode, address);
+        newCreature = new Creature(scannedCode, latitude, longitude, locationName);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
@@ -110,11 +122,15 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                     // if scanned creature is already in db
                     if (modifiedDbCreature != null) {
                         if (binding.saveLocationCheckBox.isChecked()) {
-                             modifiedDbCreature.setLocation(address);
+                             modifiedDbCreature.setLatitude(latitude);
+                             modifiedDbCreature.setLongitude(longitude);
+                             modifiedDbCreature.setLocationName(locationName);
 
                         }
                         else{
-                            modifiedDbCreature.setLocation(null);
+                            modifiedDbCreature.setLongitude(null);
+                            modifiedDbCreature.setLatitude(null);
+                            modifiedDbCreature.setLocationName(null);
                         }
                         if (binding.saveImageCheckBox.isChecked()) {
                             uploadPhotoLocation().thenAccept(photoLocationUrl -> {
@@ -128,10 +144,14 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                     }
                     // if scanned creature is not in db
                     if (binding.saveLocationCheckBox.isChecked()) {
-                        modifiedDbCreature.setLocation(address);
+                        modifiedDbCreature.setLatitude(latitude);
+                        modifiedDbCreature.setLongitude(longitude);
+                        modifiedDbCreature.setLocationName(locationName);
                     }
                     else{
-                        modifiedDbCreature.setLocation(null);
+                        modifiedDbCreature.setLongitude(null);
+                        modifiedDbCreature.setLatitude(null);
+                        modifiedDbCreature.setLocationName(null);
                     }
                     uploadPhotoCreature(newCreature).thenAccept((photoCreatureUrl) -> {
                         newCreature.setPhotoCreatureUrl(photoCreatureUrl);
@@ -153,8 +173,6 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
             return null;
         });
     }
-
-
 
     @Override
     protected void onStop() {
@@ -252,7 +270,8 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
 
         // update Players collection
         db.collection("Players").document(Player.LOCAL_USERNAME)
-                .update("creatures", FieldValue.arrayUnion(creature.getHash()));
+                .update("creatures", FieldValue.arrayUnion(creature.getHash()),
+                "score", FieldValue.increment(creature.getScore()));
     }
 
     /**
@@ -355,11 +374,15 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         Toast.makeText(this, ""+location.getLatitude()+","+location.getLongitude(), Toast.LENGTH_SHORT);
 
         try{
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+
             Geocoder geocoder = new Geocoder(TakePhotoActivity.this, Locale.getDefault());
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             String getAddress = addresses.get(0).getAddressLine(0);
+            locationName = getAddress;
 
-            address = getAddress;
+            binding.testText.setText("Location: "+locationName);
 
         }catch (Exception e){
             e.printStackTrace();

@@ -16,7 +16,7 @@ public class PlayerTest {
     @Test
     public void testCreatureCollection() {
         Player testPlayer = mockPlayer();
-        Creature testCreature = new Creature("test", null);
+        Creature testCreature = new Creature("test",null,null,null);
 
         testPlayer.addCreature(testCreature);
         assertEquals(1, testPlayer.getCreatures().size());
