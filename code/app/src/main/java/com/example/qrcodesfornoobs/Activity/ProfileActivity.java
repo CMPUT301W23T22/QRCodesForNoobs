@@ -138,7 +138,6 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
             }
         };
 
-
         playerRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             // Listens for changes to the player's collection on the database
             @Override

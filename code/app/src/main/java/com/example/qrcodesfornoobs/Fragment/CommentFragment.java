@@ -152,7 +152,12 @@ public class CommentFragment extends BottomSheetDialogFragment {
                                 }
 
                                 creatureName.setText(creature.getName());
-                                creatureNumScan.setText("Scanned by " + creature.getNumOfScans() + " other players!");
+                                if (creature.getNumOfScans() == 1 ){
+                                    creatureNumScan.setText("Scanned by " + creature.getNumOfScans() + " player!");
+                                } else {
+                                    creatureNumScan.setText("Scanned by " + creature.getNumOfScans() + " players!");
+                                }
+
                                 creaturePoints.setText(creature.getScore() + " points");
 
                                 commentsList.clear();
