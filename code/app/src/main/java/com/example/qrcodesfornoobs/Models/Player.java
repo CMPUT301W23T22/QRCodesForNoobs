@@ -12,7 +12,7 @@ public class Player {
     //TODO: Call to db for Creatures
     private String username;
     private String device;
-    private int score;
+    private int score = 0;
     private ArrayList<String> creatures = new ArrayList<>();
     private String contact;
 
@@ -35,7 +35,7 @@ public class Player {
     }
 
     /**
-     * 2 Player are considered equal if they have the same username & device
+     * 2 Player are considered equal if they have the same username and device
      * @param o player to be compared with
      * @return true if equal, false otherwise
      */
@@ -102,6 +102,10 @@ public class Player {
      */
     public String getContact() {
         return contact;
+    }
+
+    public int getScore() {
+        return score;
     }
     /**
      * Sets the contact information for the player.
