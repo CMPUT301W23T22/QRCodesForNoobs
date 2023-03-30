@@ -117,9 +117,6 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
         radioGroupCheck(db, radioGroup);
 
-        searchAdapter = new SearchAdapter(getContext(), valueList, rvInterface);
-        recyclerView.setAdapter(searchAdapter);
-
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -211,6 +208,10 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         field = "location";
                         break;
                 }
+                // Clear list on switching search by
+                searchList = new ArrayList<>();
+                SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                recyclerView.setAdapter(searchAdapter);
             }
         });
     }
