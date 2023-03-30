@@ -225,6 +225,9 @@ public class ProfileIntentTest {
         }
     }
 
+    /**
+     * Check that comments can be added
+     */
     @Test
     public void checkComments(){
         checkViewCodes();

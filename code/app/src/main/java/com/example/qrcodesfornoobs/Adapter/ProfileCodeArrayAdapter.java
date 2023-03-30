@@ -16,8 +16,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -41,6 +39,7 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
      * Constructor that takes in the current context and list of creature codes.
      * @param context The current context.
      * @param codes The list of creature codes.
+     * @param rvListener A listener for the recyclerview
      */
     public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes, RecyclerViewInterface rvListener) {
         this.context = context;

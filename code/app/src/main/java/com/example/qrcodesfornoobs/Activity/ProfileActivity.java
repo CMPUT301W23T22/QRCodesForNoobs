@@ -1,10 +1,6 @@
 package com.example.qrcodesfornoobs.Activity;
 
 
-import android.annotation.SuppressLint;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -35,9 +31,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.qrcodesfornoobs.Adapter.CommentAdapter;
+
 import com.example.qrcodesfornoobs.Adapter.ProfileCodeArrayAdapter;
-import com.example.qrcodesfornoobs.Adapter.SearchAdapter;
 import com.example.qrcodesfornoobs.Fragment.CommentFragment;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
@@ -60,8 +55,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.checkerframework.checker.units.qual.C;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
@@ -73,29 +66,23 @@ import java.util.Objects;
  * a grid view of their codes.
  */
 public class ProfileActivity extends AppCompatActivity implements ProfileCodeArrayAdapter.RecyclerViewInterface {
-    Button backButton;
-    ImageButton editProfileButton;
-    ImageButton toggleFilterButton;
-    ImageButton toggleRecyclerViewButton;
-    Spinner sortListSpinner;
-    RecyclerView recyclerView;
-    ProfileCodeArrayAdapter codeArrayAdapter;
-    TextView playerName;
-    TextView codeCount;
-    TextView playerScore;
-    TextView contactText;
-
-    LinearLayout filterBar;
-    Intent mainIntent;
+    private ImageButton editProfileButton;
+    private Spinner sortListSpinner;
+    private RecyclerView recyclerView;
+    private ProfileCodeArrayAdapter codeArrayAdapter;
+    private TextView playerName;
+    private TextView codeCount;
+    private TextView playerScore;
+    private TextView contactText;
+    private LinearLayout filterBar;
+    private Intent mainIntent;
     private Player currentPlayer;
     private Intent profileIntent;
     private ArrayList<Creature> creaturesToDisplay;
     private ArrayList<String> playerCreatureList;
     private DocumentReference playerRef;
     private String userToOpen;
-
     private Intent commentIntent;
-
     private ProfileCodeArrayAdapter.RecyclerViewInterface rvInterface;
 
     // FIREBASE INITIALIZE
