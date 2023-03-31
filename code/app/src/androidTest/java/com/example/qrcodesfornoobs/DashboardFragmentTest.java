@@ -90,7 +90,6 @@ public class DashboardFragmentTest {
         @Test
         public void testSettingsButton() throws Exception{
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
-                solo.clickOnView(solo.getView(R.id.setting_imageButton));
 
                 solo.assertCurrentActivity("Not in Settings", SettingsActivity.class);
         }
