@@ -142,7 +142,7 @@ public class DashboardFragment extends Fragment {
                         }
                     }
                     // calculate rank
-                    if (finalOwnedUniqueHighestScore  > dbHighestScore) {
+                    if (finalOwnedUniqueHighestScore  >= dbHighestScore) {
                         binding.rankTextView.setText("1");
                         binding.progressBar.setVisibility(View.GONE);
                         return;
