@@ -79,7 +79,10 @@ public class LeaderboardFragment extends Fragment {
             }
         });
     }
-
+    /**
+     * Called when leaderboard data is ready to be loaded.
+     *
+     */
     private void loadLeaderBoard() {
         binding.leaderboardRecyclerView.setHasFixedSize(true);
         binding.leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
