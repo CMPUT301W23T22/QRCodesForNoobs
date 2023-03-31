@@ -1,14 +1,21 @@
 package com.example.qrcodesfornoobs;
 import android.app.Activity;
+
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
+import com.example.qrcodesfornoobs.Fragment.CommentFragment;
 import com.example.qrcodesfornoobs.Models.Player;
+import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
@@ -81,7 +88,6 @@ public class ProfileIntentTest {
         // Check that activity is correct
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         // Open recycler view
-        solo.clickOnView(solo.getView(R.id.toggle_recyclerView_button));
         // Check that view displays
         assertTrue(solo.waitForView(R.id.recyclerView));
 
@@ -208,7 +214,7 @@ public class ProfileIntentTest {
         String othersScanned;
 
         // Pattern to match
-        String pattern = "^Scanned by \\d+ Players$";
+        String pattern = "^Scanned by \\d+ Player[s]?$";
 
         // Iterate through each item in list and make sure string matches
         for (int i = 0; i < recyclerView.getAdapter().getItemCount(); i++) {
@@ -218,6 +224,50 @@ public class ProfileIntentTest {
             assertTrue(othersScanned.matches(pattern));
         }
     }
+
+    /**
+     * Check that comments can be added
+     */
+    @Test
+    public void checkComments(){
+        checkViewCodes();
+
+        // Click on first item in recycler view
+        solo.clickInRecyclerView(1);
+
+        // Wait for comment fragment to appear
+        FragmentManager fragmentManager = rule.getActivity().getSupportFragmentManager();
+        CommentFragment fragment = (CommentFragment) fragmentManager.findFragmentByTag("Open Comments");
+        assertTrue(solo.waitForFragmentById(fragment.getId()));
+
+        // Initialize comment recycler view
+        RecyclerView commentsRecyclerView = (RecyclerView) solo.getView(R.id.comment_recyclerView);
+
+        // Get the number of comments before adding any
+        int numCommentsBefore = commentsRecyclerView.getAdapter().getItemCount();
+
+        EditText commentEditText = (EditText) solo.getView(R.id.comment_input_edittext);
+        Button submitCommentButton = (Button) solo.getView(R.id.submit_comment_button);
+
+        // Move dialog up a bit to detect the views
+        solo.drag(850,850,1100,900,10);
+
+        // Send a comment
+        solo.clearEditText(commentEditText);
+        solo.typeText(commentEditText, "testing adding comments");
+        solo.clickOnView(submitCommentButton);
+
+        // Wait for new comment to appear
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                int numCommentsAfter = commentsRecyclerView.getAdapter().getItemCount();
+                return (numCommentsAfter - 1 == numCommentsBefore);
+            }
+        }, 5000);
+
+    }
+
 
     /**
      * Extracts an integer value from the specified token of the textview

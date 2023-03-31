@@ -8,11 +8,13 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -61,8 +63,18 @@ public class TakePhotoActivity extends AppCompatActivity {
         binding = ActivityTakePhotoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // make sure camera permission is granted
+        binding.saveLocationCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                if ( ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
+                }
+            }
+        });
+
         String scannedCode = getIntent().getExtras().getString("code");
-        Location location = null; //setting this in part4
         Creature newCreature = new Creature(scannedCode);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
@@ -82,11 +94,17 @@ public class TakePhotoActivity extends AppCompatActivity {
                 binding.cameraButton.setOnClickListener(v -> openCamera());
                 binding.confirmButton.setOnClickListener(v -> {
                     binding.progressBar.setVisibility(View.VISIBLE);
+                    if (binding.saveLocationCheckBox.isChecked()) {
+                        // get current location
+                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if (location != null) {
+                            newCreature.setLatitude(location.getLatitude());
+                            newCreature.setLongitude(location.getLongitude());
+                        }
+                    }
                     // if scanned creature is already in db
                     if (modifiedDbCreature != null) {
-                        if (binding.saveLocationCheckBox.isChecked()) {
-                            // set local isPhotoLocation to the photo
-                        }
                         if (binding.saveImageCheckBox.isChecked()) {
                             uploadPhotoLocation().thenAccept(photoLocationUrl -> {
                                 modifiedDbCreature.setPhotoLocationUrl(photoLocationUrl);
@@ -98,9 +116,6 @@ public class TakePhotoActivity extends AppCompatActivity {
                         return;
                     }
                     // if scanned creature is not in db
-                    if (binding.saveLocationCheckBox.isChecked()) {
-                        // set local isPhotoLocation to the photo
-                    }
                     uploadPhotoCreature(newCreature).thenAccept((photoCreatureUrl) -> {
                         newCreature.setPhotoCreatureUrl(photoCreatureUrl);
                         if (binding.saveImageCheckBox.isChecked()) {
@@ -120,6 +135,22 @@ public class TakePhotoActivity extends AppCompatActivity {
             finish();
             return null;
         });
+    }
+
+    /**
+     * Uploads the photo of the creature to the Firebase Storage
+     * @param requestCode the request code passed in
+     * @param permissions the requested permissions
+     * @param grantResults the grant results for the corresponding permissions
+     */
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // if location permission is not granted
+        if (requestCode == 667 || requestCode == 668) {
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                binding.saveLocationCheckBox.setChecked(false);
+            }
+        }
     }
 
     @Override

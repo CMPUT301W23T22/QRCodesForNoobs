@@ -17,8 +17,8 @@ public class Creature {
     private int score; // const
     private int numOfScans = 1; // update every scan
     private String photoCreatureUrl; // const
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private String photoLocationUrl; // update every scan
     private ArrayList<String> comments = new ArrayList<>(); // update every comment
 
@@ -56,7 +56,7 @@ public class Creature {
      * @param score int
      * @param numOfScans int that represent how many players have scanned a Creature
      */
-    public Creature(String name, String hash, int score, int numOfScans, double latitude, double longitude, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, int numOfScans, Double latitude, Double longitude, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
@@ -170,7 +170,7 @@ public class Creature {
      * @return Location, assigned location of a Creature.
      * @see Creature
      */
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
     /**
@@ -178,7 +178,7 @@ public class Creature {
      * @return Location, assigned location of a Creature.
      * @see Creature
      */
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
     /**
@@ -202,7 +202,7 @@ public class Creature {
      * @param latitude latitude value
      * @see Creature
      */
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
     /**
@@ -211,7 +211,7 @@ public class Creature {
      * @param longitude longitude value
      * @see Creature
      */
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
     /**

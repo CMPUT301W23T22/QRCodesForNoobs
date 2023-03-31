@@ -88,7 +88,6 @@ public class SearchFragmentTest {
     @Test
     public void checkBrowsePlayerQR(){
         checkSelectUserProfile();
-        solo.clickOnView(solo.getView(R.id.toggle_recyclerView_button));
         solo.searchText("PenGoTriChi");
     }
 
