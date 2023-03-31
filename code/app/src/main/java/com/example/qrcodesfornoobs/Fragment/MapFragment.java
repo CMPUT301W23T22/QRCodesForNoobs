@@ -1,45 +1,40 @@
 package com.example.qrcodesfornoobs.Fragment;
 
+import static java.lang.Thread.sleep;
+
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import android.provider.Settings;
-import android.telephony.CarrierConfigManager;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
-import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.FragmentMapBinding;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,6 +44,7 @@ import java.util.Collection;
  */
 public class MapFragment extends Fragment {
 
+    int range = 5;
     GoogleMap mMap;
     FragmentMapBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -103,32 +99,50 @@ public class MapFragment extends Fragment {
                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
                 }
                 mMap.setMyLocationEnabled(true);
-                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                displayMarkers();
+                // Implementation from
+                // https://stackoverflow.com/questions/31021000/android-google-maps-v2-remove-default-markers/49090477#49090477
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
+
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                displayNearbyMarkers();
+                centerOnPlayer();
             }
         });
     }
 
-    public void displayMarkers() {
+    /**
+     * Method call to make a listener that displays Creatures around the player within a certain range.
+     */
+    public void displayNearbyMarkers() {
 
-        creatureReference
-                .whereNotEqualTo("latitude", null)
+        mMap.setOnMyLocationChangeListener( location -> {
+
+            // A circular radius is too much for me. I'm just making a square
+            creatureReference
+                .whereLessThanOrEqualTo("longitude", location.getLongitude() + range)
+                .whereGreaterThanOrEqualTo("longitude", location.getLongitude() - range)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                         for (DocumentSnapshot doc: task.getResult()){
+                            // All cases have a longitude, it is assumed they also have a latitude
+                            String field = "latitude";
+                            double creatureLatitude = doc.getDouble(field);
 
-                            Creature creature = doc.toObject(Creature.class);
-                            if (creature != null) {
+                            // Based on this Stack discussion, querying outside the db is a valid option:
+                            // https://stackoverflow.com/questions/26700924/query-based-on-multiple-where-clauses-in-firebase
+                            if (creatureLatitude >= location.getLatitude() - range &&
+                                creatureLatitude <= location.getLatitude() + range) {
+                                Creature creature = doc.toObject(Creature.class);
                                 LatLng marker = new LatLng(creature.getLatitude(), creature.getLongitude());
-
-                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getName() + '\n' + creature.getScore()));
+                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getScore() + ""));
                             }
                         }
                     }
-                });
+            });
+        });
 
     }
 
@@ -145,5 +159,20 @@ public class MapFragment extends Fragment {
         // Inflate the layout for this fragment
         return binding.getRoot();
 //        return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    /**
+     * Method to center the map on the player by calling the built-in button.
+     */
+    public void centerOnPlayer() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                View locationButton = ((View) getView().findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+                locationButton.performClick();
+            }
+        }, 5000);
+        // Just pray that the user's phone is fast enough to finish loading the map in 5 seconds.
     }
 }
