@@ -4,6 +4,7 @@ import static java.lang.Thread.sleep;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import android.widget.RelativeLayout;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.FragmentMapBinding;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -45,6 +47,7 @@ import java.util.Objects;
 public class MapFragment extends Fragment {
 
     int range = 5;
+    boolean userFound;
     GoogleMap mMap;
     FragmentMapBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -79,6 +82,7 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userFound = false;
         binding = FragmentMapBinding.inflate(getLayoutInflater());
         showMap();
     }
@@ -105,7 +109,6 @@ public class MapFragment extends Fragment {
 
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 displayNearbyMarkers();
-                centerOnPlayer();
             }
         });
     }
@@ -116,6 +119,12 @@ public class MapFragment extends Fragment {
     public void displayNearbyMarkers() {
 
         mMap.setOnMyLocationChangeListener( location -> {
+
+            // One time call to set camera to player's location
+            if (!userFound) {
+                centerCamera(location);
+                userFound = true;
+            }
 
             // A circular radius is too much for me. I'm just making a square
             creatureReference
@@ -164,15 +173,9 @@ public class MapFragment extends Fragment {
     /**
      * Method to center the map on the player by calling the built-in button.
      */
-    public void centerOnPlayer() {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                View locationButton = ((View) getView().findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-                locationButton.performClick();
-            }
-        }, 5000);
-        // Just pray that the user's phone is fast enough to finish loading the map in 5 seconds.
+    public void centerCamera(Location location) {
+
+        LatLng target = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 15f));
     }
 }
