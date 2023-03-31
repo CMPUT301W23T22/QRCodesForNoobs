@@ -215,6 +215,7 @@ public class DashboardFragment extends Fragment {
                     Player currentPlayer = value.toObject(Player.class);
                     List<String> playerCreatureList = currentPlayer.getCreatures();
                     if (!playerCreatureList.isEmpty()) {
+                        binding.dashboardSliderView.setVisibility(View.VISIBLE);
                         creatureCollectionReference.whereIn("hash", playerCreatureList)
                                 .get()
                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -238,6 +239,7 @@ public class DashboardFragment extends Fragment {
                                     }
                                 });
                     } else {
+                        binding.dashboardSliderView.setVisibility(View.GONE);
                         binding.codeScoreTextView.setText("0");
                     }
                 } else {
