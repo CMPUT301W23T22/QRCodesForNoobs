@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.smarteist.autoimageslider.SliderViewAdapter;
 
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 public class CodeSliderAdapter extends SliderViewAdapter<CodeSliderAdapter.SliderAdapterViewHolder> {
 
     // URLs to fetch code images from
-    private ArrayList<String> sliderItems;
+    private ArrayList<Creature> sliderItems;
 
     /**
      * Constructor for creating a CodeSliderAdapter instance.
@@ -26,8 +27,9 @@ public class CodeSliderAdapter extends SliderViewAdapter<CodeSliderAdapter.Slide
      * @param context the context in which this adapter is being used
      * @param sliderDataArrayList the list of slider data containing URLs of the images to display
      */
-    public CodeSliderAdapter(Context context, ArrayList<String> sliderDataArrayList) {
+    public CodeSliderAdapter(Context context, ArrayList<Creature> sliderDataArrayList) {
         this.sliderItems = sliderDataArrayList;
+
     }
 
     /**
@@ -50,10 +52,11 @@ public class CodeSliderAdapter extends SliderViewAdapter<CodeSliderAdapter.Slide
      */
     @Override
     public void onBindViewHolder(SliderAdapterViewHolder viewHolder, int position) {
-        String sliderItem = sliderItems.get(position); // URL of display item
+
+        Creature sliderItem = sliderItems.get(position);
 
         Glide.with(viewHolder.itemView)
-                .load(sliderItem)
+                .load(sliderItem.getPhotoCreatureUrl())
                 .fitCenter()
                 .into(viewHolder.imageViewBackground);
     }
