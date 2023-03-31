@@ -75,27 +75,29 @@
             android:layout_below="@id/radioGroup"
             android:layout_marginHorizontal="10dp">
 
-            <SearchView
+            <androidx.appcompat.widget.SearchView
                 android:id="@+id/longitude_search"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:iconifiedByDefault="false"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="10dp"
-                android:queryHint="Longitude"
+                app:queryHint="Longitude"
+                app:iconifiedByDefault="false"
+                android:inputType="numberSigned|numberDecimal"
                 android:background="@drawable/bg_white_rounded"
                 android:backgroundTint="@color/white"/>
 
-            <SearchView
+            <androidx.appcompat.widget.SearchView
                 android:id="@+id/latitude_search"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:iconifiedByDefault="false"
                 app:layout_constraintStart_toEndOf="@id/longitude_search"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="10dp"
-                android:queryHint="Latitude"
+                app:queryHint="Latitude"
+                app:iconifiedByDefault="false"
+                android:inputType="numberSigned|numberDecimal"
                 android:background="@drawable/bg_white_rounded"
                 android:backgroundTint="@color/white"/>
 

@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,9 +25,13 @@ import android.widget.Toast;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.Adapter.SearchAdapter;
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQueryBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -36,7 +41,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class defines the search UI fragment that shows on click of the search icon.
@@ -46,7 +53,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private int radioSelect = -1;
 
     private CardView userCard;
-    private CardView locationCard;
+    private ConstraintLayout locationCard;
     private SearchView userSearchView;
     private SearchView longitudeSearchView;
     private SearchView latitudeSearchView;
@@ -60,7 +67,8 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private String field;
     private final String longitudeField = "longitude";
     private int lnglatSubmit = -1;
-    private float GEOFENCE_RADIUS = 200;
+    private final double radiusM = 500 * 1000;
+    private GeoLocation center;
 
     private Intent profileIntent;
     private ArrayList<String> searchList;
@@ -132,7 +140,9 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         rvInterface = new SearchAdapter.RecyclerViewInterface() {
             @Override
             public void onItemClick(int pos) {
-                launchPlayerProfile(pos);
+                if(field == "username") {   // To disable clicking on a location item
+                    launchPlayerProfile(pos);
+                }
             }
         };
 
@@ -160,9 +170,9 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             public boolean onQueryTextSubmit(String query) {
 
                 searchList = new ArrayList<>();
-                if (query.length() > 0 && latitudeSearchView.getQuery() != null) {
-                    lnglatSubmit = 0;
-                    submitQuery(query, (String) latitudeSearchView.getQuery());
+                if (query.length() > 0 && latitudeSearchView.getQuery().length() > 0) {
+                    lnglatSubmit = 0; // Checks if longitude searchview is submitted instead of latitude
+                    submitQuery(query, latitudeSearchView.getQuery().toString());
                     longitudeSearchView.clearFocus();
                     latitudeSearchView.clearFocus();
                 }
@@ -179,9 +189,9 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             public boolean onQueryTextSubmit(String query) {
 
                 searchList = new ArrayList<>();
-                if (query.length() > 0 && longitudeSearchView.getQuery() != null) {
-                    lnglatSubmit = 1;
-                    submitQuery(query, (String) longitudeSearchView.getQuery());
+                if (query.length() > 0 && longitudeSearchView.getQuery().length() > 0) {
+                    lnglatSubmit = 1;   // Checks if latitude searchview is submitted instead of longitude
+                    submitQuery(query, longitudeSearchView.getQuery().toString());
                     longitudeSearchView.clearFocus();
                     latitudeSearchView.clearFocus();
                 }
@@ -247,8 +257,8 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         }
         // Location Geofence
         else{
-            double longitude;
-            double latitude;
+            double longitude = 999;
+            double latitude = 999;
             // Longitude Submit (0)
             if(lnglatSubmit == 0 ){
                 longitude = Double.parseDouble(query);
@@ -259,8 +269,79 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                 longitude = Double.parseDouble(locationQuery);
                 latitude = Double.parseDouble(query);
             }
+            // Check if valid lng lat range
+            // lat -90, 90
+            // lng -180, 180
+            if(latitude < -90f || latitude > 90f || longitude < -180f || longitude > 180f){
+                Toast.makeText(getContext(), "Invalid Coordinates.", Toast.LENGTH_SHORT).show();
+            }
 
+            else {
+                center = new GeoLocation(latitude, longitude);
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                recyclerView.setLayoutManager(layoutManager);
 
+                SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                recyclerView.setAdapter(searchAdapter);
+                Log.d("center", center.toString());
+                List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusM);
+                final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+                for (GeoQueryBounds b : bounds) {
+                    Query q = db.collection("Geohashes")
+                            .orderBy("geoHash")
+                            .startAt(b.startHash)
+                            .endAt(b.endHash);
+
+                    tasks.add(q.get());
+                }
+
+                // Collect all query results together into single list
+                Tasks.whenAllComplete(tasks)
+                        .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<List<Task<?>>> t) {
+                                List<DocumentSnapshot> matchingDocs = new ArrayList<>();
+
+                                for (Task<QuerySnapshot> task : tasks) {
+                                    QuerySnapshot snap = task.getResult();
+                                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                                        double lat = doc.getDouble("lat");
+                                        double lng = doc.getDouble("lng");
+
+                                        // Filter out few false positives due to Geohash accuracy
+                                        GeoLocation docLocation = new GeoLocation(lat, lng);
+                                        double distance = GeoFireUtils.getDistanceBetween(docLocation, center);
+                                        if (distance <= radiusM) {
+                                            matchingDocs.add(doc);
+                                        }
+                                    }
+                                }
+                                // matchingDocs contains results
+                                // For each result, look into Creature collection and get name to display
+                                for (DocumentSnapshot documentSnapshot : matchingDocs) {
+                                    Log.d("equal", documentSnapshot.getData().get("geoHash").toString());
+                                    db.collection("Creatures")
+                                            .whereEqualTo("geoHash", documentSnapshot.getData().get("geoHash").toString())
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            Log.d("GeoQuery", document.getId() + " => " + document.getData());
+                                                            Log.d("a", document.getData().get("name").toString());
+                                                            searchList.add(document.getData().get("name").toString());
+                                                        }
+                                                    } else {
+                                                        Log.d("GeoQuery", "Error getting documents: ", task.getException());
+                                                    }
+                                                    searchAdapter.notifyDataSetChanged();
+                                                }
+                                            });
+                                }
+                            }
+                        });
+            }
         }
     }
 
@@ -316,7 +397,6 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
      * @param pos Position of selected searched user.
      */
     private void launchPlayerProfile(int pos) {
-        //TODO: on click of Location item, opens a "Location Profile"
         profileIntent = new Intent(getActivity(), ProfileActivity.class);
         if (searchList != null) {
             String userToOpen = searchList.get(pos);

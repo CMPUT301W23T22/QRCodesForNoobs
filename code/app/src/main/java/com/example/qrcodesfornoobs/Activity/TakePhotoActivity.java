@@ -32,6 +32,10 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.databinding.ActivityTakePhotoBinding;
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,8 +49,10 @@ import org.w3c.dom.Text;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -65,6 +71,7 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
     Double latitude;
     Double longitude;
     String locationName;
+    String geoHash;
     Creature newCreature;
 
     /**
@@ -100,7 +107,7 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                 }
             }
         });
-        newCreature = new Creature(scannedCode, latitude, longitude, locationName);
+        newCreature = new Creature(scannedCode, latitude, longitude, locationName, geoHash);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
@@ -126,11 +133,29 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                              modifiedDbCreature.setLongitude(longitude);
                              modifiedDbCreature.setLocationName(locationName);
 
+                            geoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(latitude, longitude));
+                            modifiedDbCreature.setGeoHash(geoHash);
+
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("geoHash", geoHash);
+                            updates.put("lat",latitude);
+                            updates.put("lng", longitude);
+
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("Geohashes").document(geoHash);
+                            ref.set(updates)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Log.d(TAG, "Geohash Updated.");
+                                        }
+                                    });
+
                         }
                         else{
                             modifiedDbCreature.setLongitude(null);
                             modifiedDbCreature.setLatitude(null);
                             modifiedDbCreature.setLocationName(null);
+                            modifiedDbCreature.setGeoHash(null);
                         }
                         if (binding.saveImageCheckBox.isChecked()) {
                             uploadPhotoLocation().thenAccept(photoLocationUrl -> {
@@ -147,11 +172,28 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                         modifiedDbCreature.setLatitude(latitude);
                         modifiedDbCreature.setLongitude(longitude);
                         modifiedDbCreature.setLocationName(locationName);
+                        geoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(latitude, longitude));
+                        modifiedDbCreature.setGeoHash(geoHash);
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("geoHash", geoHash);
+                        updates.put("lat",latitude);
+                        updates.put("lng", longitude);
+
+                        DocumentReference ref = FirebaseFirestore.getInstance().collection("Geohashes").document(geoHash);
+                        ref.set(updates)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Log.d(TAG, "Geohash Updated.");
+                                    }
+                                });
+
                     }
                     else{
                         modifiedDbCreature.setLongitude(null);
                         modifiedDbCreature.setLatitude(null);
                         modifiedDbCreature.setLocationName(null);
+                        modifiedDbCreature.setGeoHash(null);
                     }
                     uploadPhotoCreature(newCreature).thenAccept((photoCreatureUrl) -> {
                         newCreature.setPhotoCreatureUrl(photoCreatureUrl);
