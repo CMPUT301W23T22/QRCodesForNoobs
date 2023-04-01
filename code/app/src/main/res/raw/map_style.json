@@ -1,0 +1,11 @@
+[// Android Studio despises this, but it somehow doesn't crash so I'll roll with it
+  {
+    featureType: "poi",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "off"
+      }
+    ]
+  }
+]
