@@ -23,6 +23,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.Adapter.SearchAdapter;
 import com.firebase.geofire.GeoFireUtils;
@@ -60,7 +61,6 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private RecyclerView recyclerView;
 
     // For Firebase
-    private ArrayList<String> valueList;
     private SearchAdapter searchAdapter;
     private FirebaseFirestore db;
     private CollectionReference collectionReference;
@@ -72,6 +72,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
     private Intent profileIntent;
     private ArrayList<String> searchList;
+    private ArrayList<Creature> creatureList;
     private SearchAdapter.RecyclerViewInterface rvInterface;
 
 
@@ -92,7 +93,6 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         collectionReference = db.collection("Players");
-        valueList = new ArrayList<>();
     }
 
     /**
@@ -169,7 +169,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-                searchList = new ArrayList<>();
+                creatureList = new ArrayList<>();
                 if (query.length() > 0 && latitudeSearchView.getQuery().length() > 0) {
                     lnglatSubmit = 0; // Checks if longitude searchview is submitted instead of latitude
                     submitQuery(query, latitudeSearchView.getQuery().toString());
@@ -188,7 +188,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-                searchList = new ArrayList<>();
+                creatureList = new ArrayList<>();
                 if (query.length() > 0 && longitudeSearchView.getQuery().length() > 0) {
                     lnglatSubmit = 1;   // Checks if latitude searchview is submitted instead of longitude
                     submitQuery(query, longitudeSearchView.getQuery().toString());
@@ -206,7 +206,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
     /**
      * Called when app is closed or when switching fragments/activities.
-     * Clears the radio group selection and any SearchView text.
+     * Clears the radio group selection and any SearchView.
      */
     @Override
     public void onPause() {
@@ -254,7 +254,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                             recyclerView.setLayoutManager(layoutManager);
 
-                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                            SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface, "Players");
                             recyclerView.setAdapter(searchAdapter);
                         }
                     });
@@ -277,7 +277,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
             // lat -90, 90
             // lng -180, 180
             if(latitude < -90f || latitude > 90f || longitude < -180f || longitude > 180f){
-                Toast.makeText(getContext(), "Invalid Coordinates.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Invalid coordinate.", Toast.LENGTH_SHORT).show();
             }
 
             else {
@@ -285,7 +285,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                 RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
                 recyclerView.setLayoutManager(layoutManager);
 
-                SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                SearchAdapter searchAdapter = new SearchAdapter(getContext(), creatureList, rvInterface, "Creatures");
                 recyclerView.setAdapter(searchAdapter);
                 Log.d("center", center.toString());
                 List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusM);
@@ -323,7 +323,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                                 // matchingDocs contains results
                                 // For each result, look into Creature collection and get name to display
                                 for (DocumentSnapshot documentSnapshot : matchingDocs) {
-                                    Log.d("equal", documentSnapshot.getData().get("geoHash").toString());
+//                                    Log.d("equal", documentSnapshot.getData().get("geoHash").toString());
                                     db.collection("Creatures")
                                             .whereEqualTo("geoHash", documentSnapshot.getData().get("geoHash").toString())
                                             .get()
@@ -332,9 +332,8 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                     if (task.isSuccessful()) {
                                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                                            Log.d("GeoQuery", document.getId() + " => " + document.getData());
-                                                            Log.d("a", document.getData().get("name").toString());
-                                                            searchList.add(document.getData().get("name").toString());
+                                                            //Log.d("GeoQuery", document.getId() + " => " + document.getData());
+                                                            creatureList.add(document.toObject(Creature.class));
                                                         }
                                                     } else {
                                                         Log.d("GeoQuery", "Error getting documents: ", task.getException());
@@ -382,7 +381,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                 }
                 // Clear list on switching search by
                 searchList = new ArrayList<>();
-                SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface);
+                SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface, "");
                 recyclerView.setAdapter(searchAdapter);
             }
         });
