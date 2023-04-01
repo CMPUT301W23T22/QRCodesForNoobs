@@ -218,6 +218,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         longitudeSearchView.setQuery("", false);
         latitudeSearchView.setQuery("", false);
         userSearchView.setVisibility(View.INVISIBLE);
+        userCard.setVisibility(View.INVISIBLE);
         longitudeSearchView.setVisibility(View.INVISIBLE);
         latitudeSearchView.setVisibility(View.INVISIBLE);
         userSearchView.clearFocus();
@@ -364,6 +365,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         field = "username";
                         locationCard.setVisibility(View.INVISIBLE);
                         userCard.setVisibility(View.VISIBLE);
+                        userSearchView.setVisibility(View.VISIBLE);
                         latitudeSearchView.setQuery("", false);
                         longitudeSearchView.setQuery("",false);
                         break;
@@ -373,6 +375,8 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         field = "latitude";
                         userCard.setVisibility(View.INVISIBLE);
                         locationCard.setVisibility(View.VISIBLE);
+                        longitudeSearchView.setVisibility(View.VISIBLE);
+                        latitudeSearchView.setVisibility(View.VISIBLE);
                         userSearchView.setQuery("",false);
                         break;
                 }
