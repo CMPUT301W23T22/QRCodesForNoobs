@@ -23,6 +23,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -31,7 +32,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import com.example.qrcodesfornoobs.Adapter.ProfileCodeArrayAdapter;
+import com.example.qrcodesfornoobs.Fragment.CommentFragment;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.Tools.ProfileCreatureScoreComparator;
@@ -63,27 +66,25 @@ import java.util.Objects;
  * displays a filter bar and allows the player to toggle between a list view and
  * a grid view of their codes.
  */
-public class ProfileActivity extends AppCompatActivity {
-    Button backButton;
-    ImageButton editProfileButton;
-    ImageButton toggleFilterButton;
-    ImageButton toggleRecyclerViewButton;
-    Spinner sortListSpinner;
-    RecyclerView recyclerView;
-    ProfileCodeArrayAdapter codeArrayAdapter;
-    TextView playerName;
-    TextView codeCount;
-    TextView playerScore;
-    TextView contactText;
-
-    LinearLayout filterBar;
-    Intent mainIntent;
+public class ProfileActivity extends AppCompatActivity implements ProfileCodeArrayAdapter.RecyclerViewInterface {
+    private ImageButton editProfileButton;
+    private Spinner sortListSpinner;
+    private RecyclerView recyclerView;
+    private ProfileCodeArrayAdapter codeArrayAdapter;
+    private TextView playerName;
+    private TextView codeCount;
+    private TextView playerScore;
+    private TextView contactText;
+    private ConstraintLayout filterBar;
+    private Intent mainIntent;
     private Player currentPlayer;
     private Intent profileIntent;
     private ArrayList<Creature> creaturesToDisplay;
     private ArrayList<String> playerCreatureList;
     private DocumentReference playerRef;
     private String userToOpen;
+    private Intent commentIntent;
+    private ProfileCodeArrayAdapter.RecyclerViewInterface rvInterface;
 
     // FIREBASE INITIALIZE
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -117,6 +118,13 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Get reference to player's collection
         playerRef = playerCollectionReference.document(userToOpen);
+
+        rvInterface = new ProfileCodeArrayAdapter.RecyclerViewInterface() {
+            @Override
+            public void onItemClick(int pos) {
+                openCreatureComments(pos);
+            }
+        };
 
         playerRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             // Listens for changes to the player's collection on the database
@@ -160,6 +168,7 @@ public class ProfileActivity extends AppCompatActivity {
                                                         }
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
                                                         playerScore.setText(totalScore + " Points");
+                                                        sort(sortListSpinner.getSelectedItem().toString());
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());
@@ -193,7 +202,7 @@ public class ProfileActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        codeArrayAdapter = new ProfileCodeArrayAdapter(ProfileActivity.this, creaturesToDisplay);
+        codeArrayAdapter = new ProfileCodeArrayAdapter(ProfileActivity.this, creaturesToDisplay, rvInterface);
         recyclerView.setAdapter(codeArrayAdapter);
 
         if (userToOpen == Player.LOCAL_USERNAME){
@@ -340,15 +349,11 @@ public class ProfileActivity extends AppCompatActivity {
      * Initializes all the UI widgets for the activity.
      */
     private void initWidgets() {
-        backButton = findViewById(R.id.back_button);
-        backButton.setBackgroundResource(R.drawable.back_arrow);
         editProfileButton = findViewById(R.id.edit_profile_button);
         if (!Objects.equals(userToOpen, Player.LOCAL_USERNAME)){
             editProfileButton.setVisibility(View.GONE);
         }
 
-        toggleFilterButton = findViewById(R.id.toggle_filterbar_button);
-        toggleRecyclerViewButton = findViewById(R.id.toggle_recyclerView_button);
         filterBar = findViewById(R.id.filterbar);
         sortListSpinner = findViewById(R.id.sort_list_spinner);
         recyclerView = findViewById(R.id.recyclerView);
@@ -368,13 +373,6 @@ public class ProfileActivity extends AppCompatActivity {
      * Adds click listeners to the UI buttons for the activity.
      */
     private void addListenerOnButtons() {
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(mainIntent);
-            }
-        });
-
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -384,32 +382,8 @@ public class ProfileActivity extends AppCompatActivity {
                 editInfoFrag.show(getSupportFragmentManager(),"Edit Contact Info");
             }
         });
-        toggleFilterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Hide and show the filter bar
-                if (filterBar.getVisibility() == View.VISIBLE) {
-                    filterBar.setVisibility(View.GONE);
-                } else {
-                    filterBar.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
-        toggleRecyclerViewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Hide and show the listview
-                // (Toggle between sliding view and listview)
-                if (recyclerView.getVisibility() == View.VISIBLE) {
-                    toggleRecyclerViewButton.setImageResource(R.drawable.face_icon);
-                    recyclerView.setVisibility(View.GONE);
-                } else {
-                    toggleRecyclerViewButton.setImageResource(R.drawable.menu_icon);
-                    recyclerView.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+
         sortListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -453,5 +427,21 @@ public class ProfileActivity extends AppCompatActivity {
             userToOpen = Player.LOCAL_USERNAME;
         }
         System.out.println("Opening profile of user " + userToOpen);
+    }
+
+    private void openCreatureComments(int pos){
+        commentIntent = new Intent(this, CommentFragment.class);
+        Creature selectedCreature = creaturesToDisplay.get(pos);
+        String selectedCreatureHash = selectedCreature.getHash();
+        commentIntent.putExtra("CreatureHash",selectedCreatureHash);
+        commentIntent.putExtra("User",Player.LOCAL_USERNAME);
+
+        CommentFragment commentFragment = CommentFragment.newInstance(selectedCreatureHash, Player.LOCAL_USERNAME);
+        commentFragment.show(getSupportFragmentManager(),"Open Comments");
+    }
+
+    @Override
+    public void onItemClick(int pos) {
+
     }
 }

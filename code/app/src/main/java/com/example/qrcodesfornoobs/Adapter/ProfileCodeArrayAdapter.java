@@ -16,8 +16,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -29,16 +27,24 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     Context context;
     ArrayList<Creature> codes;
     LayoutInflater layoutInflater;
-    ImageView creatureImage;
+
+    private RecyclerViewInterface rvListener;
+
+
+    public interface RecyclerViewInterface {
+        void onItemClick(int pos);
+    }
 
     /**
      * Constructor that takes in the current context and list of creature codes.
      * @param context The current context.
      * @param codes The list of creature codes.
+     * @param rvListener A listener for the recyclerview
      */
-    public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes) {
+    public ProfileCodeArrayAdapter(Context context, ArrayList<Creature> codes, RecyclerViewInterface rvListener) {
         this.context = context;
         this.codes = codes;
+        this.rvListener = rvListener;
         layoutInflater = layoutInflater.from(context);
     }
 
@@ -68,20 +74,27 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         // Set list item info
         Creature creature = codes.get(position);
-        URL creatureImageUrl;
-        try {
-            creatureImageUrl = new URL(creature.getPhotoCreatureUrl());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
 
         RequestOptions options = new RequestOptions().circleCrop().placeholder(R.drawable.face_icon);
 
-
         holder.creatureName.setText(creature.getName());
         holder.creatureScore.setText(creature.getScore() + " points");
-        Glide.with(context).load(creature.getPhotoCreatureUrl()).apply(options).into(creatureImage);
-        holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
+        Glide.with(context).load(creature.getPhotoCreatureUrl()).apply(options).into(holder.creatureImage);
+        if (creature.getNumOfScans() == 1){
+            holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Player");
+        } else {
+            holder.creatureNumOfScans.setText("Scanned by " + creature.getNumOfScans() + " Players");
+        }
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int pos = holder.getAdapterPosition();
+                rvListener.onItemClick(pos);
+
+            }
+        });
     }
 
     /**
@@ -101,6 +114,7 @@ public class ProfileCodeArrayAdapter extends RecyclerView.Adapter<ProfileCodeArr
         TextView creatureName;
         TextView creatureScore;
         TextView creatureNumOfScans;
+        ImageView creatureImage;
 
         /**
          * Constructor that takes in the view object and initializes the view objects of the row.

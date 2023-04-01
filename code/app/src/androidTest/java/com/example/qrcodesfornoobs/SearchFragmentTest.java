@@ -65,7 +65,7 @@ public class SearchFragmentTest {
     @Test
     public void checkSearchUser(){
         checkOpenFragment();
-        solo.clickOnView(solo.getView(R.id.searchView));
+        solo.clickOnView(solo.getView(R.id.username_search));
         assertFalse(solo.searchText("reynel"));
         solo.enterText(0, "reynel");
         solo.sendKey(Solo.ENTER);
@@ -88,7 +88,6 @@ public class SearchFragmentTest {
     @Test
     public void checkBrowsePlayerQR(){
         checkSelectUserProfile();
-        solo.clickOnView(solo.getView(R.id.toggle_recyclerView_button));
         solo.searchText("PenGoTriChi");
     }
 

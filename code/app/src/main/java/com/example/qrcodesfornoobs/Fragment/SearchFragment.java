@@ -217,6 +217,9 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         userSearchView.setQuery("", false);
         longitudeSearchView.setQuery("", false);
         latitudeSearchView.setQuery("", false);
+        userSearchView.setVisibility(View.INVISIBLE);
+        longitudeSearchView.setVisibility(View.INVISIBLE);
+        latitudeSearchView.setVisibility(View.INVISIBLE);
         userSearchView.clearFocus();
         longitudeSearchView.clearFocus();
         latitudeSearchView.clearFocus();

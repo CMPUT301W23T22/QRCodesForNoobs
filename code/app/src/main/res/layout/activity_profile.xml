@@ -21,16 +21,6 @@
             android:orientation="vertical"
             android:background="#595759">
 
-            <Button
-                android:id="@+id/back_button"
-                android:layout_width="55dp"
-                android:layout_height="38dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
-                android:backgroundTint="#FFFFFF"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/profile_playername_textview"
                 android:layout_width="wrap_content"
@@ -92,7 +82,7 @@
                 android:textColor="#FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/back_button"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.514"
                 app:srcCompat="@drawable/ic_launcher_foreground" />
 
@@ -112,41 +102,27 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="35dp"
             android:visibility="visible">
 
-            <ImageButton
-                android:id="@+id/toggle_filterbar_button"
-                android:layout_width="51dp"
-                android:layout_height="48dp"
-                android:backgroundTint="#595759"
-                android:scaleType="fitXY"
-                android:src="@drawable/filter_icon"
-                tools:layout_editor_absoluteY="1dp" />
-
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filterbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <ImageButton
-                    android:id="@+id/toggle_recyclerView_button"
-                    android:layout_width="51dp"
-                    android:layout_height="match_parent"
-                    android:backgroundTint="#595759"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/menu_icon"/>
-
                 <Spinner
                     android:id="@+id/sort_list_spinner"
-                    android:layout_width="310dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:backgroundTint="#595759"
-                    android:spinnerMode="dropdown" />
+                    android:spinnerMode="dropdown"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </LinearLayout>
@@ -154,7 +130,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="#121112">
@@ -163,7 +139,7 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"/>
+                android:visibility="visible"/>
 
 
         </LinearLayout>
