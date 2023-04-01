@@ -3,15 +3,19 @@ package com.example.qrcodesfornoobs.Fragment;
 import static java.lang.Thread.sleep;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +56,7 @@ public class MapFragment extends Fragment {
     FragmentMapBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     final CollectionReference creatureReference = db.collection("Creatures");
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -77,6 +82,7 @@ public class MapFragment extends Fragment {
 
     /**
      * Called when the fragment is created. Gets the arguments passed in and inflates the layout.
+     *
      * @param savedInstanceState The saved instance state bundle.
      */
     @Override
@@ -97,22 +103,39 @@ public class MapFragment extends Fragment {
                 // Initialize map
                 MapsInitializer.initialize(getActivity());
                 mMap = googleMap;
-                while ( ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
-                }
-                mMap.setMyLocationEnabled(true);
                 // Implementation from
                 // https://stackoverflow.com/questions/31021000/android-google-maps-v2-remove-default-markers/49090477#49090477
-                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
-
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                displayNearbyMarkers();
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
+                requestPermissions();
+                followPlayer();
             }
         });
     }
 
+    /**
+     * Sets the map to follow player, and also call function to display markers around player
+     * Does nothing if permissions have not been granted.
+     */
+    public void followPlayer() {
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+        displayNearbyMarkers();
+    }
+
+    /**
+     * Requests for location permissions in order to display user location and display nearby creatures.
+     */
+    public void requestPermissions() {
+        if ( ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
+        }
+    }
     /**
      * Method call to make a listener that displays Creatures around the player within a certain range.
      */
@@ -171,11 +194,36 @@ public class MapFragment extends Fragment {
     }
 
     /**
-     * Method to center the map on the player by calling the built-in button.
+     * Method to center the view of the map to a target location.
      */
     public void centerCamera(Location location) {
 
         LatLng target = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 15f));
+    }
+    public void notifyLocationNotGiven() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder
+                .setMessage("Location Permissions were not found. Please enable them to find nearby creatures.")
+                .setPositiveButton("Ok", null)
+                .create()
+                .show();
+    }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // If results are empty end early
+        if (grantResults.length <= 0) {
+            return;
+        }
+        //If the code refers to a location permission
+        if (requestCode == 667 || requestCode == 668) {
+            //If permission granted, follow the player
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                followPlayer(); // TODO: Get this to work I don't know why it doesn't
+            // Otherwise, notify the player that it failed
+            } else {
+                notifyLocationNotGiven();
+            }
+        }
     }
 }
