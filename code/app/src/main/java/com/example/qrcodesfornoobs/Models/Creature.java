@@ -29,7 +29,7 @@ public class Creature {
      * hash.
      * @param code code received from the QRCode scan.
      */
-    public Creature (String code, Double latitude, Double longitude, String locationName, String geoHash) {
+    public Creature (String code) {
         //this will be used when we scan a code
         //set hash
         try {

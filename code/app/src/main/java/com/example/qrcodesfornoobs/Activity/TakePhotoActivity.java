@@ -107,7 +107,7 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         });
 
         String scannedCode = getIntent().getExtras().getString("code");
-        newCreature = new Creature(scannedCode, latitude, longitude, locationName, geoHash);
+        newCreature = new Creature(scannedCode);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
