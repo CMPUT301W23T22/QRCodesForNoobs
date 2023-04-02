@@ -1,25 +1,24 @@
 package com.example.qrcodesfornoobs.Fragment;
 
+import static java.lang.Thread.sleep;
+
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import android.provider.Settings;
-import android.telephony.CarrierConfigManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
 import com.example.qrcodesfornoobs.databinding.FragmentMapBinding;
@@ -29,17 +28,14 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,10 +45,14 @@ import java.util.Collection;
  */
 public class MapFragment extends Fragment {
 
+    int range = 5;
+    boolean userFound;
     GoogleMap mMap;
     FragmentMapBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    ActivityResultLauncher<String> permissionCheckLauncher;
     final CollectionReference creatureReference = db.collection("Creatures");
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -78,13 +78,33 @@ public class MapFragment extends Fragment {
 
     /**
      * Called when the fragment is created. Gets the arguments passed in and inflates the layout.
+     *
      * @param savedInstanceState The saved instance state bundle.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userFound = false;
         binding = FragmentMapBinding.inflate(getLayoutInflater());
+        initiatePermissionCheckLauncher();
         showMap();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        followPlayer();
+    }
+
+    public void initiatePermissionCheckLauncher() {
+        permissionCheckLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    followPlayer(); //THIS DOESN'T WORK FOR SOME UNGODLY REASON
+                } else {
+                    notifyLocationNotGiven();
+                }
+            });
     }
 
     public void showMap() {
@@ -97,38 +117,81 @@ public class MapFragment extends Fragment {
                 // Initialize map
                 MapsInitializer.initialize(getActivity());
                 mMap = googleMap;
-                while ( ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
-                }
-                mMap.setMyLocationEnabled(true);
-                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                displayMarkers();
+                // Implementation from
+                // https://stackoverflow.com/questions/31021000/android-google-maps-v2-remove-default-markers/49090477#49090477
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
+                requestPermissions();
             }
         });
     }
 
-    public void displayMarkers() {
+    /**
+     * Sets the map to follow player, and also call function to display markers around player
+     * Does nothing if permissions have not been granted.
+     */
+    public void followPlayer() {
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+        displayNearbyMarkers();
+    }
 
-        creatureReference
-                .whereNotEqualTo("latitude", null)
+    /**
+     * Requests for location permissions in order to display user location and display nearby creatures.
+     */
+    public void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(
+                getContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            followPlayer();
+        } else {
+            // The registered ActivityResultCallback gets the result of this request.
+            permissionCheckLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+    /**
+     * Method call to make a listener that displays Creatures around the player within a certain range.
+     */
+    public void displayNearbyMarkers() {
+
+        mMap.setOnMyLocationChangeListener( location -> {
+
+            // One time call to set camera to player's location
+            if (!userFound) {
+                centerCamera(location);
+                userFound = true;
+            }
+
+            // A circular radius is too much for me. I'm just making a square
+            creatureReference
+                .whereLessThanOrEqualTo("longitude", location.getLongitude() + range)
+                .whereGreaterThanOrEqualTo("longitude", location.getLongitude() - range)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                         for (DocumentSnapshot doc: task.getResult()){
+                            // All cases have a longitude, it is assumed they also have a latitude
+                            String field = "latitude";
+                            double creatureLatitude = doc.getDouble(field);
 
-                            Creature creature = doc.toObject(Creature.class);
-                            if (creature != null) {
+                            // Based on this Stack discussion, querying outside the db is a valid option:
+                            // https://stackoverflow.com/questions/26700924/query-based-on-multiple-where-clauses-in-firebase
+                            if (creatureLatitude >= location.getLatitude() - range &&
+                                creatureLatitude <= location.getLatitude() + range) {
+                                Creature creature = doc.toObject(Creature.class);
                                 LatLng marker = new LatLng(creature.getLatitude(), creature.getLongitude());
-
-                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getName() + '\n' + creature.getScore()));
+                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getScore() + ""));
                             }
                         }
                     }
-                });
+            });
+        });
 
     }
 
@@ -145,5 +208,22 @@ public class MapFragment extends Fragment {
         // Inflate the layout for this fragment
         return binding.getRoot();
 //        return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    /**
+     * Method to center the view of the map to a target location.
+     */
+    public void centerCamera(Location location) {
+
+        LatLng target = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 15f));
+    }
+    public void notifyLocationNotGiven() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder
+                .setMessage("Location Permissions were not found. Please enable them to find nearby creatures.")
+                .setPositiveButton("Ok", null)
+                .create()
+                .show();
     }
 }
