@@ -69,6 +69,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
 
     /**
      * Called by the RecyclerView to display the data at the specified position.
+     * Either shows list of usernames or creatures based on nearby geolocation.
      *
      * @param holder The ViewHolder that holds a View of the given view type.
      * @param position The position of the item within the adapter's data set.
@@ -105,6 +106,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyHolder>{
         return codes.size();
     }
 
+    /**
+     * Sets view to a search result's name and image.
+     */
     public class MyHolder extends RecyclerView.ViewHolder {
         TextView name;
         ImageView creatureImage;
