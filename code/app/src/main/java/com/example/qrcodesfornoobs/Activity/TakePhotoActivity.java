@@ -157,13 +157,6 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                                         }
                                     });
                         }
-
-                        else{
-                            newCreature.setLongitude(null);
-                            newCreature.setLatitude(null);
-                            newCreature.setLocationName(null);
-                            newCreature.setGeoHash(null);
-                        }
                     }
                     // if scanned creature is already in db
                     if (modifiedDbCreature != null) {
