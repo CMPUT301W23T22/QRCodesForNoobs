@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -23,8 +22,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -43,9 +40,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.type.LatLng;
 
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
@@ -60,20 +55,15 @@ import java.util.concurrent.CompletableFuture;
  * Allows the user to take a photo of a creature and optionally a location.
  * The photo(s) can be saved to the Firebase Storage and the creature information is saved to the Firebase Firestore.
  */
-public class TakePhotoActivity extends AppCompatActivity implements LocationListener {
+public class TakePhotoActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 666;
     final String TAG = "Sample";
     ActivityTakePhotoBinding binding;
-
     Bitmap photoCreatureBitmap;
     Bitmap photoLocationBitmap;
 
+    Location currentLocation;
     LocationManager locationManager;
-    Double latitude;
-    Double longitude;
-    String locationName;
-    String geoHash;
-    Creature newCreature;
 
     /**
      * Called when the activity is starting.
@@ -85,29 +75,23 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         super.onCreate(savedInstanceState);
         binding = ActivityTakePhotoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.testText.setVisibility(View.INVISIBLE);
 
-        // make sure camera permission is granted
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // make sure location permission is granted
         binding.saveLocationCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
+                // if permission is not granted
                 if ( ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
                 }
-
-                binding.testText.setVisibility(View.VISIBLE);
-                binding.testText.setText("Getting location, please wait...");
-
-                // Requests user location when permission already granted.
-                // See onResume() for first time permission request.
-                getLocation();
             }
-
         });
 
         String scannedCode = getIntent().getExtras().getString("code");
-        newCreature = new Creature(scannedCode);
+        Creature newCreature = new Creature(scannedCode);
         checkValidCreatureToAdd(newCreature).thenAccept((isValid) -> {
             if (!isValid) {
                 Toast.makeText(getBaseContext(), "You already have this code!", Toast.LENGTH_SHORT).show();
@@ -118,48 +102,21 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
 
                 loadPhotoCreatureImageView(modifiedDbCreature);
 
-                // make sure camera permission is granted
-                while (ContextCompat.checkSelfPermission(TakePhotoActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(TakePhotoActivity.this, new String[]{android.Manifest.permission.CAMERA}, 666);
-                }
-
-                binding.cameraButton.setOnClickListener(v -> openCamera());
+                binding.cameraButton.setOnClickListener(v -> {
+                    // make sure camera permission is granted
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, 666);
+                        return;
+                    }
+                    openCamera();
+                });
                 binding.confirmButton.setOnClickListener(v -> {
                     binding.progressBar.setVisibility(View.VISIBLE);
-                    if (binding.saveLocationCheckBox.isChecked()) {
-                        // get current location
-                        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, TakePhotoActivity.this);
-//                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        Log.d("LOC", location.toString());
-                        if (location != null) {
-                            Log.d("lat", String.valueOf(location.getLatitude()));
-                            Log.d("lng", String.valueOf(location.getLongitude()));
-                            newCreature.setLatitude(location.getLatitude());
-                            newCreature.setLongitude(location.getLongitude());
-                            newCreature.setLocationName(locationName);
-
-                            geoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(latitude, longitude));
-                            newCreature.setGeoHash(geoHash);
-
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("geoHash", geoHash);
-                            updates.put("lat",latitude);
-                            updates.put("lng", longitude);
-
-                            DocumentReference ref = FirebaseFirestore.getInstance().collection("Geohashes").document(geoHash);
-                            ref.set(updates)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            Log.d(TAG, "Geohash Updated.");
-                                        }
-                                    });
-                        }
-                    }
                     // if scanned creature is already in db
                     if (modifiedDbCreature != null) {
+                        if (binding.saveLocationCheckBox.isChecked()) {
+                            updateCreatureLocation(modifiedDbCreature);
+                        }
                         if (binding.saveImageCheckBox.isChecked()) {
                             uploadPhotoLocation().thenAccept(photoLocationUrl -> {
                                 modifiedDbCreature.setPhotoLocationUrl(photoLocationUrl);
@@ -173,6 +130,9 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                     // if scanned creature is not in db
                     uploadPhotoCreature(newCreature).thenAccept((photoCreatureUrl) -> {
                         newCreature.setPhotoCreatureUrl(photoCreatureUrl);
+                        if (binding.saveLocationCheckBox.isChecked()) {
+                            updateCreatureLocation(newCreature);
+                        }
                         if (binding.saveImageCheckBox.isChecked()) {
                             uploadPhotoLocation().thenAccept((photoLocationUrl) -> {
                                 newCreature.setPhotoLocationUrl(photoLocationUrl);
@@ -192,6 +152,71 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         });
     }
 
+
+    /**
+     * update location-related information of the creature: latitude, longitude, location name, and geohash
+     * @param creature the creature to be updated
+     */
+    @SuppressLint("MissingPermission")
+    public void updateCreatureLocation(Creature creature) {
+        // get current location
+        currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        System.out.println("LO:" + currentLocation);
+        if (currentLocation != null) {
+
+            // update latitute and longitude to latest location
+            creature.setLatitude(currentLocation.getLatitude());
+            creature.setLongitude(currentLocation.getLongitude());
+
+            // update location name to latest location
+            creature.setLocationName(getCurrentAddress());
+
+            // update geohash to latest location for searchability
+            String geoHash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude()));
+            creature.setGeoHash(geoHash);
+
+            Map<String, Object> updatedGeoHashDoc = new HashMap<>();
+            updatedGeoHashDoc.put("geoHash", geoHash);
+            updatedGeoHashDoc.put("lat", currentLocation.getLatitude());
+            updatedGeoHashDoc.put("lng", currentLocation.getLongitude());
+
+            // WARNING: if geohash failed to upload, creature is unsearchable
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("Geohashes").document(geoHash).set(updatedGeoHashDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "Geohash Updated.");
+                    } else {
+                        Log.e(TAG, "Geohash failed to update.");
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Gets the current address of the user
+     * @return the current address of the user in the format of "street, city, state, country"
+     */
+    @SuppressLint("MissingPermission")
+    public String getCurrentAddress() {
+        // get current location
+        currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (currentLocation != null) {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            try {
+                List<Address> addresses = geocoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
+                if (addresses.size() > 0) {
+                    return addresses.get(0).getAddressLine(0); // current address
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error getting location name: " + e.getMessage());
+            }
+        }
+        return null;
+    }
+
     /**
      * Uploads the photo of the creature to the Firebase Storage
      * @param requestCode the request code passed in
@@ -205,36 +230,11 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
             if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 binding.saveLocationCheckBox.setChecked(false);
             }
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // On first time requesting location permission, it pauses and resumes the app.
-        // On resume, ensures the users location is up to date.
-        // Without, after approving permission, the location is null.
-        if (binding.saveLocationCheckBox.isChecked() &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            getLocation();
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this::onLocationChanged);
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            try {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-
-                Geocoder geocoder = new Geocoder(TakePhotoActivity.this, Locale.getDefault());
-                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                String getAddress = addresses.get(0).getAddressLine(0);
-                locationName = getAddress;
-
-                binding.testText.setText("Location: " + locationName);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+        } else if (requestCode == TakePhotoActivity.CAMERA_REQUEST) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(this, "Please allow camera permission to take picture.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -421,52 +421,5 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
                 binding.locationImageView.setImageBitmap(photoLocationBitmap);
             }
         }
-    }
-
-
-    @SuppressLint("MissingPermission")
-    private void getLocation() {
-        try{
-            locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, TakePhotoActivity.this);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        Toast.makeText(this, ""+location.getLatitude()+","+location.getLongitude(), Toast.LENGTH_SHORT);
-
-        try{
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-
-            Geocoder geocoder = new Geocoder(TakePhotoActivity.this, Locale.getDefault());
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            String getAddress = addresses.get(0).getAddressLine(0);
-            locationName = getAddress;
-
-            binding.testText.setText("Location: "+locationName);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        LocationListener.super.onStatusChanged(provider, status, extras);
-    }
-
-    @Override
-    public void onProviderEnabled(@NonNull String provider) {
-        LocationListener.super.onProviderEnabled(provider);
-    }
-
-    @Override
-    public void onProviderDisabled(@NonNull String provider) {
-        LocationListener.super.onProviderDisabled(provider);
     }
 }

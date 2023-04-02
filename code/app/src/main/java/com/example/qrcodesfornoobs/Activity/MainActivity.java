@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent takePhotoIntent = new Intent(this, TakePhotoActivity.class);
                 takePhotoIntent.putExtra("code", intentResult.getContents());
                 startActivity(takePhotoIntent);
-                Toast.makeText(getBaseContext(), intentResult.getContents(), Toast.LENGTH_SHORT).show();
             }
         }
     }
