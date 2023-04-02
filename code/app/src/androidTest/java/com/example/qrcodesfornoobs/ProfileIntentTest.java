@@ -61,9 +61,9 @@ public class ProfileIntentTest {
         comments.add("test comment 1");
         comments.add("test comment 2");
         comments.add("test comment 3");
-        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,comments);
-        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,comments);
-        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,comments);
+        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null,null,null,comments);
+        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null,null,null,comments);
+        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null,null,null,comments);
         db.collection("Creatures").document(mockCreature1.getHash()).set(mockCreature1);
         db.collection("Creatures").document(mockCreature2.getHash()).set(mockCreature2);
         db.collection("Creatures").document(mockCreature3.getHash()).set(mockCreature3);
@@ -311,9 +311,9 @@ public class ProfileIntentTest {
     public void tearDown() throws Exception {
         db.collection("Players").document(Player.LOCAL_USERNAME).delete();
         // Cleanup -> remove creatures from db
-        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null);
-        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null);
-        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null);
+        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null,null,null,null);
+        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null,null,null,null);
+        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null,null,null,null);
         db.collection("Creatures").document(mockCreature1.getHash()).delete();
         db.collection("Creatures").document(mockCreature2.getHash()).delete();
         db.collection("Creatures").document(mockCreature3.getHash()).delete();
