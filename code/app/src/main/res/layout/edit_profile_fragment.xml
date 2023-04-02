@@ -33,13 +33,13 @@
 
     <TextView
         android:id="@+id/profile_email_text"
-        android:layout_width="65dp"
-        android:layout_height="42dp"
+        android:layout_width="122dp"
+        android:layout_height="31dp"
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-black"
-        android:text="Email: "
+        android:text="Contact Info: "
         android:textAlignment="center"
-        android:textSize="22dp"
+        android:textSize="18dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.277"
         app:layout_constraintStart_toStartOf="parent"
