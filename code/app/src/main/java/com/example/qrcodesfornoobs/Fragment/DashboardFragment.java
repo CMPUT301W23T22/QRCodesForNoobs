@@ -93,7 +93,18 @@ public class DashboardFragment extends Fragment {
                 binding.progressBar.setVisibility(View.GONE);
                 return;
             }
-            ArrayList<String> ownedCreatures = task.getResult().toObject(Player.class).getCreatures();
+            Player player = task.getResult().toObject(Player.class);
+            if (player == null){
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to get owned creatures.", Toast.LENGTH_SHORT).show();
+                } else if (getActivity() != null) {
+                    Toast.makeText(getActivity(), "Failed to get owned creatures.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "Both getContext() and getActivity() returned null");
+                }
+                return;
+            }
+            ArrayList<String> ownedCreatures = player.getCreatures();
             // if no creatures owned, set rank to N/A
             if (ownedCreatures.isEmpty()) {
                 binding.rankTextView.setText("N/A");
