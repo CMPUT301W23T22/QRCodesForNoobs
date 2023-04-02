@@ -90,6 +90,9 @@ public class MapFragment extends Fragment {
         showMap();
     }
 
+    /**
+     * Called when the function is resumed, namely after the player grants permissions.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -107,6 +110,9 @@ public class MapFragment extends Fragment {
             });
     }
 
+    /**
+     * Method that displays the map can calls methods that rely on the map to be loaded
+     */
     public void showMap() {
         SupportMapFragment supportMapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
@@ -155,6 +161,7 @@ public class MapFragment extends Fragment {
     }
     /**
      * Method call to make a listener that displays Creatures around the player within a certain range.
+     * On the first call, the listener will also center the camera on the player.
      */
     public void displayNearbyMarkers() {
 
@@ -187,7 +194,7 @@ public class MapFragment extends Fragment {
                                 creatureLatitude <= location.getLatitude() + range) {
                                 Creature creature = doc.toObject(Creature.class);
                                 LatLng marker = new LatLng(creature.getLatitude(), creature.getLongitude());
-                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getScore() + ""));
+                                mMap.addMarker(new MarkerOptions().position(marker).title(creature.getScore() + " pts"));
                             }
                         }
                     }
@@ -219,6 +226,11 @@ public class MapFragment extends Fragment {
         LatLng target = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 15f));
     }
+
+    /**
+     * Create a dialogue that informs user that the map requires permissions to
+     * function as intended.
+     */
     public void notifyLocationNotGiven() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder
