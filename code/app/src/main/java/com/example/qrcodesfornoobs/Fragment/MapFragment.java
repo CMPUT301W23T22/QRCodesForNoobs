@@ -8,18 +8,16 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.R;
@@ -39,9 +37,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link MapFragment#newInstance} factory method to
@@ -55,6 +50,7 @@ public class MapFragment extends Fragment {
     GoogleMap mMap;
     FragmentMapBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    ActivityResultLauncher<String> permissionCheckLauncher;
     final CollectionReference creatureReference = db.collection("Creatures");
 
     /**
@@ -90,7 +86,25 @@ public class MapFragment extends Fragment {
         super.onCreate(savedInstanceState);
         userFound = false;
         binding = FragmentMapBinding.inflate(getLayoutInflater());
+        initiatePermissionCheckLauncher();
         showMap();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        followPlayer();
+    }
+
+    public void initiatePermissionCheckLauncher() {
+        permissionCheckLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    followPlayer(); //THIS DOESN'T WORK FOR SOME UNGODLY REASON
+                } else {
+                    notifyLocationNotGiven();
+                }
+            });
     }
 
     public void showMap() {
@@ -108,7 +122,6 @@ public class MapFragment extends Fragment {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
                 requestPermissions();
-                followPlayer();
             }
         });
     }
@@ -118,8 +131,8 @@ public class MapFragment extends Fragment {
      * Does nothing if permissions have not been granted.
      */
     public void followPlayer() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mMap.setMyLocationEnabled(true);
@@ -130,10 +143,14 @@ public class MapFragment extends Fragment {
      * Requests for location permissions in order to display user location and display nearby creatures.
      */
     public void requestPermissions() {
-        if ( ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
+        if (ContextCompat.checkSelfPermission(
+                getContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            followPlayer();
+        } else {
+            // The registered ActivityResultCallback gets the result of this request.
+            permissionCheckLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
     /**
@@ -208,22 +225,5 @@ public class MapFragment extends Fragment {
                 .setPositiveButton("Ok", null)
                 .create()
                 .show();
-    }
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // If results are empty end early
-        if (grantResults.length <= 0) {
-            return;
-        }
-        //If the code refers to a location permission
-        if (requestCode == 667 || requestCode == 668) {
-            //If permission granted, follow the player
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                followPlayer(); // TODO: Get this to work I don't know why it doesn't
-            // Otherwise, notify the player that it failed
-            } else {
-                notifyLocationNotGiven();
-            }
-        }
     }
 }
