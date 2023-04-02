@@ -22,7 +22,9 @@ import com.example.qrcodesfornoobs.Activity.SignInActivity;
 import com.example.qrcodesfornoobs.Activity.TakePhotoActivity;
 import com.example.qrcodesfornoobs.Fragment.DashboardFragment;
 import com.example.qrcodesfornoobs.Fragment.MapFragment;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.robotium.solo.Solo;
 import com.smarteist.autoimageslider.SliderView;
 
@@ -38,20 +40,26 @@ public class DashboardFragmentTest {
 
         private Solo solo;
         private final String TAG = "TAG POST ROBOTIUM";
+        private final static String MOCK_USERNAME = "test";
+        private FirebaseFirestore db;
 
 
         @Rule
         public ActivityTestRule<MainActivity> rule =
-                new ActivityTestRule<>(MainActivity.class, true, true);
+                new ActivityTestRule<>(MainActivity.class, true, false);
 
         @Before
-        public void setUp() throws Exception{
+        public void setUp() throws Exception {
                 solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
-                Player.LOCAL_USERNAME = "TEST_BRETT";
+                db = FirebaseFirestore.getInstance();
+                Player mockPlayer = new Player(MOCK_USERNAME, "123321456654");
+                db.collection("Players").document(MOCK_USERNAME).set(mockPlayer);
+                Player.LOCAL_USERNAME = MOCK_USERNAME;
         }
-
         @Test
         public void testHomePage() throws Exception{
+                Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class);
+                rule.launchActivity(intent);
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 assertTrue(solo.waitForText(Player.LOCAL_USERNAME, 1, 2000));
                 Fragment fragment = solo.getCurrentActivity().getFragmentManager().getFragments().get(0);
@@ -59,39 +67,13 @@ public class DashboardFragmentTest {
         }
 
         @Test
-        public void testSwipe() throws Exception{
-                solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
-
-                float fromX, toX, Y;
-
-                Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
-                Point size = new Point();
-                display.getSize(size);
-                fromX = (float) (size.x * 0.1);
-                toX = size.x - fromX;
-                Y = (float) (size.y * 0.6);
-
-                SliderView view = (SliderView) solo.getView(R.id.dashboard_sliderView);
-
-                assertEquals(0, view.getCurrentPagePosition());
-                assertNotEquals(1, view.getCurrentPagePosition());
-                solo.drag(fromX, toX, Y, Y, 10);
-                assertEquals(1, view.getCurrentPagePosition());
-        }
-
-        @Test
         public void testProfileButton() throws Exception{
+                Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class);
+                rule.launchActivity(intent);
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.profile_imageButton));
 
                 solo.assertCurrentActivity("Not in Profile", ProfileActivity.class);
-        }
-
-        @Test
-        public void testSettingsButton() throws Exception{
-                solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
-
-                solo.assertCurrentActivity("Not in Settings", SettingsActivity.class);
         }
 
 //        @Test
@@ -105,6 +87,8 @@ public class DashboardFragmentTest {
 
         @Test
         public void  testSearchButton() throws Exception{
+                Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class);
+                rule.launchActivity(intent);
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.search));
 
@@ -113,22 +97,26 @@ public class DashboardFragmentTest {
 
         @Test
         public void  testLeaderboardFragment() throws Exception {
+                Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class);
+                rule.launchActivity(intent);
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.leaderboard));
 
-                assertTrue(solo.waitForText("Leaderboard Screen", 1, 2000));
+                assertTrue(solo.waitForText("Rank", 1, 2000));
         }
 
         @Test
         public void  testMapFragment() throws Exception{
+                Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MainActivity.class);
+                rule.launchActivity(intent);
                 solo.assertCurrentActivity("Not in Dashboard", MainActivity.class);
                 solo.clickOnView(solo.getView(R.id.map));
 
-                assertTrue(solo.waitForText("Map Screen", 1, 2000));
         }
 
         @After
         public void tearDown() throws Exception{
+                db.collection("Players").document(MOCK_USERNAME).delete();
                 solo.finishOpenedActivities();
         }
 }

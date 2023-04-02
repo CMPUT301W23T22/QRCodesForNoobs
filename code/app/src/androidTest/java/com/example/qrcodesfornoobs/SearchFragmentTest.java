@@ -15,6 +15,7 @@ import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.Fragment.SearchFragment;
 
+import com.example.qrcodesfornoobs.Models.Player;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
@@ -32,7 +33,7 @@ public class SearchFragmentTest {
 
     @Rule
     public ActivityTestRule<MainActivity> rule =
-            new ActivityTestRule<>(MainActivity.class, true, true);
+            new ActivityTestRule<>(MainActivity.class, true, false);
 
     /**
      * Runs before all tests and creates solo instance.
@@ -40,7 +41,10 @@ public class SearchFragmentTest {
      */
     @Before
     public void setUp() throws Exception{
+        Player.LOCAL_USERNAME = "test";
+
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
+        rule.launchActivity(null);
     }
 
     /**
@@ -65,11 +69,12 @@ public class SearchFragmentTest {
     @Test
     public void checkSearchUser(){
         checkOpenFragment();
-        solo.clickOnView(solo.getView(R.id.searchView));
-        assertFalse(solo.searchText("reynel"));
-        solo.enterText(0, "reynel");
+        solo.clickOnView(solo.getView(R.id.radioUser));
+        solo.clickOnView(solo.getView(R.id.username_search));
+        assertFalse(solo.searchText("searchtest"));
+        solo.enterText(0, "searchtest");
         solo.sendKey(Solo.ENTER);
-        assertTrue(solo.waitForText("reynel", 1, 2000));
+        assertTrue(solo.waitForText("searchtest", 1, 2000));
     }
 
     /**
@@ -88,7 +93,25 @@ public class SearchFragmentTest {
     @Test
     public void checkBrowsePlayerQR(){
         checkSelectUserProfile();
-        solo.searchText("PenGoTriChi");
+        solo.searchText("ChiGoVeeTee");
+    }
+
+    /**
+     *  US 05.02.01 As a player, I want to search for nearby QR codes by using geolocation.
+     */
+    @Test
+    public void checkBrowseByGeolocation(){
+        checkOpenFragment();
+        solo.clickOnView(solo.getView(R.id.radioLocation));
+        solo.clickOnView(solo.getView(R.id.longitude_search));
+        assertFalse(solo.searchText("-121"));
+        solo.enterText(0, "-121");
+        solo.clickOnView(solo.getView(R.id.latitude_search));
+        assertFalse(solo.searchText("38"));
+        solo.enterText(0, "38");
+        solo.sendKey(Solo.ENTER);
+        assertTrue(solo.waitForText("s", 1, 2000));
+
     }
 
 

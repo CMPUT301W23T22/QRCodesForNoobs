@@ -1,13 +1,19 @@
 package com.example.qrcodesfornoobs.Fragment;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Adapter.CodeSliderAdapter;
@@ -15,11 +21,17 @@ import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.databinding.FragmentDashboardBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.AggregateSource;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.EventListener;
 
 
 import java.util.ArrayList;
@@ -33,7 +45,11 @@ import java.util.List;
 public class DashboardFragment extends Fragment {
 
     FragmentDashboardBinding binding;
+    private CodeSliderAdapter codeSliderAdapter;
     private Intent profileIntent;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    final CollectionReference creatureCollectionReference = db.collection("Creatures");
+    final CollectionReference playerCollectionReference = db.collection("Players");
 
 
     /**
@@ -77,7 +93,18 @@ public class DashboardFragment extends Fragment {
                 binding.progressBar.setVisibility(View.GONE);
                 return;
             }
-            ArrayList<String> ownedCreatures = task.getResult().toObject(Player.class).getCreatures();
+            Player player = task.getResult().toObject(Player.class);
+            if (player == null){
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to get owned creatures.", Toast.LENGTH_SHORT).show();
+                } else if (getActivity() != null) {
+                    Toast.makeText(getActivity(), "Failed to get owned creatures.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "Both getContext() and getActivity() returned null");
+                }
+                return;
+            }
+            ArrayList<String> ownedCreatures = player.getCreatures();
             // if no creatures owned, set rank to N/A
             if (ownedCreatures.isEmpty()) {
                 binding.rankTextView.setText("N/A");
@@ -126,7 +153,7 @@ public class DashboardFragment extends Fragment {
                         }
                     }
                     // calculate rank
-                    if (finalOwnedUniqueHighestScore  > dbHighestScore) {
+                    if (finalOwnedUniqueHighestScore  >= dbHighestScore) {
                         binding.rankTextView.setText("1");
                         binding.progressBar.setVisibility(View.GONE);
                         return;
@@ -163,8 +190,9 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         return binding.getRoot();
-//        return inflater.inflate(R.layout.fragment_dashboard, container, false);
+
     }
 
     /**
@@ -185,14 +213,51 @@ public class DashboardFragment extends Fragment {
      * It sets up a slider adapter with code URLs and sets the adapter on the slider view.
      */
     private void setUpSliders() {
-        String test_url1 = "https://i.insider.com/57910997dd0895a56e8b456d?width=700&format=jpeg&auto=webp";
-        String test_url2 = "https://bizzbucket.co/wp-content/uploads/2020/08/Life-in-The-Metro-Blog-Title-22.png";
 
-        ArrayList<String> codeURLs = new ArrayList<>();
-        codeURLs.add(test_url1);
-        codeURLs.add(test_url2);
+        ArrayList<Creature> creatureList = new ArrayList<>(); // Initialize the photoCreatureUrlList
+        playerCollectionReference.document(Player.LOCAL_USERNAME).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w(TAG, "Listen failed.", error);
+                    return;
+                }
+                if (value != null && value.exists()) {
+                    Player currentPlayer = value.toObject(Player.class);
+                    List<String> playerCreatureList = currentPlayer.getCreatures();
+                    if (!playerCreatureList.isEmpty()) {
+                        binding.dashboardSliderView.setVisibility(View.VISIBLE);
+                        creatureCollectionReference.whereIn("hash", playerCreatureList)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            creatureList.clear();
+                                            int totalScore = 0;
+                                            for (QueryDocumentSnapshot doc : task.getResult()) {
+                                                Creature creature;
+                                                creature = doc.toObject(Creature.class);
+                                                creatureList.add(creature);
+                                                totalScore += creature.getScore();
+                                            }
+                                            CodeSliderAdapter adapter = new CodeSliderAdapter(getContext(), creatureList);
+                                            binding.codeScoreTextView.setText(String.valueOf(totalScore));
+                                            binding.dashboardSliderView.setSliderAdapter(adapter);
+                                        } else {
+                                            Log.d(TAG, "get failed with ", task.getException());
+                                        }
+                                    }
+                                });
+                    } else {
+                        binding.dashboardSliderView.setVisibility(View.GONE);
+                        binding.codeScoreTextView.setText("0");
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
 
-        CodeSliderAdapter adapter = new CodeSliderAdapter(this.getContext(), codeURLs);
-        binding.dashboardSliderView.setSliderAdapter(adapter);
+        });
     }
 }

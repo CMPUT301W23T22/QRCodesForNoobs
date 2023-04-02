@@ -107,7 +107,7 @@
                 android:id="@+id/code_name_TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CHARACTER NAME"
+                android:text="My Collection"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -148,7 +148,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="score"
+                android:text="points"
                 app:layout_constraintBottom_toBottomOf="@+id/code_score_TextView"
                 app:layout_constraintStart_toEndOf="@+id/code_score_TextView" />
 

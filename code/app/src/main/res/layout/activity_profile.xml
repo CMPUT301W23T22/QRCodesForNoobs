@@ -105,7 +105,7 @@
             android:layout_height="35dp"
             android:visibility="visible">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filterbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -114,13 +114,16 @@
 
                 <Spinner
                     android:id="@+id/sort_list_spinner"
-                    android:layout_width="310dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:padding="5dp"
                     android:backgroundTint="#595759"
-                    android:spinnerMode="dropdown" />
+                    android:spinnerMode="dropdown"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </LinearLayout>
@@ -128,7 +131,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="#121112">

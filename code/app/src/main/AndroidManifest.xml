@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +19,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QRCodesForNoobs"
         tools:targetApi="31">
+        <!--This is unsecure, but the secure version I read requires editing local.properties-->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDjfYHYiwmaQ1K8IvlowpHklZcSKLKWKYk" />
         <activity
             android:name=".Activity.TakePhotoActivity"
             android:exported="false">
