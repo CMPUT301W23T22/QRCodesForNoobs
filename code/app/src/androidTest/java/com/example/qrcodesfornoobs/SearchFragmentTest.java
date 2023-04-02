@@ -1,20 +1,19 @@
 package com.example.qrcodesfornoobs;
 
 import android.app.Activity;
-import android.widget.EditText;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import androidx.fragment.app.Fragment;
+
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
-import com.example.qrcodesfornoobs.Fragment.SearchFragment;
 
+
+import com.example.qrcodesfornoobs.Models.Player;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.robotium.solo.Solo;
 
@@ -30,6 +29,7 @@ import org.junit.Test;
 
 public class SearchFragmentTest {
     private Solo solo;
+    private FirebaseFirestore db;
 
     @Rule
     public ActivityTestRule<MainActivity> rule =
@@ -41,9 +41,11 @@ public class SearchFragmentTest {
      */
     @Before
     public void setUp() throws Exception{
-        Player.LOCAL_USERNAME = "test";
-
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
+        Player.LOCAL_USERNAME = "test";
+        db = FirebaseFirestore.getInstance();
+        Player mockPlayer = new Player("test", "123321456654");
+        db.collection("Players").document("test").set(mockPlayer);
         rule.launchActivity(null);
     }
 
@@ -71,10 +73,10 @@ public class SearchFragmentTest {
         checkOpenFragment();
         solo.clickOnView(solo.getView(R.id.radioUser));
         solo.clickOnView(solo.getView(R.id.username_search));
-        assertFalse(solo.searchText("searchtest"));
-        solo.enterText(0, "searchtest");
+        assertFalse(solo.searchText("test"));
+        solo.enterText(0, "test");
         solo.sendKey(Solo.ENTER);
-        assertTrue(solo.waitForText("searchtest", 1, 2000));
+        assertTrue(solo.waitForText("test", 1, 2000));
     }
 
     /**
@@ -117,6 +119,7 @@ public class SearchFragmentTest {
 
     @After
     public void tearDown() throws Exception{
+        db.collection("Players").document("test").delete();
         solo.finishOpenedActivities();
     }
 }
