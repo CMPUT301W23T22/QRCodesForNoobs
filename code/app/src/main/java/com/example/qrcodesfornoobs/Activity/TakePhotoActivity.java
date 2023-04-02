@@ -16,7 +16,6 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -86,8 +85,19 @@ public class TakePhotoActivity extends AppCompatActivity {
                         ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 667);
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 668);
+                    return;
                 }
+                String currAddress = getCurrentAddress();
+                if (currAddress == null) {
+                    binding.saveLocationCheckBox.setChecked(false);
+                    Toast.makeText(getBaseContext(), "Could not access GPS location. Please try again later!", Toast.LENGTH_SHORT).show();
+                } else {
+                    binding.currentLocationTextView.setText("Address: " + currAddress);
+                    binding.currentLocationTextView.setVisibility(View.VISIBLE);
+                }
+                return;
             }
+            binding.currentLocationTextView.setVisibility(View.INVISIBLE);
         });
 
         String scannedCode = getIntent().getExtras().getString("code");
@@ -160,8 +170,6 @@ public class TakePhotoActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     public void updateCreatureLocation(Creature creature) {
         // get current location
-        currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        System.out.println("LO:" + currentLocation);
         if (currentLocation != null) {
 
             // update latitute and longitude to latest location
@@ -227,8 +235,11 @@ public class TakePhotoActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // if location permission is not granted
         if (requestCode == 667 || requestCode == 668) {
-            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                binding.saveLocationCheckBox.setChecked(true);
+            } else {
                 binding.saveLocationCheckBox.setChecked(false);
+                Toast.makeText(getBaseContext(), "Please allow location permission to save location.", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == TakePhotoActivity.CAMERA_REQUEST) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
