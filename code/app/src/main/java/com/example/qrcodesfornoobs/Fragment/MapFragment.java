@@ -174,6 +174,7 @@ public class MapFragment extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        mMap.clear();
 
                         for (DocumentSnapshot doc: task.getResult()){
                             // All cases have a longitude, it is assumed they also have a latitude
