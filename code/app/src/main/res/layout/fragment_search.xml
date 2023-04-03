@@ -104,7 +104,7 @@
                 android:layout_marginHorizontal="10dp"
                 app:cardCornerRadius="5dp"
                 app:cardElevation="5dp"
-                app:layout_constraintStart_toEndOf="@id/longitude_card"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.appcompat.widget.SearchView
