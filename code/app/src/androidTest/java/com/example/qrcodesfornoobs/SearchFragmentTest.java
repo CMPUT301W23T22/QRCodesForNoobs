@@ -12,6 +12,7 @@ import com.example.qrcodesfornoobs.Activity.MainActivity;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 
 
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.qrcodesfornoobs.Models.Player;
@@ -45,7 +46,14 @@ public class SearchFragmentTest {
         Player.LOCAL_USERNAME = "test";
         db = FirebaseFirestore.getInstance();
         Player mockPlayer = new Player("test", "123321456654");
+        Creature creature1 = new Creature("creature1","1234",25,1,null,null,null,null,null);
+        Creature creature2 = new Creature("creature2","12345",25,1,null,null,null,null,null);
+        mockPlayer.addCreature(creature1);
+        mockPlayer.addCreature(creature2);
+        db.collection("Creatures").document(creature1.getHash()).set(creature1);
+        db.collection("Creatures").document(creature2.getHash()).set(creature2);
         db.collection("Players").document("test").set(mockPlayer);
+
         rule.launchActivity(null);
     }
 
@@ -97,10 +105,25 @@ public class SearchFragmentTest {
         checkSelectUserProfile();
         solo.searchText("PenGoTriChi");
     }
+    @Test
+    public void checkBrowseByGeolocation(){
+        checkOpenFragment();
+        solo.clickOnView(solo.getView(R.id.radioLocation));
+        solo.clickOnView(solo.getView(R.id.longitude_search));
+        assertFalse(solo.searchText("-121"));
+        solo.enterText(0, "-121");
+        solo.clickOnView(solo.getView(R.id.latitude_search));
+        assertFalse(solo.searchText("38"));
+        solo.enterText(0, "38");
+        solo.sendKey(Solo.ENTER);
+        assertTrue(solo.waitForText("s", 1, 2000));
 
-
+    }
     @After
     public void tearDown() throws Exception{
+        db.collection("Players").document("test").delete();
+        db.collection("Creatures").document("1234").delete();
+        db.collection("Creatures").document("12345").delete();
         solo.finishOpenedActivities();
     }
 }
