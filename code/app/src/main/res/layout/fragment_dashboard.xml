@@ -41,16 +41,52 @@
                 app:layout_constraintStart_toEndOf="@+id/profile_imageButton"
                 app:layout_constraintTop_toTopOf="@+id/profile_imageButton" />
 
-            <ImageButton
-                android:id="@+id/setting_imageButton"
-                android:layout_width="50sp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="end"
-                android:src="@drawable/ic_baseline_settings_40"
                 app:layout_constraintBottom_toBottomOf="@+id/username_TextView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+                app:layout_constraintTop_toTopOf="@+id/username_TextView">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/crown_imageView"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:src="@drawable/crown"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:paddingBottom="10dp"
+                    app:tint="@color/yellow">
+
+                </ImageView>
+
+                <TextView
+                    android:id="@+id/rank_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:gravity="center"
+                    android:text=""
+                    android:textStyle="bold"
+
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/crown_imageView"
+                    app:layout_constraintStart_toStartOf="@+id/crown_imageView">
+
+                </TextView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -71,7 +107,7 @@
                 android:id="@+id/code_name_TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CHARACTER NAME"
+                android:text="My Collection"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -92,6 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_baseline_diamond_30"
+                app:tint="@color/teal_200"
                 app:layout_constraintBottom_toBottomOf="@+id/code_score_TextView"
                 app:layout_constraintEnd_toStartOf="@+id/code_score_TextView"
                 app:layout_constraintTop_toTopOf="@+id/code_score_TextView" />
@@ -112,11 +149,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="score"
+                android:text="points"
                 app:layout_constraintBottom_toBottomOf="@+id/code_score_TextView"
                 app:layout_constraintStart_toEndOf="@+id/code_score_TextView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -145,6 +184,8 @@
                 app:sliderIndicatorUnselectedColor="#FFF"
                 app:sliderScrollTimeInSec="1" />
         </androidx.cardview.widget.CardView>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

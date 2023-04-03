@@ -1,14 +1,25 @@
 package com.example.qrcodesfornoobs;
 import android.app.Activity;
+
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
+import com.example.qrcodesfornoobs.Fragment.CommentFragment;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
@@ -19,10 +30,17 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 
 public class ProfileIntentTest {
 
     private Solo solo;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Creature mockCreature1;
+    private Creature mockCreature2;
+    private Creature mockCreature3;
+
 
     @Rule
     public ActivityTestRule<ProfileActivity> rule =
@@ -35,8 +53,23 @@ public class ProfileIntentTest {
      */
     @Before
     public void setUp() throws Exception {
+        // Initialize test data onto db
         Player.LOCAL_USERNAME = "testfranny";
-
+        Player mockPlayer = new Player(Player.LOCAL_USERNAME, "123321456654");
+        db.collection("Players").document(Player.LOCAL_USERNAME).set(mockPlayer);
+        ArrayList<String> comments = new ArrayList<>();
+        comments.add("test comment 1");
+        comments.add("test comment 2");
+        comments.add("test comment 3");
+        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null,null,null,comments);
+        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null,null,null,comments);
+        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null,null,null,comments);
+        db.collection("Creatures").document(mockCreature1.getHash()).set(mockCreature1);
+        db.collection("Creatures").document(mockCreature2.getHash()).set(mockCreature2);
+        db.collection("Creatures").document(mockCreature3.getHash()).set(mockCreature3);
+        db.collection("Players").document(Player.LOCAL_USERNAME).update("creatures", FieldValue.arrayUnion(mockCreature1.getHash()));
+        db.collection("Players").document(Player.LOCAL_USERNAME).update("creatures", FieldValue.arrayUnion(mockCreature2.getHash()));
+        db.collection("Players").document(Player.LOCAL_USERNAME).update("creatures", FieldValue.arrayUnion(mockCreature3.getHash()));
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
         rule.launchActivity(null);
 
@@ -81,7 +114,6 @@ public class ProfileIntentTest {
         // Check that activity is correct
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         // Open recycler view
-        solo.clickOnView(solo.getView(R.id.toggle_recyclerView_button));
         // Check that view displays
         assertTrue(solo.waitForView(R.id.recyclerView));
 
@@ -208,7 +240,7 @@ public class ProfileIntentTest {
         String othersScanned;
 
         // Pattern to match
-        String pattern = "^Scanned by \\d+ Players$";
+        String pattern = "^Scanned by \\d+ Player[s]?$";
 
         // Iterate through each item in list and make sure string matches
         for (int i = 0; i < recyclerView.getAdapter().getItemCount(); i++) {
@@ -218,6 +250,50 @@ public class ProfileIntentTest {
             assertTrue(othersScanned.matches(pattern));
         }
     }
+
+    /**
+     * Check that comments can be added
+     */
+    @Test
+    public void checkComments(){
+        checkViewCodes();
+
+        // Click on first item in recycler view
+        solo.clickInRecyclerView(1);
+
+        // Wait for comment fragment to appear
+        FragmentManager fragmentManager = rule.getActivity().getSupportFragmentManager();
+        CommentFragment fragment = (CommentFragment) fragmentManager.findFragmentByTag("Open Comments");
+        assertTrue(solo.waitForFragmentById(fragment.getId()));
+
+        // Initialize comment recycler view
+        RecyclerView commentsRecyclerView = (RecyclerView) solo.getView(R.id.comment_recyclerView);
+
+        // Get the number of comments before adding any
+        int numCommentsBefore = commentsRecyclerView.getAdapter().getItemCount();
+
+        EditText commentEditText = (EditText) solo.getView(R.id.comment_input_edittext);
+        Button submitCommentButton = (Button) solo.getView(R.id.submit_comment_button);
+
+        // Move dialog up a bit to detect the views
+        solo.drag(850,850,1100,900,10);
+
+        // Send a comment
+        solo.clearEditText(commentEditText);
+        solo.typeText(commentEditText, "testing adding comments");
+        solo.clickOnView(submitCommentButton);
+
+        // Wait for new comment to appear
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                int numCommentsAfter = commentsRecyclerView.getAdapter().getItemCount();
+                return (numCommentsAfter - 1 == numCommentsBefore);
+            }
+        }, 5000);
+
+    }
+
 
     /**
      * Extracts an integer value from the specified token of the textview
@@ -233,7 +309,16 @@ public class ProfileIntentTest {
 
     @After
     public void tearDown() throws Exception {
-        solo.finishOpenedActivities();
+        db.collection("Players").document(Player.LOCAL_USERNAME).delete();
+        // Cleanup -> remove creatures from db
+        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null,null,null,null);
+        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null,null,null,null);
+        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null,null,null,null);
+        db.collection("Creatures").document(mockCreature1.getHash()).delete();
+        db.collection("Creatures").document(mockCreature2.getHash()).delete();
+        db.collection("Creatures").document(mockCreature3.getHash()).delete();
 
+
+        solo.finishOpenedActivities();
     }
 }

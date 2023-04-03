@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 public class CreatureTest {
 
     private Creature mockHash() throws NoSuchAlgorithmException {
-        return new Creature("test", null);
+        return new Creature("test");
     }
 
     @Test
