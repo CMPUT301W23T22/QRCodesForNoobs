@@ -209,8 +209,9 @@ public class DashboardFragment extends Fragment {
 
 
     /**
-     * This method is used to set up the slider on the dashboard fragment.
-     * It sets up a slider adapter with code URLs and sets the adapter on the slider view.
+     * Sets up the sliders for the dashboard view by fetching player's creatures from the Firestore database.
+     * It initializes the creature list, listens for changes in the player's document, and updates the slider view
+     * and total score accordingly.
      */
     private void setUpSliders() {
 
