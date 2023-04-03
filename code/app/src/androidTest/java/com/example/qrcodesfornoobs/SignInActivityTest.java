@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.EditText;
@@ -41,13 +42,14 @@ public class SignInActivityTest {
     @Before
     public void setUp() {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
-        // Get a reference to the SharedPreferences object of the launched activity
-        Player.LOCAL_USERNAME = null;
-        rule.launchActivity(null);
-        SharedPreferences sharedPreferences = rule.getActivity().getSharedPreferences(SignInActivity.CACHE_NAME, Context.MODE_PRIVATE);
+        // Clear the SharedPreferences cache
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SignInActivity.CACHE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("username");
+        editor.clear();
         editor.apply();
+        // Launch the SignInActivity
+        rule.launchActivity(new Intent());
         db = FirebaseFirestore.getInstance();
         Player mockPlayer = new Player("noSignIn", "123321456654");
         db.collection("Players").document("noSignIn").set(mockPlayer);
@@ -63,7 +65,6 @@ public class SignInActivityTest {
         solo.enterText((EditText) solo.getView(R.id.username_EditText),"TestReynel");
         solo.clickOnView(solo.getView(R.id.sign_in_button));
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        //deleting the added entry
     }
     /**
      * Signs into the app as a existing user with a different device, should remain on signin page.
@@ -88,10 +89,7 @@ public class SignInActivityTest {
      */
     @After
     public void cleanup(){
-        SharedPreferences sharedPreferences = rule.getActivity().getSharedPreferences(SignInActivity.CACHE_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("username");
-        editor.apply();
+        db = FirebaseFirestore.getInstance();
         db.collection("Players").document("noSignIn").delete();
         db.collection("Players").document("TestReynel").delete();
         solo.finishOpenedActivities();
