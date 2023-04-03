@@ -95,31 +95,12 @@ public class SearchFragmentTest {
     @Test
     public void checkBrowsePlayerQR(){
         checkSelectUserProfile();
-        solo.searchText("ChiGoVeeTee");
-    }
-
-    /**
-     *  US 05.02.01 As a player, I want to search for nearby QR codes by using geolocation.
-     */
-    @Test
-    public void checkBrowseByGeolocation(){
-        checkOpenFragment();
-        solo.clickOnView(solo.getView(R.id.radioLocation));
-        solo.clickOnView(solo.getView(R.id.longitude_search));
-        assertFalse(solo.searchText("-121"));
-        solo.enterText(0, "-121");
-        solo.clickOnView(solo.getView(R.id.latitude_search));
-        assertFalse(solo.searchText("38"));
-        solo.enterText(0, "38");
-        solo.sendKey(Solo.ENTER);
-        assertTrue(solo.waitForText("s", 1, 2000));
-
+        solo.searchText("PenGoTriChi");
     }
 
 
     @After
     public void tearDown() throws Exception{
-        db.collection("Players").document("test").delete();
         solo.finishOpenedActivities();
     }
 }

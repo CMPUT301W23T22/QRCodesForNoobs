@@ -65,23 +65,6 @@ public class SignInActivityTest {
         solo.enterText((EditText) solo.getView(R.id.username_EditText),"TestReynel");
         solo.clickOnView(solo.getView(R.id.sign_in_button));
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        //deleting the added entry
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Players")
-                .document("TestReynel")
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
-                });
     }
     /**
      * Signs into the app as a existing user with a different device, should remain on signin page.
