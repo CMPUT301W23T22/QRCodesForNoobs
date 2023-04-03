@@ -235,6 +235,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
      * Notify the RecyclerView's adapter to display the list of query documents.
      *
      * @param query User inputted string to be used to find documents in a Firebase collection.
+     *
      */
     public void submitQuery(String query, String locationQuery) {
         // Username Query
@@ -350,6 +351,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
 
     /**
      * Checks which radio button is selected and changes the Firebase collection path accordingly.
+     * Resets RadioGroup and SearchViews.
      *
      * @param db         Firebase database collection.
      * @param radioGroup Contains radio buttons.
