@@ -90,20 +90,11 @@ public class MapFragment extends Fragment {
         showMap();
     }
 
-    /**
-     * Called when the function is resumed, namely after the player grants permissions.
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        followPlayer();
-    }
-
     public void initiatePermissionCheckLauncher() {
         permissionCheckLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    followPlayer(); //THIS DOESN'T WORK FOR SOME UNGODLY REASON
+                    followPlayer();
                 } else {
                     notifyLocationNotGiven();
                 }
