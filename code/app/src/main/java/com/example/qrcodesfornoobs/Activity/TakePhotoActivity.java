@@ -77,6 +77,8 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
 
     /**
      * Called when the activity is starting.
+     * Requests camera or location permissions.
+     * Requests location updates on permission granted.
      *
      * @param savedInstanceState If the activity is being re-initialized then this Bundle contains the data
      */
@@ -423,7 +425,9 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         }
     }
 
-
+    /**
+     * Requests location updates.
+     */
     @SuppressLint("MissingPermission")
     private void getLocation() {
         try{
@@ -435,6 +439,10 @@ public class TakePhotoActivity extends AppCompatActivity implements LocationList
         }
     }
 
+    /**
+     * Gets and sets location name of user's current location.
+     * @param location  User's current location.
+     */
     @Override
     public void onLocationChanged(@NonNull Location location) {
         Toast.makeText(this, ""+location.getLatitude()+","+location.getLongitude(), Toast.LENGTH_SHORT);
