@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
@@ -59,6 +60,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
     private SearchView longitudeSearchView;
     private SearchView latitudeSearchView;
     private RecyclerView recyclerView;
+    private TextView endResult;
 
     // For Firebase
     private SearchAdapter searchAdapter;
@@ -133,6 +135,8 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         longitudeSearchView.setIconified(false);
         latitudeSearchView = view.findViewById(R.id.latitude_search);
         latitudeSearchView.setIconified(false);
+        endResult = view.findViewById(R.id.text_end_of_result);
+        endResult.setVisibility(View.INVISIBLE);
 
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -221,6 +225,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
         userCard.setVisibility(View.INVISIBLE);
         longitudeSearchView.setVisibility(View.INVISIBLE);
         latitudeSearchView.setVisibility(View.INVISIBLE);
+        endResult.setVisibility(View.INVISIBLE);
         userSearchView.clearFocus();
         longitudeSearchView.clearFocus();
         latitudeSearchView.clearFocus();
@@ -347,6 +352,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         });
             }
         }
+        endResult.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -381,6 +387,7 @@ public class SearchFragment extends Fragment implements SearchAdapter.RecyclerVi
                         userSearchView.setQuery("",false);
                         break;
                 }
+                endResult.setVisibility(View.INVISIBLE);
                 // Clear list on switching search by
                 searchList = new ArrayList<>();
                 SearchAdapter searchAdapter = new SearchAdapter(getContext(), searchList, rvInterface, "");
