@@ -144,7 +144,8 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
                                 // Fill array with creatures from database
                                 String contact = "None";
                                 if (dbPlayer.getContact() != null) contact = dbPlayer.getContact();
-                                contactText.setText("Contact Info: " + contact);
+                                        else contact= "This user hasn't entered any info about themselves";
+                                contactText.setText(contact);
                                 playerCreatureList = dbPlayer.getCreatures();
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns

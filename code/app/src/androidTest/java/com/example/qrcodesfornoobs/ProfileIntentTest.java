@@ -14,7 +14,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.example.qrcodesfornoobs.Activity.ProfileActivity;
 import com.example.qrcodesfornoobs.Fragment.CommentFragment;
+import com.example.qrcodesfornoobs.Models.Creature;
 import com.example.qrcodesfornoobs.Models.Player;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
@@ -26,10 +30,17 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 
 public class ProfileIntentTest {
 
     private Solo solo;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Creature mockCreature1;
+    private Creature mockCreature2;
+    private Creature mockCreature3;
+
 
     @Rule
     public ActivityTestRule<ProfileActivity> rule =
@@ -42,8 +53,23 @@ public class ProfileIntentTest {
      */
     @Before
     public void setUp() throws Exception {
+        // Initialize test data onto db
         Player.LOCAL_USERNAME = "testfranny";
-
+        Player mockPlayer = new Player(Player.LOCAL_USERNAME, "123321456654");
+        db.collection("Players").document(Player.LOCAL_USERNAME).set(mockPlayer);
+        ArrayList<String> comments = new ArrayList<>();
+        comments.add("test comment 1");
+        comments.add("test comment 2");
+        comments.add("test comment 3");
+        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null,null,null,comments);
+        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null,null,null,comments);
+        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null,null,null,comments);
+        db.collection("Creatures").document(mockCreature1.getHash()).set(mockCreature1);
+        db.collection("Creatures").document(mockCreature2.getHash()).set(mockCreature2);
+        db.collection("Creatures").document(mockCreature3.getHash()).set(mockCreature3);
+        db.collection("Players").document(Player.LOCAL_USERNAME).update("creatures", FieldValue.arrayUnion(mockCreature1.getHash()));
+        db.collection("Players").document(Player.LOCAL_USERNAME).update("creatures", FieldValue.arrayUnion(mockCreature2.getHash()));
+        db.collection("Players").document(Player.LOCAL_USERNAME).update("creatures", FieldValue.arrayUnion(mockCreature3.getHash()));
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
         rule.launchActivity(null);
 
@@ -283,7 +309,16 @@ public class ProfileIntentTest {
 
     @After
     public void tearDown() throws Exception {
-        solo.finishOpenedActivities();
+        db.collection("Players").document(Player.LOCAL_USERNAME).delete();
+        // Cleanup -> remove creatures from db
+        Creature mockCreature1 = new Creature("mockCreature1","123456",60,10,null,null,null,null,null);
+        Creature mockCreature2 = new Creature("mockCreature2","654321",10,6,null,null,null,null,null);
+        Creature mockCreature3 = new Creature("mockCreature3","111222",80,2,null,null,null,null,null);
+        db.collection("Creatures").document(mockCreature1.getHash()).delete();
+        db.collection("Creatures").document(mockCreature2.getHash()).delete();
+        db.collection("Creatures").document(mockCreature3.getHash()).delete();
 
+
+        solo.finishOpenedActivities();
     }
 }

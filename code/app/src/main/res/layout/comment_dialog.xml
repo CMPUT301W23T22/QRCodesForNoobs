@@ -129,6 +129,7 @@
                     android:hint="Write a comment..."
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF"
+                    android:padding="5dp"
                     android:visibility="gone" />
 
                 <Button
