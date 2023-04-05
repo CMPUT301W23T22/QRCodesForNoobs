@@ -23,6 +23,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -74,7 +75,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
     private TextView codeCount;
     private TextView playerScore;
     private TextView contactText;
-    private LinearLayout filterBar;
+    private ConstraintLayout filterBar;
     private Intent mainIntent;
     private Player currentPlayer;
     private Intent profileIntent;
@@ -143,7 +144,8 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
                                 // Fill array with creatures from database
                                 String contact = "None";
                                 if (dbPlayer.getContact() != null) contact = dbPlayer.getContact();
-                                contactText.setText("Contact Info: " + contact);
+                                        else contact= "This user hasn't entered any info about themselves";
+                                contactText.setText(contact);
                                 playerCreatureList = dbPlayer.getCreatures();
                                 if (!playerCreatureList.isEmpty()){
                                     // Queries the Creature collection on db for creatures that the player owns
@@ -167,6 +169,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileCodeArr
                                                         }
                                                         codeCount.setText(creaturesToDisplay.size() + " Codes Scanned");
                                                         playerScore.setText(totalScore + " Points");
+                                                        sort(sortListSpinner.getSelectedItem().toString());
                                                         codeArrayAdapter.notifyDataSetChanged();
                                                     } else {
                                                         Log.d(TAG, "get failed with ", task.getException());

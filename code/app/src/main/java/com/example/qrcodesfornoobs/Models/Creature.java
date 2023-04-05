@@ -17,8 +17,10 @@ public class Creature {
     private int score; // const
     private int numOfScans = 1; // update every scan
     private String photoCreatureUrl; // const
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
+    private String locationName;
+    private String geoHash;
     private String photoLocationUrl; // update every scan
     private ArrayList<String> comments = new ArrayList<>(); // update every comment
 
@@ -51,12 +53,14 @@ public class Creature {
      * @param name String Value
      * @param latitude Latitude double
      * @param longitude Longitude double
+     * @param locationName String of location's name
      * @param comments list of String
      * @param hash String
+     * @param geoHash String of geolocation hash
      * @param score int
      * @param numOfScans int that represent how many players have scanned a Creature
      */
-    public Creature(String name, String hash, int score, int numOfScans, double latitude, double longitude, ArrayList<String> comments){
+    public Creature(String name, String hash, int score, int numOfScans, Double latitude, Double longitude, String locationName, String geoHash, ArrayList<String> comments){
         //this will be used when creature is already in database
         this.name = name;
         this.hash = hash;
@@ -64,6 +68,8 @@ public class Creature {
         this.numOfScans = numOfScans;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.locationName = locationName;
+        this.geoHash = geoHash;
         this.comments = comments;
     }
 
@@ -170,7 +176,7 @@ public class Creature {
      * @return Location, assigned location of a Creature.
      * @see Creature
      */
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
     /**
@@ -178,9 +184,24 @@ public class Creature {
      * @return Location, assigned location of a Creature.
      * @see Creature
      */
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
+
+    /**
+     * Getter for a Creature's location name.
+     * @return String, location name.
+     * @see Creature
+     */
+    public String getLocationName(){
+        return locationName;
+    }
+    /**
+     * Getter for Creature's geolocation hash.
+     * @return String, geolocation hash.
+     * @see Creature
+     */
+    public String getGeoHash(){return geoHash;}
     /**
      * Getter for a Creature's location value. **implemented in part4
      * @return List of Creature's comments.
@@ -202,7 +223,7 @@ public class Creature {
      * @param latitude latitude value
      * @see Creature
      */
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
     /**
@@ -211,9 +232,23 @@ public class Creature {
      * @param longitude longitude value
      * @see Creature
      */
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+    /**
+     * Setter for a Creature's location name.
+     * @param locationName, String value
+     * @see Creature
+     */
+    public void setLocationName(String locationName){
+        this.locationName = locationName;
+    }
+    /**
+     * Setter for a Creature's geolocation hash.
+     * @param geoHash, String
+     * @see Creature
+     */
+    public void setGeoHash(String geoHash){this.geoHash = geoHash;}
     /**
      * Setter for a Creature's photoCreatureUrl value.
      * @param photoCreatureUrl, String value

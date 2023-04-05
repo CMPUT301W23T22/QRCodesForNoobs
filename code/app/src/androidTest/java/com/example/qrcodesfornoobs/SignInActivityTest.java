@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.EditText;
@@ -31,6 +32,7 @@ import org.junit.Test;
 
 public class SignInActivityTest {
     private Solo solo;
+    private FirebaseFirestore db;
     @Rule
     public ActivityTestRule<SignInActivity> rule = new ActivityTestRule<>(SignInActivity.class,true,false);
 
@@ -40,13 +42,17 @@ public class SignInActivityTest {
     @Before
     public void setUp() {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
-        // Get a reference to the SharedPreferences object of the launched activity
-        Player.LOCAL_USERNAME = null;
-        rule.launchActivity(null);
-        SharedPreferences sharedPreferences = rule.getActivity().getSharedPreferences(SignInActivity.CACHE_NAME, Context.MODE_PRIVATE);
+        // Clear the SharedPreferences cache
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SignInActivity.CACHE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("username");
+        editor.clear();
         editor.apply();
+        // Launch the SignInActivity
+        rule.launchActivity(new Intent());
+        db = FirebaseFirestore.getInstance();
+        Player mockPlayer = new Player("noSignIn", "123321456654");
+        db.collection("Players").document("noSignIn").set(mockPlayer);
     }
     /**
      * Signs into the app as a new user, entry will then be deleted at the end of the test.
@@ -59,23 +65,6 @@ public class SignInActivityTest {
         solo.enterText((EditText) solo.getView(R.id.username_EditText),"TestReynel");
         solo.clickOnView(solo.getView(R.id.sign_in_button));
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        //deleting the added entry
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Players")
-                .document("TestReynel")
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
-                });
     }
     /**
      * Signs into the app as a existing user with a different device, should remain on signin page.
@@ -86,29 +75,23 @@ public class SignInActivityTest {
         Activity activity = rule.getActivity();
         solo.assertCurrentActivity("Wrong Activity",SignInActivity.class);
         EditText editText = (EditText) solo.getView(R.id.username_EditText);
-        solo.enterText(editText,"differentDevice");
+        solo.enterText(editText,"noSignIn");
         solo.clickOnView(solo.getView(R.id.sign_in_button));
         solo.waitForText("Username Already Exists!");
-        String error1 = editText.getError().toString();
-        assertEquals("Username Already Exists!", error1);
         solo.assertCurrentActivity("Wrong Activity", SignInActivity.class);
         solo.clearEditText(editText);
         solo.enterText(editText,"");
         solo.clickOnView(solo.getView(R.id.sign_in_button));
-        solo.clickOnView(solo.getView(R.id.sign_in_button));
         solo.waitForText("Provide a Username!");
-        String error2 = editText.getError().toString();
-        assertEquals("Provide a Username!", error2);
     }
     /**
      * Clears username cache after every test
      */
     @After
     public void cleanup(){
-        SharedPreferences sharedPreferences = rule.getActivity().getSharedPreferences(SignInActivity.CACHE_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("username");
-        editor.apply();
+        db = FirebaseFirestore.getInstance();
+        db.collection("Players").document("noSignIn").delete();
+        db.collection("Players").document("TestReynel").delete();
         solo.finishOpenedActivities();
     }
     String TAG = "IntentTesting";

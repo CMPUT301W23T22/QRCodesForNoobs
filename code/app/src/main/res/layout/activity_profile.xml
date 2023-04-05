@@ -18,20 +18,22 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="192dp"
-            android:orientation="vertical"
-            android:background="#595759">
+            android:background="#595759"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/profile_playername_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
+                android:layout_marginTop="36dp"
                 android:fontFamily="sans-serif"
+                android:gravity="center"
                 android:text="Player Name"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,38 +41,25 @@
                 android:id="@+id/profile_playerpoints_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="0 Points"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                app:layout_constraintBottom_toTopOf="@+id/profile_playercodecount_textview"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/profile_playername_textview"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_playername_textview" />
 
             <TextView
                 android:id="@+id/profile_playercodecount_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="0 Codes Scanned"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.503"
-                app:layout_constraintStart_toEndOf="@+id/profile_playername_textview"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/profile_contact_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Contact Info"
-                android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/profile_playername_textview"
-                app:layout_constraintTop_toBottomOf="@+id/profile_playercodecount_textview" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_playerpoints_textview" />
 
             <ImageButton
                 android:id="@+id/edit_profile_button"
@@ -83,15 +72,37 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/edit_fill0_wght400_grad0_opsz48" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_playercodecount_textview">
 
+                <TextView
+                    android:id="@+id/profile_contact_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Contact Info"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="35dp"
             android:visibility="visible">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/filterbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -100,12 +111,16 @@
 
                 <Spinner
                     android:id="@+id/sort_list_spinner"
-                    android:layout_width="310dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:padding="5dp"
                     android:backgroundTint="#595759"
-                    android:spinnerMode="dropdown" />
+                    android:spinnerMode="dropdown"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </LinearLayout>
@@ -113,7 +128,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="#121112">

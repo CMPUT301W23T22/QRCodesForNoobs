@@ -93,7 +93,18 @@ public class DashboardFragment extends Fragment {
                 binding.progressBar.setVisibility(View.GONE);
                 return;
             }
-            ArrayList<String> ownedCreatures = task.getResult().toObject(Player.class).getCreatures();
+            Player player = task.getResult().toObject(Player.class);
+            if (player == null){
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to get owned creatures.", Toast.LENGTH_SHORT).show();
+                } else if (getActivity() != null) {
+                    Toast.makeText(getActivity(), "Failed to get owned creatures.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "Both getContext() and getActivity() returned null");
+                }
+                return;
+            }
+            ArrayList<String> ownedCreatures = player.getCreatures();
             // if no creatures owned, set rank to N/A
             if (ownedCreatures.isEmpty()) {
                 binding.rankTextView.setText("N/A");
@@ -142,7 +153,7 @@ public class DashboardFragment extends Fragment {
                         }
                     }
                     // calculate rank
-                    if (finalOwnedUniqueHighestScore  > dbHighestScore) {
+                    if (finalOwnedUniqueHighestScore  >= dbHighestScore) {
                         binding.rankTextView.setText("1");
                         binding.progressBar.setVisibility(View.GONE);
                         return;
@@ -198,8 +209,9 @@ public class DashboardFragment extends Fragment {
 
 
     /**
-     * This method is used to set up the slider on the dashboard fragment.
-     * It sets up a slider adapter with code URLs and sets the adapter on the slider view.
+     * Sets up the sliders for the dashboard view by fetching player's creatures from the Firestore database.
+     * It initializes the creature list, listens for changes in the player's document, and updates the slider view
+     * and total score accordingly.
      */
     private void setUpSliders() {
 
